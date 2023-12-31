@@ -1,5 +1,5 @@
-use astroport::asset::addr_opt_validate;
-use astroport::cw20_ics20::TransferMsg;
+use gridiron::asset::addr_opt_validate;
+use gridiron::cw20_ics20::TransferMsg;
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
 use cosmwasm_std::{
@@ -229,7 +229,7 @@ pub fn execute_update_hook_address(
 }
 
 const MIGRATE_MIN_VERSION: &str = "0.13.4";
-const MIGRATE_VERSION_ASTROPORT_V1: &str = "1.1.1";
+const MIGRATE_VERSION_GRIDIRON_V1: &str = "1.1.1";
 
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn migrate(deps: DepsMut, _env: Env, msg: MigrateMsg) -> Result<Response, ContractError> {
@@ -257,8 +257,8 @@ pub fn migrate(deps: DepsMut, _env: Env, msg: MigrateMsg) -> Result<Response, Co
             previous_version: stored.version,
         });
     }
-    // Run the migration from minimum v0.13.4 to our custom Astroport v1.1.1
-    if storage_version <= MIGRATE_VERSION_ASTROPORT_V1.parse().map_err(from_semver)? {
+    // Run the migration from minimum v0.13.4 to our custom Gridiron v1.1.1
+    if storage_version <= MIGRATE_VERSION_GRIDIRON_V1.parse().map_err(from_semver)? {
         let old_config = standard_v1::CONFIG.load(deps.storage)?;
         let config = Config {
             default_timeout: old_config.default_timeout,
@@ -444,7 +444,7 @@ mod test {
         .unwrap_err();
         assert_eq!(
             err,
-            StdError::not_found("astroport_cw20_ics20::state::ChannelInfo")
+            StdError::not_found("gridiron_cw20_ics20::state::ChannelInfo")
         );
     }
 
@@ -595,7 +595,7 @@ mod test {
     }
 
     #[test]
-    fn astroport_v1_migration_works() {
+    fn gridiron_v1_migration_works() {
         // basic state with one channel
         let send_channel = "channel-15";
         let cw20_addr = "my-token";
@@ -605,7 +605,7 @@ mod test {
         // pretend this is an old contract - set version explicitly
         set_contract_version(deps.as_mut().storage, CONTRACT_NAME, MIGRATE_MIN_VERSION).unwrap();
 
-        // run migration to custom Astroport version
+        // run migration to custom Gridiron version
         migrate(
             deps.as_mut(),
             mock_env(),

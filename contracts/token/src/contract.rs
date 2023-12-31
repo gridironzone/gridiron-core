@@ -9,11 +9,11 @@ use cw20_base::msg::{ExecuteMsg, QueryMsg};
 use cw20_base::state::{MinterData, TokenInfo, LOGO, MARKETING_INFO, TOKEN_INFO};
 use cw20_base::ContractError;
 
-use astroport::asset::addr_opt_validate;
-use astroport::token::{InstantiateMsg, MigrateMsg};
+use gridiron::asset::addr_opt_validate;
+use gridiron::token::{InstantiateMsg, MigrateMsg};
 
 /// Contract name that is used for migration.
-const CONTRACT_NAME: &str = "astroport-token";
+const CONTRACT_NAME: &str = "gridiron-token";
 /// Contract version that is used for migration.
 const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
 
@@ -167,7 +167,7 @@ pub fn migrate(deps: DepsMut, _env: Env, _msg: MigrateMsg) -> StdResult<Response
     let contract_version = get_contract_version(deps.storage)?;
 
     match contract_version.contract.as_ref() {
-        "astroport-token" => match contract_version.version.as_ref() {
+        "gridiron-token" => match contract_version.version.as_ref() {
             "1.0.0" | "1.1.0" => {}
             _ => {
                 return Err(StdError::generic_err(
@@ -197,7 +197,7 @@ mod tests {
     use cosmwasm_std::{Addr, StdError};
 
     use super::*;
-    use astroport::token::InstantiateMarketingInfo;
+    use gridiron::token::InstantiateMarketingInfo;
 
     mod marketing {
         use cw20::DownloadLogoResponse;

@@ -5,23 +5,23 @@ use cosmwasm_std::{
 };
 use itertools::Itertools;
 
-use astroport::asset::{Asset, AssetInfo};
-use astroport::cosmwasm_ext::{DecimalToInteger, IntegerToDecimal};
-use astroport::observation::query_observation;
-use astroport::pair::{
+use gridiron::asset::{Asset, AssetInfo};
+use gridiron::cosmwasm_ext::{DecimalToInteger, IntegerToDecimal};
+use gridiron::observation::query_observation;
+use gridiron::pair::{
     ConfigResponse, PoolResponse, ReverseSimulationResponse, SimulationResponse,
 };
 
-use astroport::pair_concentrated::{ConcentratedPoolConfig, QueryMsg};
-use astroport::querier::{query_factory_config, query_fee_info, query_supply};
+use gridiron::pair_concentrated::{ConcentratedPoolConfig, QueryMsg};
+use gridiron::querier::{query_factory_config, query_fee_info, query_supply};
 
 use crate::contract::LP_TOKEN_PRECISION;
 use crate::error::ContractError;
-use astroport_pcl_common::state::Precisions;
-use astroport_pcl_common::utils::{
+use gridiron_pcl_common::state::Precisions;
+use gridiron_pcl_common::utils::{
     before_swap_check, compute_offer_amount, compute_swap, get_share_in_assets,
 };
-use astroport_pcl_common::{calc_d, get_xcp};
+use gridiron_pcl_common::{calc_d, get_xcp};
 
 use crate::state::{BALANCES, CONFIG, OBSERVATIONS};
 
@@ -309,8 +309,8 @@ mod testing {
     use std::error::Error;
     use std::str::FromStr;
 
-    use astroport::observation::{query_observation, Observation, OracleObservation};
-    use astroport_circular_buffer::BufferManager;
+    use gridiron::observation::{query_observation, Observation, OracleObservation};
+    use gridiron_circular_buffer::BufferManager;
     use cosmwasm_std::testing::{mock_dependencies, mock_env};
     use cosmwasm_std::Timestamp;
 

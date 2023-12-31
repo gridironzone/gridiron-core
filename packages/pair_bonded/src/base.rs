@@ -1,13 +1,13 @@
 use crate::error::ContractError;
 use crate::state::CONFIG;
-use astroport::asset::{addr_opt_validate, Asset, AssetInfo, PairInfo};
-use astroport::factory::PairType;
-use astroport::pair::{
+use gridiron::asset::{addr_opt_validate, Asset, AssetInfo, PairInfo};
+use gridiron::factory::PairType;
+use gridiron::pair::{
     ConfigResponse, CumulativePricesResponse, Cw20HookMsg, InstantiateMsg, PoolResponse,
     ReverseSimulationResponse, SimulationResponse,
 };
-use astroport::pair_bonded::{Config, ExecuteMsg, QueryMsg};
-use astroport::querier::query_factory_config;
+use gridiron::pair_bonded::{Config, ExecuteMsg, QueryMsg};
+use gridiron::querier::query_factory_config;
 use cosmwasm_std::{
     from_binary, to_binary, Addr, Binary, Decimal, Deps, DepsMut, Env, MessageInfo, Response,
     StdResult, Uint128,

@@ -2,12 +2,12 @@
 use cosmwasm_std::entry_point;
 use cosmwasm_std::{to_binary, Binary, Deps, Env, StdError, StdResult, Uint128};
 
-use astroport::asset::{Asset, PairInfo};
-use astroport::factory::PairType;
-use astroport::liquidity_manager::QueryMsg;
-use astroport::pair::{ExecuteMsg as PairExecuteMsg, QueryMsg as PairQueryMsg};
-use astroport::querier::query_supply;
-use astroport_pair::contract::get_share_in_assets;
+use gridiron::asset::{Asset, PairInfo};
+use gridiron::factory::PairType;
+use gridiron::liquidity_manager::QueryMsg;
+use gridiron::pair::{ExecuteMsg as PairExecuteMsg, QueryMsg as PairQueryMsg};
+use gridiron::querier::query_supply;
+use gridiron_pair::contract::get_share_in_assets;
 
 use crate::error::ContractError;
 use crate::utils::{convert_config, stableswap_provide_simulation, xyk_provide_simulation};
@@ -143,9 +143,9 @@ mod tests {
 
     use cosmwasm_std::{Addr, Decimal};
 
-    use astroport::asset::{native_asset_info, token_asset_info, AssetInfoExt};
-    use astroport::liquidity_manager::{Cw20HookMsg, ExecuteMsg};
-    use astroport::pair::{Cw20HookMsg as PairCw20HookMsg, ExecuteMsg as PairExecuteMsg};
+    use gridiron::asset::{native_asset_info, token_asset_info, AssetInfoExt};
+    use gridiron::liquidity_manager::{Cw20HookMsg, ExecuteMsg};
+    use gridiron::pair::{Cw20HookMsg as PairCw20HookMsg, ExecuteMsg as PairExecuteMsg};
 
     use super::*;
 

@@ -5,9 +5,9 @@ use injective_cosmwasm::{
     InjectiveQuerier, InjectiveQueryWrapper, MarketId, MarketType, SubaccountId,
 };
 
-use astroport::asset::{Asset, AssetInfo, AssetInfoExt};
-use astroport::cosmwasm_ext::ConvertInto;
-use astroport::pair_concentrated_inj::OrderbookStateResponse;
+use gridiron::asset::{Asset, AssetInfo, AssetInfoExt};
+use gridiron::cosmwasm_ext::ConvertInto;
+use gridiron::pair_concentrated_inj::OrderbookStateResponse;
 
 use crate::orderbook::consts::{MIN_TRADES_TO_AVG_LIMITS, ORDER_SIZE_LIMITS};
 use crate::orderbook::error::OrderbookError;

@@ -9,14 +9,14 @@ use crate::utils::{
     update_second_receiver_cfg, validate_bridge, BRIDGES_EXECUTION_MAX_DEPTH,
     BRIDGES_INITIAL_DEPTH,
 };
-use astroport::asset::{addr_opt_validate, Asset, AssetInfo};
-use astroport::common::{claim_ownership, drop_ownership_proposal, propose_new_owner};
-use astroport::factory::UpdateAddr;
-use astroport::maker::{
+use gridiron::asset::{addr_opt_validate, Asset, AssetInfo};
+use gridiron::common::{claim_ownership, drop_ownership_proposal, propose_new_owner};
+use gridiron::factory::UpdateAddr;
+use gridiron::maker::{
     AssetWithLimit, BalancesResponse, Config, ConfigResponse, ExecuteMsg, InstantiateMsg,
     MigrateMsg, QueryMsg, SecondReceiverConfig, SecondReceiverParams,
 };
-use astroport::pair::MAX_ALLOWED_SLIPPAGE;
+use gridiron::pair::MAX_ALLOWED_SLIPPAGE;
 use cosmwasm_std::{
     attr, entry_point, to_binary, Addr, Attribute, Binary, Decimal, Deps, DepsMut, Env,
     MessageInfo, Order, Response, StdError, StdResult, SubMsg, Uint128, Uint64,
@@ -26,10 +26,10 @@ use std::collections::{HashMap, HashSet};
 use std::str::FromStr;
 
 /// Contract name that is used for migration.
-const CONTRACT_NAME: &str = "astroport-maker";
+const CONTRACT_NAME: &str = "gridiron-maker";
 /// Contract version that is used for migration.
 const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
-/// Sets the default maximum spread (as a percentage) used when swapping fee tokens to ASTRO.
+/// Sets the default maximum spread (as a percentage) used when swapping fee tokens to GRID.
 const DEFAULT_MAX_SPREAD: u64 = 5; // 5%
 
 /// Creates a new contract with the specified parameters in [`InstantiateMsg`].
@@ -66,7 +66,7 @@ pub fn instantiate(
         Decimal::percent(DEFAULT_MAX_SPREAD)
     };
 
-    msg.astro_token.check(deps.api)?;
+    msg.grid_token.check(deps.api)?;
 
     if let Some(default_bridge) = &msg.default_bridge {
         default_bridge.check(deps.api)?
@@ -75,14 +75,14 @@ pub fn instantiate(
     let mut cfg = Config {
         owner: deps.api.addr_validate(&msg.owner)?,
         default_bridge: msg.default_bridge,
-        astro_token: msg.astro_token,
+        grid_token: msg.grid_token,
         factory_contract: deps.api.addr_validate(&msg.factory_contract)?,
         staking_contract: addr_opt_validate(deps.api, &msg.staking_contract)?,
         rewards_enabled: false,
         pre_upgrade_blocks: 0,
         last_distribution_block: 0,
         remainder_reward: Uint128::zero(),
-        pre_upgrade_astro_amount: Uint128::zero(),
+        pre_upgrade_grid_amount: Uint128::zero(),
         governance_contract,
         governance_percent,
         max_spread,
@@ -120,7 +120,7 @@ pub fn instantiate(
                 .map(|v| v.to_string())
                 .unwrap_or_else(|| String::from("none")),
         ),
-        attr("astro_token", cfg.astro_token.to_string()),
+        attr("grid_token", cfg.grid_token.to_string()),
         attr("factory_contract", msg.factory_contract),
         attr(
             "staking_contract",
@@ -141,8 +141,8 @@ pub fn instantiate(
 /// Exposes execute functions available in the contract.
 ///
 /// ## Variants
-/// * **ExecuteMsg::Collect { assets }** Swaps collected fee tokens to ASTRO
-/// and distributes the ASTRO between xASTRO and vxASTRO stakers.
+/// * **ExecuteMsg::Collect { assets }** Swaps collected fee tokens to GRID
+/// and distributes the GRID between xGRID and vxGRID stakers.
 ///
 /// * **ExecuteMsg::UpdateConfig {
 ///             factory_contract,
@@ -153,11 +153,11 @@ pub fn instantiate(
 ///             second_receiver_params,
 ///         }** Updates general contract settings stores in the [`Config`].
 ///
-/// * **ExecuteMsg::UpdateBridges { add, remove }** Adds or removes bridge assets used to swap fee tokens to ASTRO.
+/// * **ExecuteMsg::UpdateBridges { add, remove }** Adds or removes bridge assets used to swap fee tokens to GRID.
 ///
-/// * **ExecuteMsg::SwapBridgeAssets { assets }** Swap fee tokens (through bridges) to ASTRO.
+/// * **ExecuteMsg::SwapBridgeAssets { assets }** Swap fee tokens (through bridges) to GRID.
 ///
-/// * **ExecuteMsg::DistributeAstro {}** Private method used by the contract to distribute ASTRO rewards.
+/// * **ExecuteMsg::DistributeGrid {}** Private method used by the contract to distribute GRID rewards.
 ///
 /// * **ExecuteMsg::ProposeNewOwner { owner, expires_in }** Creates a new request to change contract ownership.
 ///
@@ -165,7 +165,7 @@ pub fn instantiate(
 ///
 /// * **ExecuteMsg::ClaimOwnership {}** Claims contract ownership.
 ///
-/// * **ExecuteMsg::EnableRewards** Enables collected ASTRO (pre Maker upgrade) to be distributed to xASTRO stakers.
+/// * **ExecuteMsg::EnableRewards** Enables collected GRID (pre Maker upgrade) to be distributed to xGRID stakers.
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn execute(
     deps: DepsMut,
@@ -198,7 +198,7 @@ pub fn execute(
         ExecuteMsg::SwapBridgeAssets { assets, depth } => {
             swap_bridge_assets(deps, env, info, assets, depth)
         }
-        ExecuteMsg::DistributeAstro {} => distribute_astro(deps, env, info),
+        ExecuteMsg::DistributeGrid {} => distribute_grid(deps, env, info),
         ExecuteMsg::ProposeNewOwner { owner, expires_in } => {
             let config: Config = CONFIG.load(deps.storage)?;
 
@@ -259,9 +259,9 @@ pub fn execute(
     }
 }
 
-/// Swaps fee tokens to ASTRO and distribute the resulting ASTRO to xASTRO and vxASTRO stakers.
+/// Swaps fee tokens to GRID and distribute the resulting GRID to xGRID and vxGRID stakers.
 ///
-/// * **assets** array with fee tokens being swapped to ASTRO.
+/// * **assets** array with fee tokens being swapped to GRID.
 fn collect(
     deps: DepsMut,
     env: Env,
@@ -269,7 +269,7 @@ fn collect(
 ) -> Result<Response, ContractError> {
     let mut cfg = CONFIG.load(deps.storage)?;
 
-    let astro = cfg.astro_token.clone();
+    let grid = cfg.grid_token.clone();
 
     // Check for duplicate assets
     let mut uniq = HashSet::new();
@@ -281,16 +281,16 @@ fn collect(
         return Err(ContractError::DuplicatedAsset {});
     }
 
-    // Swap all non ASTRO tokens
+    // Swap all non GRID tokens
     let (mut response, bridge_assets) = swap_assets(
         deps.as_ref(),
         &env.contract.address,
         &cfg,
-        assets.into_iter().filter(|a| a.info.ne(&astro)).collect(),
+        assets.into_iter().filter(|a| a.info.ne(&grid)).collect(),
         true,
     )?;
 
-    // If no swap messages - send ASTRO directly to x/vxASTRO stakers
+    // If no swap messages - send GRID directly to x/vxGRID stakers
     if response.messages.is_empty() {
         let (mut distribute_msg, attributes) = distribute(deps, env, &mut cfg)?;
         if !distribute_msg.is_empty() {
@@ -310,15 +310,15 @@ fn collect(
 
 /// This enum describes available token types that can be used as a SwapTarget.
 enum SwapTarget {
-    Astro(SubMsg),
+    Grid(SubMsg),
     Bridge { asset: AssetInfo, msg: SubMsg },
 }
 
-/// Swap all non ASTRO tokens to ASTRO.
+/// Swap all non GRID tokens to GRID.
 ///
 /// * **contract_addr** maker contract address.
 ///
-/// * **assets** array with assets to swap to ASTRO.
+/// * **assets** array with assets to swap to GRID.
 ///
 /// * **with_validation** whether the swap operation should be validated or not.
 fn swap_assets(
@@ -348,7 +348,7 @@ fn swap_assets(
             };
 
             match swap_msg {
-                SwapTarget::Astro(msg) => {
+                SwapTarget::Grid(msg) => {
                     response.messages.push(msg);
                 }
                 SwapTarget::Bridge { asset, msg } => {
@@ -362,9 +362,9 @@ fn swap_assets(
     Ok((response, bridge_assets.into_values().collect()))
 }
 
-/// Checks if all required pools and bridges exists and performs a swap operation to ASTRO.
+/// Checks if all required pools and bridges exists and performs a swap operation to GRID.
 ///
-/// * **from_token** token to swap to ASTRO.
+/// * **from_token** token to swap to GRID.
 ///
 /// * **amount_in** amount of tokens to swap.
 fn swap(
@@ -381,7 +381,7 @@ fn swap(
             &cfg.factory_contract,
             &from_token,
             &bridge_token,
-            &cfg.astro_token,
+            &cfg.grid_token,
             BRIDGES_INITIAL_DEPTH,
         )?;
 
@@ -412,20 +412,20 @@ fn swap(
         }
     }
 
-    // 3. Check for a direct pair with ASTRO
-    let swap_to_astro =
-        try_build_swap_msg(&deps.querier, cfg, &from_token, &cfg.astro_token, amount_in);
-    if let Ok(msg) = swap_to_astro {
-        return Ok(SwapTarget::Astro(msg));
+    // 3. Check for a direct pair with GRID
+    let swap_to_grid =
+        try_build_swap_msg(&deps.querier, cfg, &from_token, &cfg.grid_token, amount_in);
+    if let Ok(msg) = swap_to_grid {
+        return Ok(SwapTarget::Grid(msg));
     }
 
     Err(ContractError::CannotSwap(from_token))
 }
 
-/// Performs a swap operation to ASTRO without additional checks.
+/// Performs a swap operation to GRID without additional checks.
 /// was successful.
 ///
-/// * **from_token** token to swap to ASTRO.
+/// * **from_token** token to swap to GRID.
 ///
 /// * **amount_in** amount of tokens to swap.
 fn swap_no_validate(
@@ -434,7 +434,7 @@ fn swap_no_validate(
     from_token: AssetInfo,
     amount_in: Uint128,
 ) -> Result<SwapTarget, ContractError> {
-    let astro = cfg.astro_token.clone();
+    let grid = cfg.grid_token.clone();
 
     // Check if next level bridge exists
     let bridge_token = BRIDGES.load(deps.storage, from_token.to_string());
@@ -443,10 +443,10 @@ fn swap_no_validate(
         return Ok(SwapTarget::Bridge { asset, msg });
     }
 
-    // Check for a direct swap to ASTRO
-    let swap_to_astro = try_build_swap_msg(&deps.querier, cfg, &from_token, &astro, amount_in);
-    if let Ok(msg) = swap_to_astro {
-        return Ok(SwapTarget::Astro(msg));
+    // Check for a direct swap to GRID
+    let swap_to_grid = try_build_swap_msg(&deps.querier, cfg, &from_token, &grid, amount_in);
+    if let Ok(msg) = swap_to_grid {
+        return Ok(SwapTarget::Grid(msg));
     }
 
     Err(ContractError::CannotSwap(from_token))
@@ -505,11 +505,11 @@ fn swap_bridge_assets(
         .add_attribute("action", "swap_bridge_assets"))
 }
 
-/// Distributes ASTRO rewards to x/vxASTRO holders.
+/// Distributes GRID rewards to x/vxGRID holders.
 ///
 /// ## Executor
 /// Only the Maker contract itself can execute this.
-fn distribute_astro(deps: DepsMut, env: Env, info: MessageInfo) -> Result<Response, ContractError> {
+fn distribute_grid(deps: DepsMut, env: Env, info: MessageInfo) -> Result<Response, ContractError> {
     if info.sender != env.contract.address {
         return Err(ContractError::Unauthorized {});
     }
@@ -527,7 +527,7 @@ fn distribute_astro(deps: DepsMut, env: Env, info: MessageInfo) -> Result<Respon
 
 type DistributeMsgParts = (Vec<SubMsg>, Vec<Attribute>);
 
-/// Private function that performs the ASTRO token distribution to x/vxASTRO.
+/// Private function that performs the GRID token distribution to x/vxGRID.
 fn distribute(
     deps: DepsMut,
     env: Env,
@@ -537,16 +537,16 @@ fn distribute(
     let mut attributes = vec![];
 
     let mut amount = cfg
-        .astro_token
+        .grid_token
         .query_pool(&deps.querier, &env.contract.address)?;
     if amount.is_zero() {
         return Ok((result, attributes));
     }
-    let mut pure_astro_reward = amount;
+    let mut pure_grid_reward = amount;
     let mut current_preupgrade_distribution = Uint128::zero();
 
     if !cfg.rewards_enabled {
-        cfg.pre_upgrade_astro_amount = amount;
+        cfg.pre_upgrade_grid_amount = amount;
         cfg.remainder_reward = amount;
         CONFIG.save(deps.storage, cfg)?;
         return Ok((result, attributes));
@@ -556,25 +556,25 @@ fn distribute(
             return Ok((result, attributes));
         }
         let mut remainder_reward = cfg.remainder_reward;
-        let astro_distribution_portion = cfg
-            .pre_upgrade_astro_amount
+        let grid_distribution_portion = cfg
+            .pre_upgrade_grid_amount
             .checked_div(Uint128::from(cfg.pre_upgrade_blocks))?;
 
         current_preupgrade_distribution = min(
-            Uint128::from(blocks_passed).checked_mul(astro_distribution_portion)?,
+            Uint128::from(blocks_passed).checked_mul(grid_distribution_portion)?,
             remainder_reward,
         );
 
         // Subtract undistributed rewards
         amount = amount.checked_sub(remainder_reward)?;
-        pure_astro_reward = amount;
+        pure_grid_reward = amount;
 
-        // Add the amount of pre Maker upgrade accrued ASTRO from fee token swaps
+        // Add the amount of pre Maker upgrade accrued GRID from fee token swaps
         amount = amount.checked_add(current_preupgrade_distribution)?;
 
         remainder_reward = remainder_reward.checked_sub(current_preupgrade_distribution)?;
 
-        // Reduce the amount of pre-upgrade ASTRO that has to be distributed
+        // Reduce the amount of pre-upgrade GRID that has to be distributed
         cfg.remainder_reward = remainder_reward;
         cfg.last_distribution_block = env.block.height;
         CONFIG.save(deps.storage, cfg)?;
@@ -588,7 +588,7 @@ fn distribute(
 
         if !amount.is_zero() {
             let asset = Asset {
-                info: cfg.astro_token.clone(),
+                info: cfg.grid_token.clone(),
                 amount,
             };
 
@@ -610,7 +610,7 @@ fn distribute(
         if !amount.is_zero() {
             result.push(SubMsg::new(build_send_msg(
                 &Asset {
-                    info: cfg.astro_token.clone(),
+                    info: cfg.grid_token.clone(),
                     amount,
                 },
                 governance_contract.to_string(),
@@ -627,7 +627,7 @@ fn distribute(
         let amount = amount.checked_sub(governance_amount + second_receiver_amount)?;
         if !amount.is_zero() {
             let to_staking_asset = Asset {
-                info: cfg.astro_token.clone(),
+                info: cfg.grid_token.clone(),
                 amount,
             };
             result.push(SubMsg::new(to_staking_asset.into_msg(staking_contract)?));
@@ -635,12 +635,12 @@ fn distribute(
     }
 
     attributes = vec![
-        attr("action", "distribute_astro"),
-        attr("astro_distribution", pure_astro_reward),
+        attr("action", "distribute_grid"),
+        attr("grid_distribution", pure_grid_reward),
     ];
     if !current_preupgrade_distribution.is_zero() {
         attributes.push(attr(
-            "preupgrade_astro_distribution",
+            "preupgrade_grid_distribution",
             current_preupgrade_distribution,
         ));
     }
@@ -652,15 +652,15 @@ fn distribute(
 ///
 /// * **factory_contract** address of the factory contract.
 ///
-/// * **staking_contract** address of the xASTRO staking contract.
+/// * **staking_contract** address of the xGRID staking contract.
 ///
-/// * **governance_contract** address of the vxASTRO fee distributor contract.
+/// * **governance_contract** address of the vxGRID fee distributor contract.
 ///
-/// * **governance_percent** percentage of ASTRO that goes to the vxASTRO fee distributor.
+/// * **governance_percent** percentage of GRID that goes to the vxGRID fee distributor.
 ///
-/// * **default_bridge_opt** default bridge asset used for intermediate swaps to ASTRO.
+/// * **default_bridge_opt** default bridge asset used for intermediate swaps to GRID.
 ///
-/// * **max_spread** max spread used when swapping fee tokens to ASTRO.
+/// * **max_spread** max spread used when swapping fee tokens to GRID.
 ///
 /// * **second_receiver_params** describes the second receiver of fees
 ///
@@ -761,7 +761,7 @@ fn update_config(
     Ok(Response::new().add_attributes(attributes))
 }
 
-/// Adds or removes bridge tokens used to swap fee tokens to ASTRO.
+/// Adds or removes bridge tokens used to swap fee tokens to GRID.
 ///
 /// * **add** array of bridge tokens added to swap fee tokens with.
 ///
@@ -793,20 +793,20 @@ fn update_bridges(
     }
 
     // Add new bridges
-    let astro = cfg.astro_token.clone();
+    let grid = cfg.grid_token.clone();
     if let Some(add_bridges) = add {
         for (asset, bridge) in add_bridges {
             if asset.equal(&bridge) {
                 return Err(ContractError::InvalidBridge(asset, bridge));
             }
 
-            // Check that bridge tokens can be swapped to ASTRO
+            // Check that bridge tokens can be swapped to GRID
             validate_bridge(
                 deps.as_ref(),
                 &cfg.factory_contract,
                 &asset,
                 &bridge,
-                &astro,
+                &grid,
                 BRIDGES_INITIAL_DEPTH,
             )?;
 
@@ -845,10 +845,10 @@ fn query_get_config(deps: Deps) -> StdResult<ConfigResponse> {
         staking_contract: config.staking_contract,
         governance_contract: config.governance_contract,
         governance_percent: config.governance_percent,
-        astro_token: config.astro_token,
+        grid_token: config.grid_token,
         max_spread: config.max_spread,
         remainder_reward: config.remainder_reward,
-        pre_upgrade_astro_amount: config.pre_upgrade_astro_amount,
+        pre_upgrade_grid_amount: config.pre_upgrade_grid_amount,
         default_bridge: config.default_bridge,
         second_receiver_cfg: config.second_receiver_cfg,
     })
@@ -874,7 +874,7 @@ fn query_get_balances(deps: Deps, env: Env, assets: Vec<AssetInfo>) -> StdResult
     Ok(resp)
 }
 
-/// Returns bridge tokens used for swapping fee tokens to ASTRO.
+/// Returns bridge tokens used for swapping fee tokens to GRID.
 fn query_bridges(deps: Deps) -> StdResult<Vec<(String, String)>> {
     BRIDGES
         .range(deps.storage, None, None, Order::Ascending)
@@ -891,7 +891,7 @@ pub fn migrate(mut deps: DepsMut, _env: Env, msg: MigrateMsg) -> Result<Response
     let contract_version = get_contract_version(deps.storage)?;
 
     match contract_version.contract.as_ref() {
-        "astroport-maker" => match contract_version.version.as_ref() {
+        "gridiron-maker" => match contract_version.version.as_ref() {
             "1.0.0" | "1.0.1" | "1.1.0" => {
                 migrate_from_v1(deps.branch(), &msg)?;
             }

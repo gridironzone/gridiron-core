@@ -6,9 +6,9 @@ use injective_cosmwasm::{
 use itertools::Itertools;
 use std::cmp::Ordering;
 
-use astroport::asset::AssetInfoExt;
-use astroport::cosmwasm_ext::IntegerToDecimal;
-use astroport_circular_buffer::BufferManager;
+use gridiron::asset::AssetInfoExt;
+use gridiron::cosmwasm_ext::IntegerToDecimal;
+use gridiron_circular_buffer::BufferManager;
 
 use crate::orderbook::error::OrderbookError;
 use crate::orderbook::msg::SudoMsg;
@@ -19,8 +19,8 @@ use crate::orderbook::utils::{
 };
 use crate::state::{CONFIG, OBSERVATIONS};
 use crate::utils::query_pools;
-use astroport_pcl_common::calc_d;
-use astroport_pcl_common::state::Precisions;
+use gridiron_pcl_common::calc_d;
+use gridiron_pcl_common::state::Precisions;
 
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn sudo(
@@ -213,13 +213,13 @@ fn begin_blocker(
 ///
 /// In that case we disable orderbook integration, cancel all orders and withdraw all subaccount balances.
 /// This function may fail due to out of gas error thus for safety reasons we have permissionless endpoint
-/// [`astroport::pair_concentrated_inj::ExecuteMsg::WithdrawFromOrderbook`] to perform the same action.
+/// [`gridiron::pair_concentrated_inj::ExecuteMsg::WithdrawFromOrderbook`] to perform the same action.
 fn deactivate_orderbook(
     deps: DepsMut<InjectiveQueryWrapper>,
     env: Env,
 ) -> Result<Response<InjectiveMsgWrapper>, OrderbookError> {
     deps.api.debug(&format!(
-        "Deactivating Astroport pair {} orderbook integration",
+        "Deactivating Gridiron pair {} orderbook integration",
         &env.contract.address
     ));
 

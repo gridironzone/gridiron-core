@@ -1,7 +1,7 @@
 use crate::contract::{execute, instantiate, query};
-use astroport::vesting::{ConfigResponse, ExecuteMsg, InstantiateMsg, QueryMsg};
+use gridiron::vesting::{ConfigResponse, ExecuteMsg, InstantiateMsg, QueryMsg};
 
-use astroport::asset::{token_asset_info, AssetInfo};
+use gridiron::asset::{token_asset_info, AssetInfo};
 use cosmwasm_std::testing::{mock_dependencies, mock_env, mock_info};
 use cosmwasm_std::{from_binary, Addr};
 
@@ -11,7 +11,7 @@ fn proper_initialization() {
 
     let msg = InstantiateMsg {
         owner: "owner".to_string(),
-        vesting_token: token_asset_info(Addr::unchecked("astro_token")),
+        vesting_token: token_asset_info(Addr::unchecked("grid_token")),
     };
 
     let env = mock_env();
@@ -23,7 +23,7 @@ fn proper_initialization() {
             .unwrap(),
         ConfigResponse {
             owner: Addr::unchecked("owner"),
-            vesting_token: token_asset_info(Addr::unchecked("astro_token")),
+            vesting_token: token_asset_info(Addr::unchecked("grid_token")),
         }
     );
 }

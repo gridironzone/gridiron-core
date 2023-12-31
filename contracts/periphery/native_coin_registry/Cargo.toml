@@ -1,7 +1,7 @@
 [package]
-name = "astroport-native-coin-registry"
+name = "gridiron-native-coin-registry"
 version = "1.0.1"
-authors = ["Astroport"]
+authors = ["Gridiron"]
 edition = "2021"
 
 exclude = [
@@ -28,7 +28,7 @@ cosmwasm-storage = "1.1"
 cw-storage-plus = "0.15"
 cw2 = "0.15"
 thiserror = { version = "1.0" }
-astroport = { path = "../../../packages/astroport", version = "3" }
+gridiron = { path = "../../../packages/gridiron", version = "3" }
 
 [dev-dependencies]
 cw-multi-test = "0.15"

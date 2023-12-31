@@ -18,26 +18,26 @@ use derivative::Derivative;
 use injective_cosmwasm::{InjectiveMsgWrapper, InjectiveQueryWrapper};
 use itertools::Itertools;
 
-use astroport::asset::{native_asset_info, token_asset_info, Asset, AssetInfo, PairInfo};
-use astroport::factory::{PairConfig, PairType};
-use astroport::native_coin_registry;
-use astroport::observation::OracleObservation;
-use astroport::pair::{
+use gridiron::asset::{native_asset_info, token_asset_info, Asset, AssetInfo, PairInfo};
+use gridiron::factory::{PairConfig, PairType};
+use gridiron::native_coin_registry;
+use gridiron::observation::OracleObservation;
+use gridiron::pair::{
     ConfigResponse, CumulativePricesResponse, Cw20HookMsg, PoolResponse, ReverseSimulationResponse,
     SimulationResponse,
 };
-use astroport::pair_concentrated::{ConcentratedPoolParams, ConcentratedPoolUpdateParams};
-use astroport::pair_concentrated_inj::{
+use gridiron::pair_concentrated::{ConcentratedPoolParams, ConcentratedPoolUpdateParams};
+use gridiron::pair_concentrated_inj::{
     ConcentratedInjObParams, ExecuteMsg, OrderbookConfig, OrderbookStateResponse, QueryMsg,
 };
-use astroport_mocks::cw_multi_test::{AppResponse, Contract, ContractWrapper, Executor};
-use astroport_pair_concentrated_injective::contract::{execute, instantiate, reply};
-use astroport_pair_concentrated_injective::migrate::migrate;
-use astroport_pair_concentrated_injective::orderbook::state::OrderbookState;
-use astroport_pair_concentrated_injective::orderbook::sudo::sudo;
-use astroport_pair_concentrated_injective::orderbook::utils::calc_market_ids;
-use astroport_pair_concentrated_injective::queries::query;
-use astroport_pcl_common::state::Config;
+use gridiron_mocks::cw_multi_test::{AppResponse, Contract, ContractWrapper, Executor};
+use gridiron_pair_concentrated_injective::contract::{execute, instantiate, reply};
+use gridiron_pair_concentrated_injective::migrate::migrate;
+use gridiron_pair_concentrated_injective::orderbook::state::OrderbookState;
+use gridiron_pair_concentrated_injective::orderbook::sudo::sudo;
+use gridiron_pair_concentrated_injective::orderbook::utils::calc_market_ids;
+use gridiron_pair_concentrated_injective::queries::query;
+use gridiron_pcl_common::state::Config;
 
 use crate::helper::mocks::{mock_inj_app, InjApp, InjAppExt};
 
@@ -126,9 +126,9 @@ where
     C: CustomQuery + for<'de> cosmwasm_schema::serde::Deserialize<'de> + 'static,
 {
     Box::new(ContractWrapper::new_with_empty(
-        astroport_token::contract::execute,
-        astroport_token::contract::instantiate,
-        astroport_token::contract::query,
+        gridiron_token::contract::execute,
+        gridiron_token::contract::instantiate,
+        gridiron_token::contract::query,
     ))
 }
 
@@ -148,9 +148,9 @@ where
 {
     Box::new(
         ContractWrapper::new_with_empty(
-            astroport_pair_concentrated::contract::execute,
-            astroport_pair_concentrated::contract::instantiate,
-            astroport_pair_concentrated::queries::query,
+            gridiron_pair_concentrated::contract::execute,
+            gridiron_pair_concentrated::contract::instantiate,
+            gridiron_pair_concentrated::queries::query,
         )
         .with_reply_empty(mocks::cl_pair_reply),
     )
@@ -162,9 +162,9 @@ where
     T: CustomMsg + 'static,
 {
     Box::new(ContractWrapper::new_with_empty(
-        astroport_native_coin_registry::contract::execute,
-        astroport_native_coin_registry::contract::instantiate,
-        astroport_native_coin_registry::contract::query,
+        gridiron_native_coin_registry::contract::execute,
+        gridiron_native_coin_registry::contract::instantiate,
+        gridiron_native_coin_registry::contract::query,
     ))
 }
 
@@ -175,9 +175,9 @@ where
 {
     Box::new(
         ContractWrapper::new_with_empty(
-            astroport_factory::contract::execute,
-            astroport_factory::contract::instantiate,
-            astroport_factory::contract::query,
+            gridiron_factory::contract::execute,
+            gridiron_factory::contract::instantiate,
+            gridiron_factory::contract::query,
         )
         .with_reply_empty(mocks::factory_reply),
     )
@@ -267,18 +267,18 @@ impl Helper {
                 native_coins: vec![
                     ("uluna".to_owned(), 6),
                     ("uusd".to_owned(), 6),
-                    ("ASTRO".to_owned(), 6),
+                    ("GRID".to_owned(), 6),
                     ("USDC".to_owned(), 6),
                     ("FOO".to_owned(), 5),
                     ("BAR".to_owned(), 6),
                     ("inj".to_owned(), 18),
-                    ("astro".to_owned(), 6),
+                    ("grid".to_owned(), 6),
                 ],
             },
             &[],
         )
         .unwrap();
-        let init_msg = astroport::factory::InstantiateMsg {
+        let init_msg = gridiron::factory::InstantiateMsg {
             fee_address: Some(fake_maker.to_string()),
             pair_configs: vec![
                 PairConfig {
@@ -336,7 +336,7 @@ impl Helper {
             to_binary(&params).unwrap()
         };
 
-        let init_pair_msg = astroport::factory::ExecuteMsg::CreatePair {
+        let init_pair_msg = gridiron::factory::ExecuteMsg::CreatePair {
             pair_type,
             asset_infos: asset_infos.clone(),
             init_params: Some(params),
@@ -346,7 +346,7 @@ impl Helper {
 
         let resp: PairInfo = app.wrap().query_wasm_smart(
             &factory,
-            &astroport::factory::QueryMsg::Pair { asset_infos },
+            &gridiron::factory::QueryMsg::Pair { asset_infos },
         )?;
 
         Ok(Self {
@@ -552,7 +552,7 @@ impl Helper {
         app.instantiate_contract(
             token_code,
             owner.clone(),
-            &astroport::token::InstantiateMsg {
+            &gridiron::token::InstantiateMsg {
                 symbol: name.to_string(),
                 name,
                 decimals,

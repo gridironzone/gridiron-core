@@ -6,9 +6,9 @@ use cosmwasm_std::{
 };
 use cw20::{BalanceResponse, Cw20ExecuteMsg, Cw20QueryMsg, MinterResponse, TokenInfoResponse};
 
-use astroport::asset::{native_asset_info, token_asset_info, AssetInfo};
-use astroport::native_coin_wrapper::{Config, Cw20HookMsg, ExecuteMsg, InstantiateMsg, QueryMsg};
-use astroport::token::InstantiateMsg as AstroInstantiateMsg;
+use gridiron::asset::{native_asset_info, token_asset_info, AssetInfo};
+use gridiron::native_coin_wrapper::{Config, Cw20HookMsg, ExecuteMsg, InstantiateMsg, QueryMsg};
+use gridiron::token::InstantiateMsg as GridInstantiateMsg;
 use cw_multi_test::{App, ContractWrapper, Executor};
 
 fn mock_app(owner: Addr, coins: Vec<Coin>) -> App {
@@ -43,20 +43,20 @@ fn check_balance(app: &mut App, user: Addr, asset_info: &AssetInfo) -> Uint128 {
     }
 }
 
-fn store_astro_code_id(app: &mut App) -> u64 {
-    let astro_token_contract = Box::new(ContractWrapper::new_with_empty(
-        astroport_token::contract::execute,
-        astroport_token::contract::instantiate,
-        astroport_token::contract::query,
+fn store_grid_code_id(app: &mut App) -> u64 {
+    let grid_token_contract = Box::new(ContractWrapper::new_with_empty(
+        gridiron_token::contract::execute,
+        gridiron_token::contract::instantiate,
+        gridiron_token::contract::query,
     ));
 
-    app.store_code(astro_token_contract)
+    app.store_code(grid_token_contract)
 }
 
-fn create_astro_token(app: &mut App, astro_token_code_id: u64, owner: &Addr) -> Addr {
-    let msg = AstroInstantiateMsg {
-        name: String::from("Astro token"),
-        symbol: String::from("ASTRO"),
+fn create_grid_token(app: &mut App, grid_token_code_id: u64, owner: &Addr) -> Addr {
+    let msg = GridInstantiateMsg {
+        name: String::from("Grid token"),
+        symbol: String::from("GRID"),
         decimals: 6,
         initial_balances: vec![],
         mint: Some(MinterResponse {
@@ -67,27 +67,27 @@ fn create_astro_token(app: &mut App, astro_token_code_id: u64, owner: &Addr) -> 
     };
 
     app.instantiate_contract(
-        astro_token_code_id,
+        grid_token_code_id,
         owner.clone(),
         &msg,
         &[],
-        String::from("ASTRO"),
+        String::from("GRID"),
         None,
     )
     .unwrap()
 }
 
-fn mint_some_astro(
+fn mint_some_grid(
     router: &mut App,
     owner: Addr,
-    astro_token_instance: Addr,
+    grid_token_instance: Addr,
     to: &str,
     amount: Uint128,
 ) {
     let res = router
         .execute_contract(
             owner.clone(),
-            astro_token_instance.clone(),
+            grid_token_instance.clone(),
             &cw20::Cw20ExecuteMsg::Mint {
                 recipient: String::from(to),
                 amount,
@@ -103,11 +103,11 @@ fn mint_some_astro(
 fn store_native_wrapper_code(app: &mut App) -> u64 {
     let contract = Box::new(
         ContractWrapper::new_with_empty(
-            astroport_native_coin_wrapper::contract::execute,
-            astroport_native_coin_wrapper::contract::instantiate,
-            astroport_native_coin_wrapper::contract::query,
+            gridiron_native_coin_wrapper::contract::execute,
+            gridiron_native_coin_wrapper::contract::instantiate,
+            gridiron_native_coin_wrapper::contract::query,
         )
-        .with_reply_empty(astroport_native_coin_wrapper::contract::reply),
+        .with_reply_empty(gridiron_native_coin_wrapper::contract::reply),
     );
 
     app.store_code(contract)
@@ -119,7 +119,7 @@ fn proper_initialization() {
     let mut app = mock_app(owner.clone(), vec![]);
 
     let native_wrapper_code_id = store_native_wrapper_code(&mut app);
-    let astro_token_code_id = store_astro_code_id(&mut app);
+    let grid_token_code_id = store_grid_code_id(&mut app);
 
     let native_wrapper_instance = app
         .instantiate_contract(
@@ -128,7 +128,7 @@ fn proper_initialization() {
             &InstantiateMsg {
                 denom: "ibc/EBD5A24C554198EBAF44979C5B4D2C2D312E6EBAB71962C92F735499C7575839"
                     .to_string(),
-                token_code_id: astro_token_code_id,
+                token_code_id: grid_token_code_id,
                 token_decimals: 15,
             },
             &[],
@@ -187,8 +187,8 @@ fn check_wrap_and_unwrap() {
     .unwrap();
 
     let native_wrapper_code_id = store_native_wrapper_code(&mut app);
-    let astro_token_code_id = store_astro_code_id(&mut app);
-    let astro_token_addr = create_astro_token(&mut app, astro_token_code_id, &owner);
+    let grid_token_code_id = store_grid_code_id(&mut app);
+    let grid_token_addr = create_grid_token(&mut app, grid_token_code_id, &owner);
 
     let native_wrapper_instance = app
         .instantiate_contract(
@@ -196,7 +196,7 @@ fn check_wrap_and_unwrap() {
             Addr::unchecked(owner.clone()),
             &InstantiateMsg {
                 denom: "ibc/EBD5A24C554198EBA".to_string(),
-                token_code_id: astro_token_code_id,
+                token_code_id: grid_token_code_id,
                 token_decimals: 6,
             },
             &[],
@@ -306,10 +306,10 @@ fn check_wrap_and_unwrap() {
         Uint128::new(20)
     );
 
-    mint_some_astro(
+    mint_some_grid(
         &mut app,
         owner.clone(),
-        astro_token_addr.clone(),
+        grid_token_addr.clone(),
         owner.as_str(),
         Uint128::new(100),
     );
@@ -318,7 +318,7 @@ fn check_wrap_and_unwrap() {
     let resp = app
         .execute_contract(
             owner.clone(),
-            astro_token_addr.clone(),
+            grid_token_addr.clone(),
             &Cw20ExecuteMsg::Send {
                 contract: native_wrapper_instance.to_string(),
                 msg: to_binary(&Cw20HookMsg::Unwrap {}).unwrap(),

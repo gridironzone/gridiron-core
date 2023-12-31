@@ -10,13 +10,13 @@ use crate::{
     error::ContractError,
 };
 
-use astroport::asset::{AssetInfo, PairInfo};
-use astroport::factory::{
+use gridiron::asset::{AssetInfo, PairInfo};
+use gridiron::factory::{
     ConfigResponse, ExecuteMsg, InstantiateMsg, PairConfig, PairType, PairsResponse, QueryMsg,
 };
 
 use crate::contract::reply;
-use astroport::pair::InstantiateMsg as PairInstantiateMsg;
+use gridiron::pair::InstantiateMsg as PairInstantiateMsg;
 use cosmwasm_std::testing::{mock_env, mock_info, MOCK_CONTRACT_ADDR};
 
 use prost::Message;
@@ -489,7 +489,7 @@ fn create_pair() {
                 code_id: pair_config.code_id,
                 funds: vec![],
                 admin: Some(config.unwrap().owner.to_string()),
-                label: String::from("Astroport pair"),
+                label: String::from("Gridiron pair"),
             }
             .into(),
             id: 1,
@@ -554,8 +554,8 @@ fn register() {
 
     let mut deployed_pairs = vec![(&pair0_addr, &pair0_info)];
 
-    // Register an Astroport pair querier
-    deps.querier.with_astroport_pairs(&deployed_pairs);
+    // Register an Gridiron pair querier
+    deps.querier.with_gridiron_pairs(&deployed_pairs);
 
     let instantiate_reply = MsgInstantiateContractResponse {
         contract_address: String::from("pair0000"),
@@ -631,8 +631,8 @@ fn register() {
 
     deployed_pairs.push((&pair1_addr, &pair1_info));
 
-    // Register astroport pair querier
-    deps.querier.with_astroport_pairs(&deployed_pairs);
+    // Register gridiron pair querier
+    deps.querier.with_gridiron_pairs(&deployed_pairs);
 
     let instantiate_reply = MsgInstantiateContractResponse {
         contract_address: String::from("pair0001"),

@@ -8,10 +8,10 @@ import {LCDClient} from "@terra-money/terra.js";
 import fs from "fs";
 import path from "path";
 
-const ASTROPORT_CHANGE_LOG_NAME = process.env.ASTROPORT_CHANGE_LOG_NAME! || String('core_phoenix')
-const ASTROPORT_CHANGE_LOG_URL = process.env.ASTROPORT_CHANGE_LOG_URL! || String("https://raw.githubusercontent.com/astroport-fi/astroport-changelog/main/terra-2/phoenix-1/core_phoenix.json")
-const ASTROPORT_3RD_PARTY_LOG_NAME = process.env.ASTROPORT_CHANGE_LOG_NAME! || String('3rd_party_phoenix')
-const ASTROPORT_3RD_PARTY_LOG_URL = process.env.ASTROPORT_CHANGE_LOG_URL! || String("https://raw.githubusercontent.com/astroport-fi/astroport-changelog/main/terra-2/phoenix-1/core_phoenix.json")
+const GRIDIRON_CHANGE_LOG_NAME = process.env.GRIDIRON_CHANGE_LOG_NAME! || String('core_phoenix')
+const GRIDIRON_CHANGE_LOG_URL = process.env.GRIDIRON_CHANGE_LOG_URL! || String("https://raw.githubusercontent.com/gridironzone/gridiron-changelog/main/terra-2/phoenix-1/core_phoenix.json")
+const GRIDIRON_3RD_PARTY_LOG_NAME = process.env.GRIDIRON_CHANGE_LOG_NAME! || String('3rd_party_phoenix')
+const GRIDIRON_3RD_PARTY_LOG_URL = process.env.GRIDIRON_CHANGE_LOG_URL! || String("https://raw.githubusercontent.com/gridironzone/gridiron-changelog/main/terra-2/phoenix-1/core_phoenix.json")
 
 interface CInfo {
     address: string,
@@ -55,10 +55,10 @@ function changeLogExists(fileName: string, url: string): void {
     }
 }
 
-async function astroportTable(terra: LCDClient) {
+async function gridironTable(terra: LCDClient) {
     // download config file if does not exists
-    changeLogExists(ASTROPORT_CHANGE_LOG_NAME, ASTROPORT_CHANGE_LOG_URL);
-    let network = readArtifact(ASTROPORT_CHANGE_LOG_NAME);
+    changeLogExists(GRIDIRON_CHANGE_LOG_NAME, GRIDIRON_CHANGE_LOG_URL);
+    let network = readArtifact(GRIDIRON_CHANGE_LOG_NAME);
 
     for (const key in network) {
         const value = network[key];
@@ -75,9 +75,9 @@ async function astroportTable(terra: LCDClient) {
     }
 }
 
-async function astroport3dPartyTable(terra: LCDClient) {
+async function gridiron3dPartyTable(terra: LCDClient) {
     // download config file if does not exists
-    changeLogExists(ASTROPORT_3RD_PARTY_LOG_NAME, ASTROPORT_3RD_PARTY_LOG_URL);
+    changeLogExists(GRIDIRON_3RD_PARTY_LOG_NAME, GRIDIRON_3RD_PARTY_LOG_URL);
     let network = readArtifact("3rd_party_phoenix")
 
     for (const key in network) {
@@ -103,8 +103,8 @@ async function main() {
     const network = readArtifact(terra.config.chainID)
     console.log('Network:', network)
 
-    await astroportTable(terra)
-    await astroport3dPartyTable(terra)
+    await gridironTable(terra)
+    await gridiron3dPartyTable(terra)
 
 }
 

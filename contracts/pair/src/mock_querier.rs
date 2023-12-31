@@ -5,12 +5,12 @@ use cosmwasm_std::{
 };
 use std::collections::HashMap;
 
-use astroport::factory::FeeInfoResponse;
-use astroport::factory::QueryMsg::FeeInfo;
+use gridiron::factory::FeeInfoResponse;
+use gridiron::factory::QueryMsg::FeeInfo;
 use cw20::{BalanceResponse, Cw20QueryMsg, TokenInfoResponse};
 
 /// mock_dependencies is a drop-in replacement for cosmwasm_std::testing::mock_dependencies.
-/// This uses the Astroport CustomQuerier.
+/// This uses the Gridiron CustomQuerier.
 pub fn mock_dependencies(
     contract_balance: &[Coin],
 ) -> OwnedDeps<MockStorage, MockApi, WasmMockQuerier> {

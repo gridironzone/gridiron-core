@@ -1,4 +1,4 @@
-use astroport_pair::error::ContractError as PairContractError;
+use gridiron_pair::error::ContractError as PairContractError;
 use cosmwasm_std::{StdError, Uint128};
 
 use thiserror::Error;

@@ -1,8 +1,8 @@
 #![cfg(not(tarpaulin_include))]
 
 use anyhow::Result;
-use astroport_governance::voting_escrow_delegation as escrow_delegation;
-use astroport_mocks::cw_multi_test::{App, AppResponse, Contract, ContractWrapper, Executor};
+use gridiron_governance::voting_escrow_delegation as escrow_delegation;
+use gridiron_mocks::cw_multi_test::{App, AppResponse, Contract, ContractWrapper, Executor};
 use cosmwasm_std::{to_binary, Addr, Empty, QueryRequest, StdResult, Uint128, WasmQuery};
 
 use cw721_base::helpers::Cw721Contract;
@@ -26,9 +26,9 @@ impl DelegationHelper {
 
     pub fn contract_nft_template() -> Box<dyn Contract<Empty>> {
         let contract = ContractWrapper::new(
-            astroport_nft::contract::execute,
-            astroport_nft::contract::instantiate,
-            astroport_nft::contract::query,
+            gridiron_nft::contract::execute,
+            gridiron_nft::contract::instantiate,
+            gridiron_nft::contract::query,
         );
         Box::new(contract)
     }
@@ -50,14 +50,14 @@ impl DelegationHelper {
                     voting_escrow_addr: escrow_addr.to_string(),
                 },
                 &[],
-                String::from("Astroport Escrow Delegation"),
+                String::from("Gridiron Escrow Delegation"),
                 None,
             )
             .unwrap();
 
         let res = router
             .wrap()
-            .query::<astroport_governance::voting_escrow_delegation::Config>(&QueryRequest::Wasm(
+            .query::<gridiron_governance::voting_escrow_delegation::Config>(&QueryRequest::Wasm(
                 WasmQuery::Smart {
                     contract_addr: delegation_addr.to_string(),
                     msg: to_binary(&escrow_delegation::QueryMsg::Config {}).unwrap(),

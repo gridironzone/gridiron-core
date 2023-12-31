@@ -4,7 +4,7 @@ use cosmwasm_std::{to_binary, Binary, Deps, Env, Order, StdResult};
 use cw_storage_plus::Bound;
 
 use crate::state::{CONFIG, GRANTS};
-use astroport::fee_granter::{GrantResponse, QueryMsg};
+use gridiron::fee_granter::{GrantResponse, QueryMsg};
 
 /// Default pagination limit
 const DEFAULT_LIMIT: u32 = 50;
@@ -57,7 +57,7 @@ fn grant_for(deps: Deps, grantee_contract: String) -> StdResult<GrantResponse> {
 mod unit_tests {
     use super::*;
     use crate::contract::{execute, instantiate};
-    use astroport::fee_granter::{Config, ExecuteMsg, InstantiateMsg};
+    use gridiron::fee_granter::{Config, ExecuteMsg, InstantiateMsg};
     use cosmwasm_std::testing::{mock_dependencies, mock_env, mock_info};
     use cosmwasm_std::{coins, from_binary, Addr, Uint128};
 

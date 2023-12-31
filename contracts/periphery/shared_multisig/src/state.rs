@@ -2,8 +2,8 @@ use cosmwasm_std::{Addr, Deps, StdResult, Storage, Uint128};
 use std::ops::Deref;
 
 use crate::ContractError;
-use astroport::common::OwnershipProposal;
-use astroport::shared_multisig::{Config, MultisigRole, DEFAULT_WEIGHT};
+use gridiron::common::OwnershipProposal;
+use gridiron::shared_multisig::{Config, MultisigRole, DEFAULT_WEIGHT};
 use cw3::{Proposal, Vote, VoteInfo};
 use cw_storage_plus::{Item, Map};
 

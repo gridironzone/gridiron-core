@@ -2,13 +2,13 @@
 
 use std::{cell::RefCell, rc::Rc};
 
-use astroport::asset::{
+use gridiron::asset::{
     native_asset_info, token_asset_info, Asset, AssetInfo, AssetInfoExt, PairInfo,
 };
-use astroport::generator::{ExecuteMsg, QueryMsg, RewardInfoResponse, StakerResponse};
-use astroport_governance::utils::WEEK;
+use gridiron::generator::{ExecuteMsg, QueryMsg, RewardInfoResponse, StakerResponse};
+use gridiron_governance::utils::WEEK;
 
-use astroport::{
+use gridiron::{
     factory::{
         ConfigResponse as FactoryConfigResponse, ExecuteMsg as FactoryExecuteMsg,
         InstantiateMsg as FactoryInstantiateMsg, PairConfig, PairType, QueryMsg as FactoryQueryMsg,
@@ -26,11 +26,11 @@ use astroport::{
     },
 };
 
-use astroport::generator_proxy::ConfigResponse;
-use astroport::pair::StablePoolParams;
-use astroport_generator::error::ContractError;
-use astroport_mocks::cw_multi_test::{next_block, App, ContractWrapper, Executor};
-use astroport_mocks::{astroport_address, MockGeneratorBuilder, MockToken, MockTokenBuilder};
+use gridiron::generator_proxy::ConfigResponse;
+use gridiron::pair::StablePoolParams;
+use gridiron_generator::error::ContractError;
+use gridiron_mocks::cw_multi_test::{next_block, App, ContractWrapper, Executor};
+use gridiron_mocks::{gridiron_address, MockGeneratorBuilder, MockToken, MockTokenBuilder};
 use cosmwasm_std::{from_slice, to_binary, Addr, Binary, StdResult, Uint128, Uint64};
 use cw20::{BalanceResponse, Cw20ExecuteMsg, Cw20QueryMsg, MinterResponse};
 
@@ -100,7 +100,7 @@ fn test_boost_checkpoints_with_delegation() {
     // Create short lock user1
     helper_controller
         .escrow_helper
-        .mint_xastro(&mut app, USER1, 200);
+        .mint_xgrid(&mut app, USER1, 200);
 
     helper_controller
         .escrow_helper
@@ -131,7 +131,7 @@ fn test_boost_checkpoints_with_delegation() {
     // Create short lock user2
     helper_controller
         .escrow_helper
-        .mint_xastro(&mut app, USER2, 100);
+        .mint_xgrid(&mut app, USER2, 100);
 
     helper_controller
         .escrow_helper
@@ -183,18 +183,18 @@ fn test_boost_checkpoints_with_delegation() {
     )
     .unwrap();
 
-    // check user1's ASTRO balance
+    // check user1's GRID balance
     check_token_balance(
         &mut app,
-        &helper_controller.escrow_helper.astro_token,
+        &helper_controller.escrow_helper.grid_token,
         &user1,
         0,
     );
 
-    // check user2's ASTRO balance
+    // check user2's GRID balance
     check_token_balance(
         &mut app,
-        &helper_controller.escrow_helper.astro_token,
+        &helper_controller.escrow_helper.grid_token,
         &user2,
         0,
     );
@@ -300,10 +300,10 @@ fn test_boost_checkpoints_with_delegation() {
         9,
     );
 
-    // check user1's ASTRO balance after withdraw
+    // check user1's GRID balance after withdraw
     check_token_balance(
         &mut app,
-        &helper_controller.escrow_helper.astro_token,
+        &helper_controller.escrow_helper.grid_token,
         &user1,
         5_000_000,
     );
@@ -422,15 +422,15 @@ fn test_boost_checkpoints_with_delegation() {
 
     check_token_balance(
         &mut app,
-        &helper_controller.escrow_helper.astro_token,
+        &helper_controller.escrow_helper.grid_token,
         &user1,
         5_000_000,
     );
 
-    // check user2's ASTRO balance after withdraw and checkpoint
+    // check user2's GRID balance after withdraw and checkpoint
     check_token_balance(
         &mut app,
-        &helper_controller.escrow_helper.astro_token,
+        &helper_controller.escrow_helper.grid_token,
         &user2,
         11_428_571,
     );
@@ -498,7 +498,7 @@ fn test_boost_checkpoints() {
     // Create short lock user1
     helper_controller
         .escrow_helper
-        .mint_xastro(&mut app, USER1, 200);
+        .mint_xgrid(&mut app, USER1, 200);
 
     helper_controller
         .escrow_helper
@@ -529,7 +529,7 @@ fn test_boost_checkpoints() {
     // Create short lock user2
     helper_controller
         .escrow_helper
-        .mint_xastro(&mut app, USER2, 100);
+        .mint_xgrid(&mut app, USER2, 100);
 
     helper_controller
         .escrow_helper
@@ -581,18 +581,18 @@ fn test_boost_checkpoints() {
     )
     .unwrap();
 
-    // check user1's ASTRO balance
+    // check user1's GRID balance
     check_token_balance(
         &mut app,
-        &helper_controller.escrow_helper.astro_token,
+        &helper_controller.escrow_helper.grid_token,
         &user1,
         0,
     );
 
-    // check user2's ASTRO balance
+    // check user2's GRID balance
     check_token_balance(
         &mut app,
-        &helper_controller.escrow_helper.astro_token,
+        &helper_controller.escrow_helper.grid_token,
         &user2,
         0,
     );
@@ -647,10 +647,10 @@ fn test_boost_checkpoints() {
         8,
     );
 
-    // check user1's ASTRO balance after withdraw
+    // check user1's GRID balance after withdraw
     check_token_balance(
         &mut app,
-        &helper_controller.escrow_helper.astro_token,
+        &helper_controller.escrow_helper.grid_token,
         &user1,
         5_000_000,
     );
@@ -702,15 +702,15 @@ fn test_boost_checkpoints() {
 
     check_token_balance(
         &mut app,
-        &helper_controller.escrow_helper.astro_token,
+        &helper_controller.escrow_helper.grid_token,
         &user1,
         5_000_000,
     );
 
-    // check user2's ASTRO balance after withdraw and checkpoint
+    // check user2's GRID balance after withdraw and checkpoint
     check_token_balance(
         &mut app,
-        &helper_controller.escrow_helper.astro_token,
+        &helper_controller.escrow_helper.grid_token,
         &user2,
         11_153_846,
     );
@@ -744,8 +744,8 @@ fn proper_deposit_and_withdraw() {
     let factory_code_id = store_factory_code(&mut app);
     let pair_code_id = store_pair_code_id(&mut app);
 
-    let astro_token_instance =
-        instantiate_token(&mut app, token_code_id, "ASTRO", Some(1_000_000_000_000000));
+    let grid_token_instance =
+        instantiate_token(&mut app, token_code_id, "GRID", Some(1_000_000_000_000000));
     let factory_instance =
         instantiate_factory(&mut app, factory_code_id, token_code_id, pair_code_id, None);
 
@@ -786,7 +786,7 @@ fn proper_deposit_and_withdraw() {
     );
 
     let generator_instance =
-        instantiate_generator(&mut app, &factory_instance, &astro_token_instance, None);
+        instantiate_generator(&mut app, &factory_instance, &grid_token_instance, None);
 
     register_lp_tokens_in_generator(
         &mut app,
@@ -885,8 +885,8 @@ fn set_tokens_per_block() {
     let mut app = mock_app();
 
     let token_code_id = store_token_code(&mut app);
-    let astro_token_instance =
-        instantiate_token(&mut app, token_code_id, "ASTRO", Some(1_000_000_000_000000));
+    let grid_token_instance =
+        instantiate_token(&mut app, token_code_id, "GRID", Some(1_000_000_000_000000));
 
     let factory_code_id = store_factory_code(&mut app);
     let pair_code_id = store_pair_code_id(&mut app);
@@ -896,7 +896,7 @@ fn set_tokens_per_block() {
     let generator_instance = instantiate_generator(
         &mut app,
         &factory_instance,
-        &astro_token_instance,
+        &grid_token_instance,
         Some(OWNER.to_string()),
     );
 
@@ -935,8 +935,8 @@ fn update_config() {
     let mut app = mock_app();
 
     let token_code_id = store_token_code(&mut app);
-    let astro_token_instance =
-        instantiate_token(&mut app, token_code_id, "ASTRO", Some(1_000_000_000_000000));
+    let grid_token_instance =
+        instantiate_token(&mut app, token_code_id, "GRID", Some(1_000_000_000_000000));
 
     let factory_code_id = store_factory_code(&mut app);
     let pair_code_id = store_pair_code_id(&mut app);
@@ -946,7 +946,7 @@ fn update_config() {
     let generator_instance = instantiate_generator(
         &mut app,
         &factory_instance,
-        &astro_token_instance,
+        &grid_token_instance,
         Some(OWNER.to_string()),
     );
 
@@ -958,7 +958,7 @@ fn update_config() {
 
     assert_eq!(res.owner, OWNER);
     assert_eq!(res.generator_controller, Some(Addr::unchecked(OWNER)));
-    assert_eq!(res.astro_token.to_string(), "contract0");
+    assert_eq!(res.grid_token.to_string(), "contract0");
     assert_eq!(res.factory.to_string(), "contract2");
     assert_eq!(res.vesting_contract.to_string(), "contract3");
 
@@ -1009,15 +1009,15 @@ fn update_owner() {
     let token_code_id = store_token_code(&mut app);
     let pair_code_id = store_pair_code_id(&mut app);
     let factory_code_id = store_factory_code(&mut app);
-    let astro_token_instance =
-        instantiate_token(&mut app, token_code_id, "ASTRO", Some(1_000_000_000_000000));
+    let grid_token_instance =
+        instantiate_token(&mut app, token_code_id, "GRID", Some(1_000_000_000_000000));
     let factory_instance =
         instantiate_factory(&mut app, factory_code_id, token_code_id, pair_code_id, None);
 
     let generator_instance = instantiate_generator(
         &mut app,
         &factory_instance,
-        &astro_token_instance,
+        &grid_token_instance,
         Some(OWNER.to_string()),
     );
 
@@ -1104,8 +1104,8 @@ fn disabling_pool() {
     let factory_code_id = store_factory_code(&mut app);
     let pair_code_id = store_pair_code_id(&mut app);
 
-    let astro_token_instance =
-        instantiate_token(&mut app, token_code_id, "ASTRO", Some(1_000_000_000_000000));
+    let grid_token_instance =
+        instantiate_token(&mut app, token_code_id, "GRID", Some(1_000_000_000_000000));
     let factory_instance =
         instantiate_factory(&mut app, factory_code_id, token_code_id, pair_code_id, None);
 
@@ -1129,7 +1129,7 @@ fn disabling_pool() {
     );
 
     let generator_instance =
-        instantiate_generator(&mut app, &factory_instance, &astro_token_instance, None);
+        instantiate_generator(&mut app, &factory_instance, &grid_token_instance, None);
 
     // Disable generator
     let msg = FactoryExecuteMsg::UpdatePairConfig {
@@ -1207,8 +1207,8 @@ fn generator_without_reward_proxies() {
     let factory_code_id = store_factory_code(&mut app);
     let pair_code_id = store_pair_code_id(&mut app);
 
-    let astro_token_instance =
-        instantiate_token(&mut app, token_code_id, "ASTRO", Some(1_000_000_000_000000));
+    let grid_token_instance =
+        instantiate_token(&mut app, token_code_id, "GRID", Some(1_000_000_000_000000));
     let factory_instance =
         instantiate_factory(&mut app, factory_code_id, token_code_id, pair_code_id, None);
 
@@ -1248,7 +1248,7 @@ fn generator_without_reward_proxies() {
     );
 
     let generator_instance =
-        instantiate_generator(&mut app, &factory_instance, &astro_token_instance, None);
+        instantiate_generator(&mut app, &factory_instance, &grid_token_instance, None);
 
     register_lp_tokens_in_generator(
         &mut app,
@@ -1320,7 +1320,7 @@ fn generator_without_reward_proxies() {
             .unwrap_err()
             .root_cause()
             .to_string(),
-        "astroport::generator::UserInfo not found".to_string()
+        "gridiron::generator::UserInfo not found".to_string()
     );
 
     app.update_block(|bi| next_block(bi));
@@ -1484,9 +1484,9 @@ fn generator_without_reward_proxies() {
     check_token_balance(&mut app, &lp_cny_eur, &user1, 10);
     check_token_balance(&mut app, &lp_cny_eur, &user2, 10);
 
-    check_token_balance(&mut app, &astro_token_instance, &user1, 0);
-    check_token_balance(&mut app, &astro_token_instance, &user2, 3_000000);
-    // 7 + 2 distributed ASTRO (for other pools). 5 orphaned by emergency withdrawals, 6 transfered to User2
+    check_token_balance(&mut app, &grid_token_instance, &user1, 0);
+    check_token_balance(&mut app, &grid_token_instance, &user2, 3_000000);
+    // 7 + 2 distributed GRID (for other pools). 5 orphaned by emergency withdrawals, 6 transfered to User2
 
     // User1 withdraws and gets rewards
     let msg = GeneratorExecuteMsg::Withdraw {
@@ -1499,7 +1499,7 @@ fn generator_without_reward_proxies() {
     check_token_balance(&mut app, &lp_eur_usd, &generator_instance, 15);
     check_token_balance(&mut app, &lp_eur_usd, &user1, 5);
 
-    check_token_balance(&mut app, &astro_token_instance, &user1, 7_000000);
+    check_token_balance(&mut app, &grid_token_instance, &user1, 7_000000);
 
     // User1 withdraws and gets rewards
     let msg = GeneratorExecuteMsg::Withdraw {
@@ -1511,7 +1511,7 @@ fn generator_without_reward_proxies() {
 
     check_token_balance(&mut app, &lp_eur_usd, &generator_instance, 10);
     check_token_balance(&mut app, &lp_eur_usd, &user1, 10);
-    check_token_balance(&mut app, &astro_token_instance, &user1, 7_000000);
+    check_token_balance(&mut app, &grid_token_instance, &user1, 7_000000);
 
     // User2 withdraws and gets rewards
     let msg = GeneratorExecuteMsg::Withdraw {
@@ -1525,8 +1525,8 @@ fn generator_without_reward_proxies() {
     check_token_balance(&mut app, &lp_eur_usd, &user1, 10);
     check_token_balance(&mut app, &lp_eur_usd, &user2, 10);
 
-    check_token_balance(&mut app, &astro_token_instance, &user1, 7_000000);
-    check_token_balance(&mut app, &astro_token_instance, &user2, 5_000000);
+    check_token_balance(&mut app, &grid_token_instance, &user1, 7_000000);
+    check_token_balance(&mut app, &grid_token_instance, &user2, 5_000000);
 }
 
 #[test]
@@ -1541,8 +1541,8 @@ fn generator_update_proxy_balance_failed() {
     let factory_code_id = store_factory_code(&mut app);
     let pair_code_id = store_pair_code_id(&mut app);
 
-    let astro_token_instance =
-        instantiate_token(&mut app, token_code_id, "ASTRO", Some(1_000_000_000_000000));
+    let grid_token_instance =
+        instantiate_token(&mut app, token_code_id, "GRID", Some(1_000_000_000_000000));
     let factory_instance =
         instantiate_factory(&mut app, factory_code_id, token_code_id, pair_code_id, None);
 
@@ -1566,7 +1566,7 @@ fn generator_update_proxy_balance_failed() {
     );
 
     let generator_instance =
-        instantiate_generator(&mut app, &factory_instance, &astro_token_instance, None);
+        instantiate_generator(&mut app, &factory_instance, &grid_token_instance, None);
 
     let vkr_staking_instance =
         instantiate_valkyrie_protocol(&mut app, &val_token, &pair_val_eur, &lp_val_eur);
@@ -1852,8 +1852,8 @@ fn generator_with_vkr_reward_proxy() {
     let factory_code_id = store_factory_code(&mut app);
     let pair_code_id = store_pair_code_id(&mut app);
 
-    let astro_token_instance =
-        instantiate_token(&mut app, token_code_id, "ASTRO", Some(1_000_000_000_000000));
+    let grid_token_instance =
+        instantiate_token(&mut app, token_code_id, "GRID", Some(1_000_000_000_000000));
     let factory_instance =
         instantiate_factory(&mut app, factory_code_id, token_code_id, pair_code_id, None);
 
@@ -1893,7 +1893,7 @@ fn generator_with_vkr_reward_proxy() {
     );
 
     let generator_instance =
-        instantiate_generator(&mut app, &factory_instance, &astro_token_instance, None);
+        instantiate_generator(&mut app, &factory_instance, &grid_token_instance, None);
 
     let vkr_staking_instance =
         instantiate_valkyrie_protocol(&mut app, &val_token, &pair_val_eur, &lp_val_eur);
@@ -2005,7 +2005,7 @@ fn generator_with_vkr_reward_proxy() {
         .unwrap_err();
     assert_eq!(
         err.root_cause().to_string(),
-        "astroport::generator::UserInfo not found".to_string()
+        "gridiron::generator::UserInfo not found".to_string()
     );
 
     app.update_block(|bi| next_block(bi));
@@ -2280,9 +2280,9 @@ fn generator_with_vkr_reward_proxy() {
     check_token_balance(&mut app, &lp_val_eur, &user1, 10);
     check_token_balance(&mut app, &lp_val_eur, &user2, 10);
 
-    check_token_balance(&mut app, &astro_token_instance, &user1, 0);
+    check_token_balance(&mut app, &grid_token_instance, &user1, 0);
     check_token_balance(&mut app, &val_token, &user1, 0);
-    check_token_balance(&mut app, &astro_token_instance, &user2, 3_000000);
+    check_token_balance(&mut app, &grid_token_instance, &user2, 3_000000);
     check_token_balance(&mut app, &val_token, &user2, 60000000);
 
     check_token_balance(&mut app, &val_token, &proxy_to_vkr_instance, 0);
@@ -2298,7 +2298,7 @@ fn generator_with_vkr_reward_proxy() {
     check_token_balance(&mut app, &lp_eur_usd, &generator_instance, 15);
     check_token_balance(&mut app, &lp_eur_usd, &user1, 5);
 
-    check_token_balance(&mut app, &astro_token_instance, &user1, 7_000000);
+    check_token_balance(&mut app, &grid_token_instance, &user1, 7_000000);
     check_token_balance(&mut app, &val_token, &user1, 0);
 
     // User1 withdraws and gets rewards
@@ -2311,7 +2311,7 @@ fn generator_with_vkr_reward_proxy() {
 
     check_token_balance(&mut app, &lp_eur_usd, &generator_instance, 10);
     check_token_balance(&mut app, &lp_eur_usd, &user1, 10);
-    check_token_balance(&mut app, &astro_token_instance, &user1, 7_000000);
+    check_token_balance(&mut app, &grid_token_instance, &user1, 7_000000);
     check_token_balance(&mut app, &val_token, &user1, 0);
 
     // User2 withdraws and gets rewards
@@ -2326,9 +2326,9 @@ fn generator_with_vkr_reward_proxy() {
     check_token_balance(&mut app, &lp_eur_usd, &user1, 10);
     check_token_balance(&mut app, &lp_eur_usd, &user2, 10);
 
-    check_token_balance(&mut app, &astro_token_instance, &user1, 7_000000);
+    check_token_balance(&mut app, &grid_token_instance, &user1, 7_000000);
     check_token_balance(&mut app, &val_token, &user1, 0_000000);
-    check_token_balance(&mut app, &astro_token_instance, &user2, 5_000000);
+    check_token_balance(&mut app, &grid_token_instance, &user2, 5_000000);
     check_token_balance(&mut app, &val_token, &user2, 60000000);
 
     // Proxies val_token balance
@@ -2345,8 +2345,8 @@ fn move_to_proxy() {
     let factory_code_id = store_factory_code(&mut app);
     let pair_code_id = store_pair_code_id(&mut app);
 
-    let astro_token_instance =
-        instantiate_token(&mut app, token_code_id, "ASTRO", Some(1_000_000_000_000000));
+    let grid_token_instance =
+        instantiate_token(&mut app, token_code_id, "GRID", Some(1_000_000_000_000000));
     let factory_instance =
         instantiate_factory(&mut app, factory_code_id, token_code_id, pair_code_id, None);
 
@@ -2371,7 +2371,7 @@ fn move_to_proxy() {
     );
 
     let generator_instance =
-        instantiate_generator(&mut app, &factory_instance, &astro_token_instance, None);
+        instantiate_generator(&mut app, &factory_instance, &grid_token_instance, None);
 
     register_lp_tokens_in_generator(
         &mut app,
@@ -2515,11 +2515,11 @@ fn query_all_stakers() {
         ],
     );
 
-    let astro_token_instance =
-        instantiate_token(&mut app, token_code_id, "ASTRO", Some(1_000_000_000_000000));
+    let grid_token_instance =
+        instantiate_token(&mut app, token_code_id, "GRID", Some(1_000_000_000_000000));
 
     let generator_instance =
-        instantiate_generator(&mut app, &factory_instance, &astro_token_instance, None);
+        instantiate_generator(&mut app, &factory_instance, &grid_token_instance, None);
 
     register_lp_tokens_in_generator(
         &mut app,
@@ -2666,11 +2666,11 @@ fn query_pagination_stakers() {
         ],
     );
 
-    let astro_token_instance =
-        instantiate_token(&mut app, token_code_id, "ASTRO", Some(1_000_000_000_000000));
+    let grid_token_instance =
+        instantiate_token(&mut app, token_code_id, "GRID", Some(1_000_000_000_000000));
 
     let generator_instance =
-        instantiate_generator(&mut app, &factory_instance, &astro_token_instance, None);
+        instantiate_generator(&mut app, &factory_instance, &grid_token_instance, None);
 
     register_lp_tokens_in_generator(
         &mut app,
@@ -2781,8 +2781,8 @@ fn update_tokens_blocked_list() {
     let factory_code_id = store_factory_code(&mut app);
     let pair_code_id = store_pair_code_id(&mut app);
 
-    let astro_token_instance =
-        instantiate_token(&mut app, token_code_id, "ASTRO", Some(1_000_000_000_000000));
+    let grid_token_instance =
+        instantiate_token(&mut app, token_code_id, "GRID", Some(1_000_000_000_000000));
 
     let factory_instance =
         instantiate_factory(&mut app, factory_code_id, token_code_id, pair_code_id, None);
@@ -2790,7 +2790,7 @@ fn update_tokens_blocked_list() {
     let generator_instance = instantiate_generator(
         &mut app,
         &factory_instance,
-        &astro_token_instance,
+        &grid_token_instance,
         Some(OWNER.to_string()),
     );
 
@@ -3047,8 +3047,8 @@ fn setup_pools() {
     let factory_code_id = store_factory_code(&mut app);
     let pair_code_id = store_pair_code_id(&mut app);
 
-    let astro_token_instance =
-        instantiate_token(&mut app, token_code_id, "ASTRO", Some(1_000_000_000_000000));
+    let grid_token_instance =
+        instantiate_token(&mut app, token_code_id, "GRID", Some(1_000_000_000_000000));
 
     let factory_instance =
         instantiate_factory(&mut app, factory_code_id, token_code_id, pair_code_id, None);
@@ -3056,7 +3056,7 @@ fn setup_pools() {
     let generator_instance = instantiate_generator(
         &mut app,
         &factory_instance,
-        &astro_token_instance,
+        &grid_token_instance,
         Some(OWNER.to_string()),
     );
 
@@ -3299,8 +3299,8 @@ fn deactivate_pools_by_pair_types() {
     let pair_code_id = store_pair_code_id(&mut app);
     let pair_stable_code_id = store_pair_stable_code_id(&mut app);
 
-    let astro_token_instance =
-        instantiate_token(&mut app, token_code_id, "ASTRO", Some(1_000_000_000_000000));
+    let grid_token_instance =
+        instantiate_token(&mut app, token_code_id, "GRID", Some(1_000_000_000_000000));
 
     let factory_instance = instantiate_factory(
         &mut app,
@@ -3313,7 +3313,7 @@ fn deactivate_pools_by_pair_types() {
     let generator_instance = instantiate_generator(
         &mut app,
         &factory_instance,
-        &astro_token_instance,
+        &grid_token_instance,
         Some(OWNER.to_string()),
     );
 
@@ -3663,7 +3663,7 @@ fn test_proxy_generator_incorrect_virtual_amount() {
     );
     helper_controller
         .escrow_helper
-        .mint_xastro(&mut app, USER1, 200);
+        .mint_xgrid(&mut app, USER1, 200);
     helper_controller
         .escrow_helper
         .create_lock(&mut app, USER1, WEEK * 3, 100f32)
@@ -3811,23 +3811,23 @@ fn test_proxy_generator_incorrect_virtual_amount() {
 }
 
 fn store_token_code(app: &mut App) -> u64 {
-    let astro_token_contract = Box::new(ContractWrapper::new_with_empty(
-        astroport_token::contract::execute,
-        astroport_token::contract::instantiate,
-        astroport_token::contract::query,
+    let grid_token_contract = Box::new(ContractWrapper::new_with_empty(
+        gridiron_token::contract::execute,
+        gridiron_token::contract::instantiate,
+        gridiron_token::contract::query,
     ));
 
-    app.store_code(astro_token_contract)
+    app.store_code(grid_token_contract)
 }
 
 fn store_factory_code(app: &mut App) -> u64 {
     let factory_contract = Box::new(
         ContractWrapper::new_with_empty(
-            astroport_factory::contract::execute,
-            astroport_factory::contract::instantiate,
-            astroport_factory::contract::query,
+            gridiron_factory::contract::execute,
+            gridiron_factory::contract::instantiate,
+            gridiron_factory::contract::query,
         )
-        .with_reply_empty(astroport_factory::contract::reply),
+        .with_reply_empty(gridiron_factory::contract::reply),
     );
 
     app.store_code(factory_contract)
@@ -3836,11 +3836,11 @@ fn store_factory_code(app: &mut App) -> u64 {
 fn store_pair_code_id(app: &mut App) -> u64 {
     let pair_contract = Box::new(
         ContractWrapper::new_with_empty(
-            astroport_pair::contract::execute,
-            astroport_pair::contract::instantiate,
-            astroport_pair::contract::query,
+            gridiron_pair::contract::execute,
+            gridiron_pair::contract::instantiate,
+            gridiron_pair::contract::query,
         )
-        .with_reply_empty(astroport_pair::contract::reply),
+        .with_reply_empty(gridiron_pair::contract::reply),
     );
 
     app.store_code(pair_contract)
@@ -3849,11 +3849,11 @@ fn store_pair_code_id(app: &mut App) -> u64 {
 fn store_pair_stable_code_id(app: &mut App) -> u64 {
     let pair_contract = Box::new(
         ContractWrapper::new_with_empty(
-            astroport_pair_stable::contract::execute,
-            astroport_pair_stable::contract::instantiate,
-            astroport_pair_stable::contract::query,
+            gridiron_pair_stable::contract::execute,
+            gridiron_pair_stable::contract::instantiate,
+            gridiron_pair_stable::contract::query,
         )
-        .with_reply_empty(astroport_pair_stable::contract::reply),
+        .with_reply_empty(gridiron_pair_stable::contract::reply),
     );
 
     app.store_code(pair_contract)
@@ -3861,9 +3861,9 @@ fn store_pair_stable_code_id(app: &mut App) -> u64 {
 
 fn store_coin_registry_code(app: &mut App) -> u64 {
     let coin_registry_contract = Box::new(ContractWrapper::new_with_empty(
-        astroport_native_coin_registry::contract::execute,
-        astroport_native_coin_registry::contract::instantiate,
-        astroport_native_coin_registry::contract::query,
+        gridiron_native_coin_registry::contract::execute,
+        gridiron_native_coin_registry::contract::instantiate,
+        gridiron_native_coin_registry::contract::query,
     ));
 
     app.store_code(coin_registry_contract)
@@ -3894,7 +3894,7 @@ fn instantiate_coin_registry(mut app: &mut App, coins: Option<Vec<(String, u8)>>
         .instantiate_contract(
             coin_registry_id,
             Addr::unchecked(OWNER),
-            &astroport::native_coin_registry::InstantiateMsg {
+            &gridiron::native_coin_registry::InstantiateMsg {
                 owner: OWNER.to_string(),
             },
             &[],
@@ -3907,7 +3907,7 @@ fn instantiate_coin_registry(mut app: &mut App, coins: Option<Vec<(String, u8)>>
         app.execute_contract(
             Addr::unchecked(OWNER),
             coin_registry_address.clone(),
-            &astroport::native_coin_registry::ExecuteMsg::Add {
+            &gridiron::native_coin_registry::ExecuteMsg::Add {
                 native_coins: coins,
             },
             &[],
@@ -3972,21 +3972,21 @@ fn instantiate_factory(
 fn instantiate_generator(
     mut app: &mut App,
     factory_instance: &Addr,
-    astro_token_instance: &Addr,
+    grid_token_instance: &Addr,
     generator_controller: Option<String>,
 ) -> Addr {
     // Vesting
     let vesting_contract = Box::new(ContractWrapper::new_with_empty(
-        astroport_vesting::contract::execute,
-        astroport_vesting::contract::instantiate,
-        astroport_vesting::contract::query,
+        gridiron_vesting::contract::execute,
+        gridiron_vesting::contract::instantiate,
+        gridiron_vesting::contract::query,
     ));
     let owner = Addr::unchecked(OWNER);
     let vesting_code_id = app.store_code(vesting_contract);
 
     let init_msg = VestingInstantiateMsg {
         owner: owner.to_string(),
-        vesting_token: token_asset_info(astro_token_instance.clone()),
+        vesting_token: token_asset_info(grid_token_instance.clone()),
     };
 
     let vesting_instance = app
@@ -4003,7 +4003,7 @@ fn instantiate_generator(
     mint_tokens(
         &mut app,
         owner.clone(),
-        &astro_token_instance,
+        &grid_token_instance,
         &owner,
         1_000_000_000_000000,
     );
@@ -4011,11 +4011,11 @@ fn instantiate_generator(
     // Generator
     let generator_contract = Box::new(
         ContractWrapper::new_with_empty(
-            astroport_generator::contract::execute,
-            astroport_generator::contract::instantiate,
-            astroport_generator::contract::query,
+            gridiron_generator::contract::execute,
+            gridiron_generator::contract::instantiate,
+            gridiron_generator::contract::query,
         )
-        .with_reply_empty(astroport_generator::contract::reply),
+        .with_reply_empty(gridiron_generator::contract::reply),
     );
 
     let whitelist_code_id = store_whitelist_code(&mut app);
@@ -4026,7 +4026,7 @@ fn instantiate_generator(
         factory: factory_instance.to_string(),
         guardian: None,
         start_block: Uint64::from(app.block_info().height),
-        astro_token: token_asset_info(astro_token_instance.clone()),
+        grid_token: token_asset_info(grid_token_instance.clone()),
         tokens_per_block: Uint128::new(10_000000),
         vesting_contract: vesting_instance.to_string(),
         generator_controller,
@@ -4069,7 +4069,7 @@ fn instantiate_generator(
         amount,
     };
 
-    app.execute_contract(owner, astro_token_instance.clone(), &msg, &[])
+    app.execute_contract(owner, grid_token_instance.clone(), &msg, &[])
         .unwrap();
 
     generator_instance
@@ -4305,9 +4305,9 @@ fn create_pair(
 
 fn store_whitelist_code(app: &mut App) -> u64 {
     let whitelist_contract = Box::new(ContractWrapper::new_with_empty(
-        astroport_whitelist::contract::execute,
-        astroport_whitelist::contract::instantiate,
-        astroport_whitelist::contract::query,
+        gridiron_whitelist::contract::execute,
+        gridiron_whitelist::contract::instantiate,
+        gridiron_whitelist::contract::query,
     ));
 
     app.store_code(whitelist_contract)
@@ -4317,7 +4317,7 @@ fn store_whitelist_code(app: &mut App) -> u64 {
 fn migrate_proxy() {
     let app = Rc::new(RefCell::new(App::default()));
 
-    let astroport = astroport_address();
+    let gridiron = gridiron_address();
 
     let user1 = Addr::unchecked("user1");
     let user2 = Addr::unchecked("user2");
@@ -4327,15 +4327,15 @@ fn migrate_proxy() {
 
     let factory = generator.factory();
 
-    let astro = MockToken::try_from((&app, &generator.astro_token_info())).unwrap();
+    let grid = MockToken::try_from((&app, &generator.grid_token_info())).unwrap();
     let val = MockTokenBuilder::new(&app, "VAL").instantiate();
 
-    let pair = factory.instantiate_xyk_pair(&[astro.asset_info(), val.asset_info()]);
+    let pair = factory.instantiate_xyk_pair(&[grid.asset_info(), val.asset_info()]);
 
     pair.mint_allow_provide_and_stake(
         &user1,
         &[
-            astro.asset_info().with_balance(Uint128::new(2000)),
+            grid.asset_info().with_balance(Uint128::new(2000)),
             val.asset_info().with_balance(Uint128::new(2000)),
         ],
     );
@@ -4343,7 +4343,7 @@ fn migrate_proxy() {
     pair.mint_allow_provide_and_stake(
         &user2,
         &[
-            astro.asset_info().with_balance(Uint128::new(2000)),
+            grid.asset_info().with_balance(Uint128::new(2000)),
             val.asset_info().with_balance(Uint128::new(2000)),
         ],
     );
@@ -4351,7 +4351,7 @@ fn migrate_proxy() {
     pair.mint_allow_provide_and_stake(
         &user3,
         &[
-            astro.asset_info().with_balance(Uint128::new(2000)),
+            grid.asset_info().with_balance(Uint128::new(2000)),
             val.asset_info().with_balance(Uint128::new(2000)),
         ],
     );
@@ -4381,7 +4381,7 @@ fn migrate_proxy() {
 
     app.borrow_mut()
         .execute_contract(
-            astroport.clone(),
+            gridiron.clone(),
             generator.address.clone(),
             &ExecuteMsg::MoveToProxy {
                 lp_token: lp_token.address.to_string(),
@@ -4402,7 +4402,7 @@ fn migrate_proxy() {
             )
             .unwrap(),
         RewardInfoResponse {
-            base_reward_token: generator.astro_token_info(),
+            base_reward_token: generator.grid_token_info(),
             proxy_reward_token: Some(val.address.clone())
         }
     );
@@ -4435,7 +4435,7 @@ fn migrate_proxy() {
 
     app.borrow_mut()
         .execute_contract(
-            astroport.clone(),
+            gridiron.clone(),
             generator.address.clone(),
             &ExecuteMsg::MigrateProxy {
                 lp_token: lp_token.address.to_string(),
@@ -4488,17 +4488,17 @@ fn migrate_proxy() {
 
     app.borrow_mut()
         .execute_contract(
-            astroport.clone(),
+            gridiron.clone(),
             generator.address.clone(),
             &ExecuteMsg::SendOrphanProxyReward {
-                recipient: astroport.to_string(),
+                recipient: gridiron.to_string(),
                 lp_token: lp_token.address.to_string(),
             },
             &[],
         )
         .unwrap();
     assert_eq!(val.balance(&proxy_reward_holder), Uint128::new(0));
-    assert_eq!(val.balance(&astroport), Uint128::new(20_000_000));
+    assert_eq!(val.balance(&gridiron), Uint128::new(20_000_000));
 
     assert_eq!(
         app.borrow()
@@ -4513,21 +4513,21 @@ fn migrate_proxy() {
 fn check_that_last_reward_block_is_reset_when_pool_becomes_incentivised() {
     let app = Rc::new(RefCell::new(App::default()));
 
-    let astroport = astroport_address();
+    let gridiron = gridiron_address();
 
     let mut generator = MockGeneratorBuilder::new(&app).instantiate();
 
     let factory = generator.factory();
 
-    let astro = MockToken::try_from((&app, &generator.astro_token_info())).unwrap();
+    let grid = MockToken::try_from((&app, &generator.grid_token_info())).unwrap();
     let tkn1 = MockTokenBuilder::new(&app, "TKN1").instantiate();
 
-    let pair = factory.instantiate_xyk_pair(&[astro.asset_info(), tkn1.asset_info()]);
+    let pair = factory.instantiate_xyk_pair(&[grid.asset_info(), tkn1.asset_info()]);
 
     pair.mint_allow_provide_and_stake(
-        &astroport,
+        &gridiron,
         &[
-            astro.asset_info().with_balance(Uint128::new(1000_000000)),
+            grid.asset_info().with_balance(Uint128::new(1000_000000)),
             tkn1.asset_info().with_balance(Uint128::new(1000_000000)),
         ],
     );
@@ -4541,7 +4541,7 @@ fn check_that_last_reward_block_is_reset_when_pool_becomes_incentivised() {
     // if last reward block didn't reset, user would get incentives for 1000 blocks
     assert_eq!(
         generator
-            .pending_token(&lp_token.address, &astroport)
+            .pending_token(&lp_token.address, &gridiron)
             .pending,
         Uint128::zero()
     );

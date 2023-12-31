@@ -1,7 +1,7 @@
 [package]
-name = "astroport-shared-multisig"
+name = "gridiron-shared-multisig"
 version = "1.0.0"
-authors = ["Astroport, Ethan Frey <ethanfrey@users.noreply.github.com>"]
+authors = ["Gridiron, Ethan Frey <ethanfrey@users.noreply.github.com>"]
 edition = "2021"
 
 [lib]
@@ -22,10 +22,10 @@ cw-storage-plus = "0.15"
 cosmwasm-std = "1.1"
 thiserror = "1.0"
 itertools = "0.10"
-astroport = { path = "../../../packages/astroport", version = "3" }
+gridiron = { path = "../../../packages/gridiron", version = "3" }
 
 [dev-dependencies]
-astroport-mocks = { path = "../../../packages/astroport_mocks"}
-astroport-pair = { path = "../../pair" }
-astroport-pair-concentrated = { path = "../../pair_concentrated" }
-astroport-generator = { path = "../../tokenomics/generator" }
+gridiron-mocks = { path = "../../../packages/gridiron_mocks"}
+gridiron-pair = { path = "../../pair" }
+gridiron-pair-concentrated = { path = "../../pair_concentrated" }
+gridiron-generator = { path = "../../tokenomics/generator" }

@@ -6,9 +6,9 @@ use cosmwasm_std::{
 use crate::state::{read_vesting_infos, Config, CONFIG, OWNERSHIP_PROPOSAL, VESTING_INFO};
 
 use crate::error::ContractError;
-use astroport::asset::{addr_opt_validate, token_asset_info, AssetInfo, AssetInfoExt};
-use astroport::common::{claim_ownership, drop_ownership_proposal, propose_new_owner};
-use astroport::vesting::{
+use gridiron::asset::{addr_opt_validate, token_asset_info, AssetInfo, AssetInfoExt};
+use gridiron::common::{claim_ownership, drop_ownership_proposal, propose_new_owner};
+use gridiron::vesting::{
     ConfigResponse, Cw20HookMsg, ExecuteMsg, InstantiateMsg, MigrateMsg, OrderBy, QueryMsg,
     VestingAccount, VestingAccountResponse, VestingAccountsResponse, VestingInfo, VestingSchedule,
     VestingSchedulePoint,
@@ -18,7 +18,7 @@ use cw20::Cw20ReceiveMsg;
 use cw_utils::must_pay;
 
 /// Contract name that is used for migration.
-const CONTRACT_NAME: &str = "astroport-vesting";
+const CONTRACT_NAME: &str = "gridiron-vesting";
 /// Contract version that is used for migration.
 const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
 /// Maximum limit of schedules per user
@@ -522,7 +522,7 @@ pub fn migrate(deps: DepsMut, _env: Env, _msg: MigrateMsg) -> Result<Response, C
     let contract_version = get_contract_version(deps.storage)?;
 
     match contract_version.contract.as_ref() {
-        "astroport-vesting" => match contract_version.version.as_ref() {
+        "gridiron-vesting" => match contract_version.version.as_ref() {
             "1.1.0" | "1.2.0" | "1.3.0" | "1.3.1" => {}
             _ => return Err(ContractError::MigrationError {}),
         },

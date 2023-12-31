@@ -7,20 +7,20 @@ use std::str::FromStr;
 use cosmwasm_std::{Addr, Coin, Decimal, Decimal256, StdError, Uint128};
 use itertools::{max, Itertools};
 
-use astroport::asset::{
+use gridiron::asset::{
     native_asset_info, Asset, AssetInfo, AssetInfoExt, MINIMUM_LIQUIDITY_AMOUNT,
 };
-use astroport::cosmwasm_ext::{AbsDiff, IntegerToDecimal};
-use astroport::observation::OracleObservation;
-use astroport::pair::{ExecuteMsg, PoolResponse, MAX_FEE_SHARE_BPS};
-use astroport::pair_concentrated::{
+use gridiron::cosmwasm_ext::{AbsDiff, IntegerToDecimal};
+use gridiron::observation::OracleObservation;
+use gridiron::pair::{ExecuteMsg, PoolResponse, MAX_FEE_SHARE_BPS};
+use gridiron::pair_concentrated::{
     ConcentratedPoolParams, ConcentratedPoolUpdateParams, PromoteParams, QueryMsg, UpdatePoolParams,
 };
-use astroport_mocks::cw_multi_test::{BasicApp, Executor};
-use astroport_mocks::{astroport_address, MockConcentratedPairBuilder, MockGeneratorBuilder};
-use astroport_pair_concentrated::error::ContractError;
-use astroport_pcl_common::consts::{AMP_MAX, AMP_MIN, MA_HALF_TIME_LIMITS};
-use astroport_pcl_common::error::PclError;
+use gridiron_mocks::cw_multi_test::{BasicApp, Executor};
+use gridiron_mocks::{gridiron_address, MockConcentratedPairBuilder, MockGeneratorBuilder};
+use gridiron_pair_concentrated::error::ContractError;
+use gridiron_pcl_common::consts::{AMP_MAX, AMP_MIN, MA_HALF_TIME_LIMITS};
+use gridiron_pcl_common::error::PclError;
 
 use crate::helper::{common_pcl_params, dec_to_f64, f64_to_dec, AppExtension, Helper, TestCoin};
 
@@ -103,7 +103,7 @@ fn check_wrong_initialization() {
 
     let err = Helper::new(
         &owner,
-        vec![TestCoin::native("uluna"), TestCoin::cw20("ASTRO")],
+        vec![TestCoin::native("uluna"), TestCoin::cw20("GRID")],
         wrong_params,
     )
     .unwrap_err();
@@ -122,7 +122,7 @@ fn check_wrong_initialization() {
 
     let err = Helper::new(
         &owner,
-        vec![TestCoin::native("uluna"), TestCoin::cw20("ASTRO")],
+        vec![TestCoin::native("uluna"), TestCoin::cw20("GRID")],
         wrong_params,
     )
     .unwrap_err();
@@ -141,7 +141,7 @@ fn check_wrong_initialization() {
 
     let err = Helper::new(
         &owner,
-        vec![TestCoin::native("uluna"), TestCoin::cw20("ASTRO")],
+        vec![TestCoin::native("uluna"), TestCoin::cw20("GRID")],
         wrong_params,
     )
     .unwrap_err();
@@ -154,7 +154,7 @@ fn check_wrong_initialization() {
     // check instantiation with valid params
     Helper::new(
         &owner,
-        vec![TestCoin::native("uluna"), TestCoin::cw20("ASTRO")],
+        vec![TestCoin::native("uluna"), TestCoin::cw20("GRID")],
         params,
     )
     .unwrap();
@@ -1279,14 +1279,14 @@ fn provides_and_swaps_and_withdraw() {
 
 #[test]
 fn provide_liquidity_with_autostaking_to_generator() {
-    let astroport = astroport_address();
+    let gridiron = gridiron_address();
 
     let app = Rc::new(RefCell::new(BasicApp::new(|router, _, storage| {
         router
             .bank
             .init_balance(
                 storage,
-                &astroport,
+                &gridiron,
                 vec![Coin {
                     denom: "ustake".to_owned(),
                     amount: Uint128::new(1_000_000_000000),
@@ -1299,26 +1299,26 @@ fn provide_liquidity_with_autostaking_to_generator() {
 
     let factory = generator.factory();
 
-    let astro_token_info = generator.astro_token_info();
+    let grid_token_info = generator.grid_token_info();
     let ustake = native_asset_info("ustake".to_owned());
 
     let pair = MockConcentratedPairBuilder::new(&app)
         .with_factory(&factory)
-        .with_asset(&astro_token_info)
+        .with_asset(&grid_token_info)
         .with_asset(&ustake)
         .instantiate(None);
 
     pair.mint_allow_provide_and_stake(
-        &astroport,
+        &gridiron,
         &[
-            astro_token_info.with_balance(1_000_000000u128),
+            grid_token_info.with_balance(1_000_000000u128),
             ustake.with_balance(1_000_000000u128),
         ],
     );
 
     assert_eq!(pair.lp_token().balance(&pair.address), Uint128::new(1000));
     assert_eq!(
-        generator.query_deposit(&pair.lp_token(), &astroport),
+        generator.query_deposit(&pair.lp_token(), &gridiron),
         Uint128::new(999_999000),
     );
 }

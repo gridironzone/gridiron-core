@@ -1,4 +1,4 @@
-# Astroport Concentrated Liquidity Pair with Injective Orderbook integration
+# Gridiron Concentrated Liquidity Pair with Injective Orderbook integration
 
 [//]: # (TODO: write README)
 
@@ -10,7 +10,7 @@
 3. This pair contract does not support CW20 tokens. Only native tokens are allowed.
 4. When registering this contract in begin blocker, the proposer must ask to pin contract in memory to make orderbook integration profitable.
 5. When registering pool with 'inj', funding mode = GrantOnly must be specified in registration proposal. Otherwise, contract will block execution on begin blocker.
-However, contract's inj balance will be still being charged for noop operations, but Astroport can't prevent this. 
+However, contract's inj balance will be still being charged for noop operations, but Gridiron can't prevent this. 
 Contract can enable itself when grant only funding mode is observed. Contract always checks funding mode on swap and provide liquidity events.
 It means, that if funding mode was fixed any user will have to swap or provide liquidity to enable contract.
 

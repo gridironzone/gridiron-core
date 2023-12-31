@@ -1,8 +1,8 @@
 use cosmwasm_schema::cw_serde;
 
-use astroport::asset::AssetInfo;
-use astroport::common::OwnershipProposal;
-use astroport::vesting::{OrderBy, VestingInfo};
+use gridiron::asset::AssetInfo;
+use gridiron::common::OwnershipProposal;
+use gridiron::vesting::{OrderBy, VestingInfo};
 use cosmwasm_std::{Addr, Deps, StdResult};
 use cw_storage_plus::{Bound, Item, Map};
 
@@ -11,7 +11,7 @@ use cw_storage_plus::{Bound, Item, Map};
 pub struct Config {
     /// Address that's allowed to change contract parameters
     pub owner: Addr,
-    /// [`AssetInfo`] of the ASTRO token
+    /// [`AssetInfo`] of the GRID token
     pub vesting_token: AssetInfo,
 }
 

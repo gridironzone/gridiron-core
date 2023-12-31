@@ -1,5 +1,5 @@
-use astroport::pair::{ExecuteMsg, InstantiateMsg, MigrateMsg};
-use astroport::pair_concentrated::QueryMsg;
+use gridiron::pair::{ExecuteMsg, InstantiateMsg, MigrateMsg};
+use gridiron::pair_concentrated::QueryMsg;
 use cosmwasm_schema::write_api;
 
 fn main() {

@@ -9,13 +9,13 @@ use cosmwasm_std::{
 use cw_utils::one_coin;
 use itertools::Itertools;
 
-use astroport::asset::{
+use gridiron::asset::{
     addr_opt_validate, determine_asset_info, validate_native_denom, Asset, AssetInfo, AssetInfoExt,
 };
-use astroport::common::{claim_ownership, drop_ownership_proposal, propose_new_owner};
-use astroport::factory;
-use astroport::factory::PairType;
-use astroport::incentives::{Cw20Msg, ExecuteMsg, IncentivizationFeeInfo};
+use gridiron::common::{claim_ownership, drop_ownership_proposal, propose_new_owner};
+use gridiron::factory;
+use gridiron::factory::PairType;
+use gridiron::incentives::{Cw20Msg, ExecuteMsg, IncentivizationFeeInfo};
 
 use crate::error::ContractError;
 use crate::state::{
@@ -309,21 +309,21 @@ pub fn setup_pools(
         })
         .collect::<Result<Vec<_>, ContractError>>()?;
 
-    // Update all reward indexes and remove astro rewards from old active pools
+    // Update all reward indexes and remove grid rewards from old active pools
     for (lp_token_asset, _) in ACTIVE_POOLS.load(deps.storage)? {
         let mut pool_info = PoolInfo::load(deps.storage, &lp_token_asset)?;
         pool_info.update_rewards(deps.storage, &env, &lp_token_asset)?;
-        pool_info.disable_astro_rewards();
+        pool_info.disable_grid_rewards();
         pool_info.save(deps.storage, &lp_token_asset)?;
     }
 
     config.total_alloc_points = setup_pools.iter().map(|(_, alloc)| alloc).sum();
 
-    // Set astro rewards for new active pools
+    // Set grid rewards for new active pools
     for (active_pool, alloc_points) in &setup_pools {
         let mut pool_info = PoolInfo::may_load(deps.storage, active_pool)?.unwrap_or_default();
         pool_info.update_rewards(deps.storage, &env, active_pool)?;
-        pool_info.set_astro_rewards(&config, *alloc_points);
+        pool_info.set_grid_rewards(&config, *alloc_points);
         pool_info.save(deps.storage, active_pool)?;
     }
 
@@ -356,10 +356,10 @@ fn set_tokens_per_second(
         })
         .collect::<StdResult<Vec<_>>>()?;
 
-    config.astro_per_second = amount;
+    config.grid_per_second = amount;
 
     for (mut pool_info, lp_token, alloc_points) in pool_infos {
-        pool_info.set_astro_rewards(&config, alloc_points);
+        pool_info.set_grid_rewards(&config, alloc_points);
         pool_info.save(deps.storage, &lp_token)?;
     }
 
@@ -466,9 +466,9 @@ fn update_blocked_pool_tokens(
         for token_to_block in &add {
             let asset_info_key = asset_info_key(token_to_block);
             if !BLOCKED_TOKENS.has(deps.storage, &asset_info_key) {
-                if token_to_block.eq(&config.astro_token) {
+                if token_to_block.eq(&config.grid_token) {
                     return Err(StdError::generic_err(format!(
-                        "Blocking ASTRO token {token_to_block} is prohibited",
+                        "Blocking GRID token {token_to_block} is prohibited",
                     ))
                     .into());
                 }
@@ -491,11 +491,11 @@ fn update_blocked_pool_tokens(
         if !to_disable.is_empty() {
             let mut reduce_total_alloc_points = Uint128::zero();
 
-            // Update all reward indexes and remove astro rewards from disabled pools
+            // Update all reward indexes and remove grid rewards from disabled pools
             for (lp_token_asset, alloc_points) in &to_disable {
                 let mut pool_info = PoolInfo::load(deps.storage, lp_token_asset)?;
                 pool_info.update_rewards(deps.storage, &env, lp_token_asset)?;
-                pool_info.disable_astro_rewards();
+                pool_info.disable_grid_rewards();
                 pool_info.save(deps.storage, lp_token_asset)?;
                 reduce_total_alloc_points += *alloc_points;
             }
@@ -521,7 +521,7 @@ fn update_blocked_pool_tokens(
             for (lp_asset, alloc_points) in &new_active_pools {
                 let mut pool_info = PoolInfo::load(deps.storage, lp_asset)?;
                 pool_info.update_rewards(deps.storage, &env, lp_asset)?;
-                pool_info.set_astro_rewards(&config, *alloc_points);
+                pool_info.set_grid_rewards(&config, *alloc_points);
                 pool_info.save(deps.storage, lp_asset)?;
             }
 

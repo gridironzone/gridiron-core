@@ -13,16 +13,16 @@ use cw_utils::parse_instantiate_response_data;
 use crate::error::ContractError;
 use crate::migration;
 
-use astroport::asset::{addr_opt_validate, pair_info_by_pool, Asset, AssetInfo, PairInfo};
+use gridiron::asset::{addr_opt_validate, pair_info_by_pool, Asset, AssetInfo, PairInfo};
 
-use astroport::common::{
+use gridiron::common::{
     claim_ownership, drop_ownership_proposal, propose_new_owner, validate_addresses,
 };
-use astroport::factory::PairType;
-use astroport::generator::{Config, ExecuteOnReply, PoolInfo};
-use astroport::generator::{StakerResponse, UserInfoV2};
-use astroport::querier::query_token_balance;
-use astroport::{
+use gridiron::factory::PairType;
+use gridiron::generator::{Config, ExecuteOnReply, PoolInfo};
+use gridiron::generator::{StakerResponse, UserInfoV2};
+use gridiron::querier::query_token_balance;
+use gridiron::{
     factory::{ConfigResponse as FactoryConfigResponse, QueryMsg as FactoryQueryMsg},
     generator::{
         Cw20HookMsg, ExecuteMsg, InstantiateMsg, MigrateMsg, PendingTokenResponse,
@@ -42,7 +42,7 @@ use crate::state::{
 };
 
 /// Contract name that is used for migration.
-const CONTRACT_NAME: &str = "astroport-generator";
+const CONTRACT_NAME: &str = "gridiron-generator";
 /// Contract version that is used for migration.
 const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
 
@@ -63,14 +63,14 @@ pub fn instantiate(
     let voting_escrow_delegation = addr_opt_validate(deps.api, &msg.voting_escrow_delegation)?;
     let voting_escrow = addr_opt_validate(deps.api, &msg.voting_escrow)?;
 
-    msg.astro_token.check(deps.api)?;
+    msg.grid_token.check(deps.api)?;
 
     let config = Config {
         owner: deps.api.addr_validate(&msg.owner)?,
         factory: deps.api.addr_validate(&msg.factory)?,
         generator_controller,
         guardian,
-        astro_token: msg.astro_token,
+        grid_token: msg.grid_token,
         tokens_per_block: msg.tokens_per_block,
         total_alloc_point: Uint128::zero(),
         start_block: msg.start_block,
@@ -123,7 +123,7 @@ pub fn instantiate(
 /// * **ExecuteMsg::Receive(msg)** Receives a message of type [`Cw20ReceiveMsg`] and processes
 /// it depending on the received template.
 ///
-/// * **ExecuteMsg::SetTokensPerBlock { amount }** Sets a new amount of ASTRO that's distributed per block among all active generators.
+/// * **ExecuteMsg::SetTokensPerBlock { amount }** Sets a new amount of GRID that's distributed per block among all active generators.
 ///
 /// * **ExecuteMsg::ProposeNewOwner { owner, expires_in }** Creates a new request to change contract ownership.
 /// Only the current owner can call this.
@@ -452,9 +452,9 @@ fn update_blocked_tokens_list(
         mass_update_pools(deps.branch(), &env, &cfg, &active_pools)?;
 
         for asset_info in asset_infos {
-            // ASTRO or chain's native assets (ust, uluna, inj, etc) cannot be blacklisted
+            // GRID or chain's native assets (ust, uluna, inj, etc) cannot be blacklisted
             if asset_info.is_native_token() && !asset_info.is_ibc()
-                || asset_info.eq(&cfg.astro_token)
+                || asset_info.eq(&cfg.grid_token)
             {
                 return Err(ContractError::AssetCannotBeBlocked {
                     asset: asset_info.to_string(),
@@ -795,7 +795,7 @@ pub fn deactivate_pool(
     Ok(Response::new().add_attribute("action", "deactivate_pool"))
 }
 
-/// Sets a new amount of ASTRO distributed per block among all active generators. Before that, we
+/// Sets a new amount of GRID distributed per block among all active generators. Before that, we
 /// will need to update all pools in order to correctly account for accrued rewards.
 ///
 /// * **amount** new count of tokens per block.
@@ -1808,7 +1808,7 @@ fn query_reward_info(deps: Deps, lp_token: String) -> Result<RewardInfoResponse,
         .transpose()?;
 
     Ok(RewardInfoResponse {
-        base_reward_token: config.astro_token,
+        base_reward_token: config.grid_token,
         proxy_reward_token,
     })
 }
@@ -1855,7 +1855,7 @@ fn query_pool_info(
 
     let lp_supply: Uint128;
     let mut pending_on_proxy = None;
-    let mut pending_astro_rewards = Uint128::zero();
+    let mut pending_grid_rewards = Uint128::zero();
 
     // If proxy rewards are live for this LP token, calculate its pending proxy rewards
     match &pool.reward_proxy {
@@ -1886,17 +1886,17 @@ fn query_pool_info(
 
     let alloc_point = get_alloc_point(&config.active_pools, &lp_token);
 
-    // Calculate pending ASTRO rewards
+    // Calculate pending GRID rewards
     if env.block.height > pool.last_reward_block.u64() && !lp_supply.is_zero() {
-        pending_astro_rewards = calculate_rewards(
+        pending_grid_rewards = calculate_rewards(
             env.block.height - pool.last_reward_block.u64(),
             &alloc_point,
             &config,
         )?;
     }
 
-    // Calculate ASTRO tokens being distributed per block to this LP token pool
-    let astro_tokens_per_block = config
+    // Calculate GRID tokens being distributed per block to this LP token pool
+    let grid_tokens_per_block = config
         .tokens_per_block
         .checked_mul(alloc_point)?
         .checked_div(config.total_alloc_point)
@@ -1904,10 +1904,10 @@ fn query_pool_info(
 
     Ok(PoolInfoResponse {
         alloc_point,
-        astro_tokens_per_block,
+        grid_tokens_per_block,
         last_reward_block: pool.last_reward_block.u64(),
         current_block: env.block.height,
-        pending_astro_rewards,
+        pending_grid_rewards,
         reward_proxy: pool.reward_proxy,
         pending_proxy_rewards: pending_on_proxy,
         accumulated_proxy_rewards_per_share: pool
@@ -2036,7 +2036,7 @@ pub fn migrate(mut deps: DepsMut, env: Env, msg: MigrateMsg) -> Result<Response,
     let contract_version = get_contract_version(deps.storage)?;
 
     match contract_version.contract.as_ref() {
-        "astroport-generator" => match contract_version.version.as_ref() {
+        "gridiron-generator" => match contract_version.version.as_ref() {
             "2.2.0" | "2.2.0+togrb" => {
                 migration::migrate_configs_from_v220(&mut deps, &msg)?;
             }

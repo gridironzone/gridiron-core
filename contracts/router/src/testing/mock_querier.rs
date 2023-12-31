@@ -6,9 +6,9 @@ use cosmwasm_std::{
 };
 use std::collections::HashMap;
 
-use astroport::asset::{Asset, AssetInfo, PairInfo};
-use astroport::factory::PairType;
-use astroport::pair::SimulationResponse;
+use gridiron::asset::{Asset, AssetInfo, PairInfo};
+use gridiron::factory::PairType;
+use gridiron::pair::SimulationResponse;
 use cw20::{BalanceResponse, Cw20QueryMsg, TokenInfoResponse};
 
 #[cw_serde]
@@ -23,7 +23,7 @@ pub enum QueryMsg {
 }
 
 /// mock_dependencies is a drop-in replacement for cosmwasm_std::testing::mock_dependencies.
-/// This uses the Astroport CustomQuerier.
+/// This uses the Gridiron CustomQuerier.
 pub fn mock_dependencies(
     contract_balance: &[Coin],
 ) -> OwnedDeps<MockStorage, MockApi, WasmMockQuerier> {
@@ -41,7 +41,7 @@ pub fn mock_dependencies(
 pub struct WasmMockQuerier {
     base: MockQuerier<Empty>,
     token_querier: TokenQuerier,
-    astroport_factory_querier: AstroportFactoryQuerier,
+    gridiron_factory_querier: GridironFactoryQuerier,
 }
 
 #[derive(Clone, Default)]
@@ -74,13 +74,13 @@ pub(crate) fn balances_to_map(
 }
 
 #[derive(Clone, Default)]
-pub struct AstroportFactoryQuerier {
+pub struct GridironFactoryQuerier {
     pairs: HashMap<String, String>,
 }
 
-impl AstroportFactoryQuerier {
+impl GridironFactoryQuerier {
     pub fn new(pairs: &[(&String, &String)]) -> Self {
-        AstroportFactoryQuerier {
+        GridironFactoryQuerier {
             pairs: pairs_to_map(pairs),
         }
     }
@@ -135,7 +135,7 @@ impl WasmMockQuerier {
         match from_binary(&msg).unwrap() {
             QueryMsg::Pair { asset_infos } => {
                 let key = asset_infos[0].to_string() + asset_infos[1].to_string().as_str();
-                match self.astroport_factory_querier.pairs.get(&key) {
+                match self.gridiron_factory_querier.pairs.get(&key) {
                     Some(v) => SystemResult::Ok(ContractResult::from(to_binary(&PairInfo {
                         contract_addr: Addr::unchecked(v),
                         liquidity_token: Addr::unchecked("liquidity"),
@@ -219,7 +219,7 @@ impl WasmMockQuerier {
         WasmMockQuerier {
             base,
             token_querier: TokenQuerier::default(),
-            astroport_factory_querier: AstroportFactoryQuerier::default(),
+            gridiron_factory_querier: GridironFactoryQuerier::default(),
         }
     }
 
@@ -233,7 +233,7 @@ impl WasmMockQuerier {
         self.token_querier = TokenQuerier::new(balances);
     }
 
-    pub fn with_astroport_pairs(&mut self, pairs: &[(&String, &String)]) {
-        self.astroport_factory_querier = AstroportFactoryQuerier::new(pairs);
+    pub fn with_gridiron_pairs(&mut self, pairs: &[(&String, &String)]) {
+        self.gridiron_factory_querier = GridironFactoryQuerier::new(pairs);
     }
 }

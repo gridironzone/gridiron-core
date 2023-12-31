@@ -7,13 +7,13 @@ use cosmwasm_std::{
 use cw20::{BalanceResponse, Cw20QueryMsg, MinterResponse};
 use cw_multi_test::{App, AppResponse, ContractWrapper, Executor};
 
-use astroport::asset::{Asset, AssetInfo, PairInfo};
-use astroport::token::InstantiateMsg as TokenInstantiateMsg;
+use gridiron::asset::{Asset, AssetInfo, PairInfo};
+use gridiron::token::InstantiateMsg as TokenInstantiateMsg;
 
-use astroport::factory::{PairConfig, PairType};
+use gridiron::factory::{PairConfig, PairType};
 
-use astroport::oracle::QueryMsg::Consult;
-use astroport::oracle::{ExecuteMsg, InstantiateMsg};
+use gridiron::oracle::QueryMsg::Consult;
+use gridiron::oracle::{ExecuteMsg, InstantiateMsg};
 
 const OWNER: &str = "owner";
 
@@ -33,9 +33,9 @@ fn mock_app(owner: Option<Addr>, coins: Option<Vec<Coin>>) -> App {
 
 fn store_coin_registry_code(app: &mut App) -> u64 {
     let coin_registry_contract = Box::new(ContractWrapper::new_with_empty(
-        astroport_native_coin_registry::contract::execute,
-        astroport_native_coin_registry::contract::instantiate,
-        astroport_native_coin_registry::contract::query,
+        gridiron_native_coin_registry::contract::execute,
+        gridiron_native_coin_registry::contract::instantiate,
+        gridiron_native_coin_registry::contract::query,
     ));
 
     app.store_code(coin_registry_contract)
@@ -47,7 +47,7 @@ fn instantiate_coin_registry(mut app: &mut App, coins: Option<Vec<(String, u8)>>
         .instantiate_contract(
             coin_registry_id,
             Addr::unchecked(OWNER),
-            &astroport::native_coin_registry::InstantiateMsg {
+            &gridiron::native_coin_registry::InstantiateMsg {
                 owner: OWNER.to_string(),
             },
             &[],
@@ -60,7 +60,7 @@ fn instantiate_coin_registry(mut app: &mut App, coins: Option<Vec<(String, u8)>>
         app.execute_contract(
             Addr::unchecked(OWNER),
             coin_registry_address.clone(),
-            &astroport::native_coin_registry::ExecuteMsg::Add {
+            &gridiron::native_coin_registry::ExecuteMsg::Add {
                 native_coins: coins,
             },
             &[],
@@ -72,17 +72,17 @@ fn instantiate_coin_registry(mut app: &mut App, coins: Option<Vec<(String, u8)>>
 }
 
 fn instantiate_contracts(mut router: &mut App, owner: Addr) -> (Addr, Addr, u64) {
-    let astro_token_contract = Box::new(ContractWrapper::new_with_empty(
-        astroport_token::contract::execute,
-        astroport_token::contract::instantiate,
-        astroport_token::contract::query,
+    let grid_token_contract = Box::new(ContractWrapper::new_with_empty(
+        gridiron_token::contract::execute,
+        gridiron_token::contract::instantiate,
+        gridiron_token::contract::query,
     ));
 
-    let astro_token_code_id = router.store_code(astro_token_contract);
+    let grid_token_code_id = router.store_code(grid_token_contract);
 
     let msg = TokenInstantiateMsg {
-        name: String::from("Astro token"),
-        symbol: String::from("ASTRO"),
+        name: String::from("Grid token"),
+        symbol: String::from("GRID"),
         decimals: 6,
         initial_balances: vec![],
         mint: Some(MinterResponse {
@@ -92,35 +92,35 @@ fn instantiate_contracts(mut router: &mut App, owner: Addr) -> (Addr, Addr, u64)
         marketing: None,
     };
 
-    let astro_token_instance = router
+    let grid_token_instance = router
         .instantiate_contract(
-            astro_token_code_id,
+            grid_token_code_id,
             owner.clone(),
             &msg,
             &[],
-            String::from("ASTRO"),
+            String::from("GRID"),
             None,
         )
         .unwrap();
 
     let pair_contract = Box::new(
         ContractWrapper::new_with_empty(
-            astroport_pair::contract::execute,
-            astroport_pair::contract::instantiate,
-            astroport_pair::contract::query,
+            gridiron_pair::contract::execute,
+            gridiron_pair::contract::instantiate,
+            gridiron_pair::contract::query,
         )
-        .with_reply_empty(astroport_pair::contract::reply),
+        .with_reply_empty(gridiron_pair::contract::reply),
     );
 
     let pair_code_id = router.store_code(pair_contract);
 
     let pair_stable_contract = Box::new(
         ContractWrapper::new_with_empty(
-            astroport_pair_stable::contract::execute,
-            astroport_pair_stable::contract::instantiate,
-            astroport_pair_stable::contract::query,
+            gridiron_pair_stable::contract::execute,
+            gridiron_pair_stable::contract::instantiate,
+            gridiron_pair_stable::contract::query,
         )
-        .with_reply_empty(astroport_pair_stable::contract::reply),
+        .with_reply_empty(gridiron_pair_stable::contract::reply),
     );
 
     let pair_stable_code_id = router.store_code(pair_stable_contract);
@@ -132,15 +132,15 @@ fn instantiate_contracts(mut router: &mut App, owner: Addr) -> (Addr, Addr, u64)
 
     let factory_contract = Box::new(
         ContractWrapper::new_with_empty(
-            astroport_factory::contract::execute,
-            astroport_factory::contract::instantiate,
-            astroport_factory::contract::query,
+            gridiron_factory::contract::execute,
+            gridiron_factory::contract::instantiate,
+            gridiron_factory::contract::query,
         )
-        .with_reply_empty(astroport_factory::contract::reply),
+        .with_reply_empty(gridiron_factory::contract::reply),
     );
 
     let factory_code_id = router.store_code(factory_contract);
-    let msg = astroport::factory::InstantiateMsg {
+    let msg = gridiron::factory::InstantiateMsg {
         pair_configs: vec![
             PairConfig {
                 code_id: pair_code_id,
@@ -179,19 +179,19 @@ fn instantiate_contracts(mut router: &mut App, owner: Addr) -> (Addr, Addr, u64)
         .unwrap();
 
     let oracle_contract = Box::new(ContractWrapper::new_with_empty(
-        astroport_oracle::contract::execute,
-        astroport_oracle::contract::instantiate,
-        astroport_oracle::contract::query,
+        gridiron_oracle::contract::execute,
+        gridiron_oracle::contract::instantiate,
+        gridiron_oracle::contract::query,
     ));
     let oracle_code_id = router.store_code(oracle_contract);
-    (astro_token_instance, factory_instance, oracle_code_id)
+    (grid_token_instance, factory_instance, oracle_code_id)
 }
 
 fn instantiate_token(router: &mut App, owner: Addr, name: String, symbol: String) -> Addr {
     let token_contract = Box::new(ContractWrapper::new_with_empty(
-        astroport_token::contract::execute,
-        astroport_token::contract::instantiate,
-        astroport_token::contract::query,
+        gridiron_token::contract::execute,
+        gridiron_token::contract::instantiate,
+        gridiron_token::contract::query,
     ));
 
     let token_code_id = router.store_code(token_contract);
@@ -315,7 +315,7 @@ fn provide_liquidity(
     router.execute_contract(
         user.clone(),
         pair_info.contract_addr.clone(),
-        &astroport::pair::ExecuteMsg::ProvideLiquidity {
+        &gridiron::pair::ExecuteMsg::ProvideLiquidity {
             assets,
             slippage_tolerance: None,
             auto_stake: None,
@@ -355,7 +355,7 @@ fn create_pair(
         .execute_contract(
             owner.clone(),
             factory_instance.clone(),
-            &astroport::factory::ExecuteMsg::CreatePair {
+            &gridiron::factory::ExecuteMsg::CreatePair {
                 pair_type: PairType::Xyk {},
                 asset_infos: asset_infos.clone(),
                 init_params: None,
@@ -382,7 +382,7 @@ fn create_pair(
         .wrap()
         .query(&QueryRequest::Wasm(WasmQuery::Smart {
             contract_addr: factory_instance.clone().to_string(),
-            msg: to_binary(&astroport::factory::QueryMsg::Pair {
+            msg: to_binary(&gridiron::factory::QueryMsg::Pair {
                 asset_infos: asset_infos.clone(),
             })
             .unwrap(),
@@ -432,7 +432,7 @@ fn change_provide_liquidity(
         .execute_contract(
             user,
             pair_contract,
-            &astroport::pair::ExecuteMsg::ProvideLiquidity {
+            &gridiron::pair::ExecuteMsg::ProvideLiquidity {
                 assets,
                 slippage_tolerance: Some(Decimal::percent(50)),
                 auto_stake: None,
@@ -453,7 +453,7 @@ fn consult() {
     let mut router = mock_app(None, None);
     let owner = Addr::unchecked("owner");
     let user = Addr::unchecked("user0000");
-    let (astro_token_instance, factory_instance, oracle_code_id) =
+    let (grid_token_instance, factory_instance, oracle_code_id) =
         instantiate_contracts(&mut router, owner.clone());
 
     let usdc_token_instance = instantiate_token(
@@ -468,7 +468,7 @@ fn consult() {
             contract_addr: usdc_token_instance.clone(),
         },
         AssetInfo::Token {
-            contract_addr: astro_token_instance.clone(),
+            contract_addr: grid_token_instance.clone(),
         },
     ];
 
@@ -504,7 +504,7 @@ fn consult() {
         .wrap()
         .query(&QueryRequest::Wasm(WasmQuery::Smart {
             contract_addr: factory_instance.clone().to_string(),
-            msg: to_binary(&astroport::factory::QueryMsg::Pair {
+            msg: to_binary(&gridiron::factory::QueryMsg::Pair {
                 asset_infos: asset_infos.clone(),
             })
             .unwrap(),
@@ -517,7 +517,7 @@ fn consult() {
         user.clone(),
         pair_info.contract_addr.clone(),
         vec![
-            (astro_token_instance.clone(), Uint128::from(50_000_u128)),
+            (grid_token_instance.clone(), Uint128::from(50_000_u128)),
             (usdc_token_instance.clone(), Uint128::from(50_000_u128)),
         ],
     );
@@ -556,7 +556,7 @@ fn consult() {
         user,
         pair_info.contract_addr,
         vec![
-            (astro_token_instance.clone(), Uint128::from(10_000_u128)),
+            (grid_token_instance.clone(), Uint128::from(10_000_u128)),
             (usdc_token_instance.clone(), Uint128::from(10_000_u128)),
         ],
     );
@@ -571,7 +571,7 @@ fn consult() {
         .unwrap();
 
     for (addr, amount) in [
-        (astro_token_instance.clone(), Uint128::from(1000u128)),
+        (grid_token_instance.clone(), Uint128::from(1000u128)),
         (usdc_token_instance.clone(), Uint128::from(100u128)),
     ] {
         let msg = Consult {
@@ -596,7 +596,7 @@ fn consult2() {
     let mut router = mock_app(None, None);
     let owner = Addr::unchecked("owner");
     let user = Addr::unchecked("user0000");
-    let (astro_token_instance, factory_instance, oracle_code_id) =
+    let (grid_token_instance, factory_instance, oracle_code_id) =
         instantiate_contracts(&mut router, owner.clone());
 
     let usdc_token_instance = instantiate_token(
@@ -611,7 +611,7 @@ fn consult2() {
             contract_addr: usdc_token_instance.clone(),
         },
         AssetInfo::Token {
-            contract_addr: astro_token_instance.clone(),
+            contract_addr: grid_token_instance.clone(),
         },
     ];
 
@@ -705,7 +705,7 @@ fn consult2() {
         user.clone(),
         pair_info.contract_addr.clone(),
         vec![
-            (astro_token_instance.clone(), Uint128::from(1000_u128)),
+            (grid_token_instance.clone(), Uint128::from(1000_u128)),
             (usdc_token_instance.clone(), Uint128::from(1000_u128)),
         ],
     );
@@ -756,7 +756,7 @@ fn consult2() {
             user.clone(),
             pair_info.contract_addr.clone(),
             vec![
-                (astro_token_instance.clone(), amount1),
+                (grid_token_instance.clone(), amount1),
                 (usdc_token_instance.clone(), amount2),
             ],
         );
@@ -772,7 +772,7 @@ fn consult2() {
     }
     for (addr, amount, amount_exp) in [
         (
-            astro_token_instance.clone(),
+            grid_token_instance.clone(),
             Uint128::from(1000u128),
             Uint128::from(800u128),
         ),
@@ -809,7 +809,7 @@ fn consult2() {
             user.clone(),
             pair_info.contract_addr.clone(),
             vec![
-                (astro_token_instance.clone(), amount1),
+                (grid_token_instance.clone(), amount1),
                 (usdc_token_instance.clone(), amount2),
             ],
         );
@@ -825,7 +825,7 @@ fn consult2() {
     }
     for (addr, amount, amount_exp) in [
         (
-            astro_token_instance.clone(),
+            grid_token_instance.clone(),
             Uint128::from(1000u128),
             Uint128::from(854u128),
         ),
@@ -870,7 +870,7 @@ fn consult_zero_price() {
     );
     let user = Addr::unchecked("user0000");
 
-    let (astro_token_instance, factory_instance, oracle_code_id) =
+    let (grid_token_instance, factory_instance, oracle_code_id) =
         instantiate_contracts(&mut router, owner.clone());
 
     let usdc_token_instance = instantiate_token(
@@ -885,7 +885,7 @@ fn consult_zero_price() {
             contract_addr: usdc_token_instance.clone(),
         },
         AssetInfo::Token {
-            contract_addr: astro_token_instance.clone(),
+            contract_addr: grid_token_instance.clone(),
         },
     ];
 
@@ -961,7 +961,7 @@ fn consult_zero_price() {
 
     for (addr, amount_in, amount_out) in [
         (
-            astro_token_instance.clone(),
+            grid_token_instance.clone(),
             Uint128::from(100u128),
             Uint128::from(100u128),
         ),

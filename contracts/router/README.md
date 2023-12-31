@@ -1,6 +1,6 @@
-# Astroport Router
+# Gridiron Router
 
-The Router contract contains logic to facilitate multi-hop swaps for Terra native & Astroport tokens.
+The Router contract contains logic to facilitate multi-hop swaps for Terra native & Gridiron tokens.
 
 ---
 
@@ -10,11 +10,11 @@ For every swap, the contract checks if the resulting token is the one that was a
 
 ## InstantiateMsg
 
-Initializes the contract with the Astroport factory contract address.
+Initializes the contract with the Gridiron factory contract address.
 
 ```json
 {
-  "astroport_factory": "terra..."
+  "gridiron_factory": "terra..."
 }
 ```
 
@@ -47,7 +47,7 @@ Swap UST => mABNB
 {
    "execute_swap_operation": {
      "operation": {
-        "astro_swap": {
+        "grid_swap": {
           "offer_asset_info": {
             "native_token": {
               "denom": "uusd"
@@ -69,7 +69,7 @@ Swap UST => mABNB
 
 ### `execute_swap_operations`
 
-Performs multi-hop swap operations for native & Astroport tokens. Swaps execute one-by-one and the last swap will return the ask token. This function is public (can be called by anyone).
+Performs multi-hop swap operations for native & Gridiron tokens. Swaps execute one-by-one and the last swap will return the ask token. This function is public (can be called by anyone).
 Contract sets total 'return_amount' in response data after all routes are processed. See `SwapResponseData` type for more info.
 Note: Response data makes sense ONLY if the first token in multi-hop swap is native. Otherwise, cw20::send message resets response data.
 
@@ -88,7 +88,7 @@ Swap KRT => UST => mABNB
         }
       },
       {
-        "astro_swap": {
+        "grid_swap": {
           "offer_asset_info": {
             "native_token": {
               "denom": "uusd"
@@ -160,7 +160,7 @@ Simulates multi-hop swap operations. Examples:
         }
       },
       {
-        "astro_swap": {
+        "grid_swap": {
           "offer_asset_info": {
             "native_token": {
               "denom": "uusd"
@@ -192,7 +192,7 @@ Simulates multi-hop swap operations. Examples:
       }
     },
     {
-      "astro_swap": {
+      "grid_swap": {
         "offer_asset_info": {
           "token": {
             "contract_addr": "terra..."

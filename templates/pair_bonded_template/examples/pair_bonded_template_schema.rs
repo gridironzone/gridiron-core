@@ -1,5 +1,5 @@
-use astroport::pair::InstantiateMsg;
-use astroport::pair_bonded::{ExecuteMsg, QueryMsg};
+use gridiron::pair::InstantiateMsg;
+use gridiron::pair_bonded::{ExecuteMsg, QueryMsg};
 
 use cosmwasm_schema::write_api;
 

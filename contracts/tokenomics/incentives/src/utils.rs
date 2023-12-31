@@ -4,12 +4,12 @@ use cosmwasm_std::{
 };
 use itertools::Itertools;
 
-use astroport::asset::{
+use gridiron::asset::{
     determine_asset_info, pair_info_by_pool, AssetInfo, AssetInfoExt, CoinsExt, PairInfo,
 };
-use astroport::factory::PairType;
-use astroport::incentives::{Config, IncentivesSchedule, InputSchedule, MAX_ORPHANED_REWARD_LIMIT};
-use astroport::{factory, pair, vesting};
+use gridiron::factory::PairType;
+use gridiron::incentives::{Config, IncentivesSchedule, InputSchedule, MAX_ORPHANED_REWARD_LIMIT};
+use gridiron::{factory, pair, vesting};
 
 use crate::error::ContractError;
 use crate::reply::POST_TRANSFER_REPLY_ID;
@@ -76,7 +76,7 @@ pub fn claim_rewards(
         })
         .collect::<StdResult<Vec<_>>>()?;
 
-    // Claim Astroport rewards
+    // Claim Gridiron rewards
     if !protocol_reward_amount.is_zero() {
         let vesting_contract = if let Some(vesting_contract) = vesting_contract {
             vesting_contract
@@ -125,7 +125,7 @@ pub fn deactivate_pool(
             let (_, alloc_points) = active_pools.swap_remove(ind);
 
             pool_info.update_rewards(deps.storage, &env, &lp_token_asset)?;
-            pool_info.disable_astro_rewards();
+            pool_info.disable_grid_rewards();
             pool_info.save(deps.storage, &lp_token_asset)?;
 
             config.total_alloc_points = config.total_alloc_points.checked_sub(alloc_points)?;
@@ -133,7 +133,7 @@ pub fn deactivate_pool(
             for (lp_asset, alloc_points) in &active_pools {
                 let mut pool_info = PoolInfo::load(deps.storage, lp_asset)?;
                 pool_info.update_rewards(deps.storage, &env, lp_asset)?;
-                pool_info.set_astro_rewards(&config, *alloc_points);
+                pool_info.set_grid_rewards(&config, *alloc_points);
                 pool_info.save(deps.storage, lp_asset)?;
             }
 
@@ -169,7 +169,7 @@ pub fn deactivate_blocked_pools(deps: DepsMut, env: Env) -> Result<Response, Con
         // check if pair type is blocked
         if blocked_pair_types.contains(&pair_info.pair_type) {
             pool_info.update_rewards(deps.storage, &env, lp_token_asset)?;
-            pool_info.disable_astro_rewards();
+            pool_info.disable_grid_rewards();
             pool_info.save(deps.storage, lp_token_asset)?;
 
             config.total_alloc_points = config.total_alloc_points.checked_sub(*alloc_points)?;
@@ -189,7 +189,7 @@ pub fn deactivate_blocked_pools(deps: DepsMut, env: Env) -> Result<Response, Con
         for (lp_asset, alloc_points) in &active_pools {
             let mut pool_info = PoolInfo::load(deps.storage, lp_asset)?;
             pool_info.update_rewards(deps.storage, &env, lp_asset)?;
-            pool_info.set_astro_rewards(&config, *alloc_points);
+            pool_info.set_grid_rewards(&config, *alloc_points);
             pool_info.save(deps.storage, lp_asset)?;
         }
 
@@ -476,7 +476,7 @@ pub fn from_key_to_asset_info(bytes: Vec<u8>) -> StdResult<AssetInfo> {
 
 #[cfg(test)]
 mod unit_tests {
-    use astroport::asset::AssetInfo;
+    use gridiron::asset::AssetInfo;
 
     use super::*;
 

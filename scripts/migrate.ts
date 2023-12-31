@@ -12,7 +12,7 @@ async function main() {
 
     let config = {
         contract_address: "address",
-        file_path: "astroport_contract.wasm",
+        file_path: "gridiron_contract.wasm",
         message: {}
     }
 

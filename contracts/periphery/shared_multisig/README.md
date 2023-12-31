@@ -1,4 +1,4 @@
-# Astroport Shared Multisig
+# Gridiron Shared Multisig
 
 It is a multisig with two addresses created upon instantiation. Each address has its own role (manager1 or manager2), however, 
 both have exactly the same permissions. Each role can propose a new address which can then claim that role.
@@ -237,7 +237,7 @@ Stakes the target LP tokens in the Generator contract
 
 ### `withdraw_generator`
 
-Withdraw LP tokens from the Astroport generator.
+Withdraw LP tokens from the Gridiron generator.
 
 ```json
 {

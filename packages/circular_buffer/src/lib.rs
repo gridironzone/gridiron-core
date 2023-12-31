@@ -4,7 +4,7 @@
 //! # Example
 //! ```
 //! use cosmwasm_std::testing::MockStorage;
-//! use astroport_circular_buffer::{BufferManager, CircularBuffer};
+//! use gridiron_circular_buffer::{BufferManager, CircularBuffer};
 //!
 //! const CIRCULAR_BUFFER: CircularBuffer<u128> = CircularBuffer::new("buffer_state", "buffer");
 //!
@@ -159,7 +159,7 @@ where
     /// ## Examples:
     /// ```
     /// # use cosmwasm_std::{testing::MockStorage};
-    /// # use astroport_circular_buffer::{BufferManager, CircularBuffer};
+    /// # use gridiron_circular_buffer::{BufferManager, CircularBuffer};
     /// # let mut store = MockStorage::new();
     /// # const CIRCULAR_BUFFER: CircularBuffer<u128> = CircularBuffer::new("buffer_state", "buffer");
     /// # BufferManager::init(&mut store, CIRCULAR_BUFFER, 10).unwrap();

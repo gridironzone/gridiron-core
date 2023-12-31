@@ -1,6 +1,6 @@
 use cosmwasm_schema::write_api;
 
-use astroport_cw20_ics20::msg::{ExecuteMsg, InitMsg, QueryMsg};
+use gridiron_cw20_ics20::msg::{ExecuteMsg, InitMsg, QueryMsg};
 
 fn main() {
     write_api! {

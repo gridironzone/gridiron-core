@@ -289,7 +289,7 @@ export class NativeSwap {
     }
 }
 
-export class AstroSwap {
+export class GridSwap {
     offer_asset_info: TokenAsset | NativeAsset;
     ask_asset_info: TokenAsset | NativeAsset;
 
@@ -300,7 +300,7 @@ export class AstroSwap {
 
     getInfo() {
         return {
-            "astro_swap": {
+            "grid_swap": {
                 "offer_asset_info": this.offer_asset_info.getInfo(),
                 "ask_asset_info": this.ask_asset_info.getInfo(),
             }

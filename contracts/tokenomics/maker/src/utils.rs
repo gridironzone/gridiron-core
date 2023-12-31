@@ -1,11 +1,11 @@
 use crate::error::ContractError;
 use crate::state::BRIDGES;
-use astroport::asset::{Asset, AssetInfo, PairInfo};
-use astroport::maker::{
+use gridiron::asset::{Asset, AssetInfo, PairInfo};
+use gridiron::maker::{
     Config, ExecuteMsg, SecondReceiverConfig, SecondReceiverParams, MAX_SECOND_RECEIVER_CUT,
 };
-use astroport::pair::Cw20HookMsg;
-use astroport::querier::query_pair_info;
+use gridiron::pair::Cw20HookMsg;
+use gridiron::querier::query_pair_info;
 
 use cosmwasm_std::{
     coins, to_binary, wasm_execute, Addr, Binary, CosmosMsg, Decimal, Deps, Empty, Env,
@@ -65,7 +65,7 @@ pub fn build_swap_msg(
 
         Ok(SubMsg::new(WasmMsg::Execute {
             contract_addr: pool.contract_addr.to_string(),
-            msg: to_binary(&astroport::pair::ExecuteMsg::Swap {
+            msg: to_binary(&gridiron::pair::ExecuteMsg::Swap {
                 offer_asset: offer_asset.clone(),
                 ask_asset_info: to.cloned(),
                 belief_price: None,
@@ -116,7 +116,7 @@ pub fn build_distribute_msg(
         // Update balances and distribute rewards
         SubMsg::new(WasmMsg::Execute {
             contract_addr: env.contract.address.to_string(),
-            msg: to_binary(&ExecuteMsg::DistributeAstro {})?,
+            msg: to_binary(&ExecuteMsg::DistributeGrid {})?,
             funds: vec![],
         })
     };
@@ -124,8 +124,8 @@ pub fn build_distribute_msg(
     Ok(msg)
 }
 
-/// This function checks that there is a direct pool to swap to $ASTRO.
-/// Otherwise it looks for an intermediate token to swap to $ASTRO.
+/// This function checks that there is a direct pool to swap to $GRID.
+/// Otherwise it looks for an intermediate token to swap to $GRID.
 ///
 /// * **factory_contract** address of the factory contract.
 ///
@@ -133,7 +133,7 @@ pub fn build_distribute_msg(
 ///
 /// * **bridge_token** asset we want to swap through.
 ///
-/// * **astro_token** represents $ASTRO.
+/// * **grid_token** represents $GRID.
 ///
 /// * **depth** current recursion depth of the validation.
 ///
@@ -143,15 +143,15 @@ pub fn validate_bridge(
     factory_contract: &Addr,
     from_token: &AssetInfo,
     bridge_token: &AssetInfo,
-    astro_token: &AssetInfo,
+    grid_token: &AssetInfo,
     depth: u64,
 ) -> Result<PairInfo, ContractError> {
     // Check if the bridge pool exists
     let bridge_pool = get_pool(&deps.querier, factory_contract, from_token, bridge_token)?;
 
-    // Check if the bridge token - ASTRO pool exists
-    let astro_pool = get_pool(&deps.querier, factory_contract, bridge_token, astro_token);
-    if astro_pool.is_err() {
+    // Check if the bridge token - GRID pool exists
+    let grid_pool = get_pool(&deps.querier, factory_contract, bridge_token, grid_token);
+    if grid_pool.is_err() {
         if depth >= BRIDGES_MAX_DEPTH {
             return Err(ContractError::MaxBridgeDepth(depth));
         }
@@ -166,7 +166,7 @@ pub fn validate_bridge(
             factory_contract,
             bridge_token,
             &next_bridge_token,
-            astro_token,
+            grid_token,
             depth + 1,
         )?;
     }
@@ -196,7 +196,7 @@ pub fn get_pool(
     .map_err(|_| ContractError::InvalidBridgeNoPool(from.to_string(), to.to_string()))
 }
 
-/// For native tokens of type [`AssetInfo`] uses method [`astro_satellite_package::ExecuteMsg::TransferAstro`]
+/// For native tokens of type [`AssetInfo`] uses method [`grid_satellite_package::ExecuteMsg::TransferGrid`]
 /// to send a token amount to a recipient.
 ///
 /// For a token of type [`AssetInfo`] we use the default method [`Cw20ExecuteMsg::Send`]
@@ -221,7 +221,7 @@ pub fn build_send_msg(
             recipient,
             // Satellite type parameter is only needed for CheckMessages endpoint which is not used in Maker contract.
             // So it's safe to pass Empty as CustomMsg
-            &astro_satellite_package::ExecuteMsg::<Empty>::TransferAstro {},
+            &grid_satellite_package::ExecuteMsg::<Empty>::TransferGrid {},
             coins(asset.amount.u128(), denom),
         )?)),
     }

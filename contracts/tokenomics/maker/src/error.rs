@@ -1,4 +1,4 @@
-use astroport::asset::AssetInfo;
+use gridiron::asset::AssetInfo;
 use cosmwasm_std::{DivideByZeroError, OverflowError, StdError};
 use thiserror::Error;
 
@@ -17,7 +17,7 @@ pub enum ContractError {
     #[error("Invalid bridge. Pool {0} to {1} not found")]
     InvalidBridgeNoPool(String, String),
 
-    #[error("Invalid bridge destination. {0} cannot be swapped to ASTRO")]
+    #[error("Invalid bridge destination. {0} cannot be swapped to GRID")]
     InvalidBridgeDestination(String),
 
     #[error("Max bridge length of {0} was reached")]

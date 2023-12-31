@@ -2,13 +2,13 @@ use cosmwasm_std::{Addr, Env, QuerierWrapper, Storage};
 use injective_cosmwasm::InjectiveQueryWrapper;
 use itertools::Itertools;
 
-use astroport::asset::{Asset, DecimalAsset};
-use astroport::cosmwasm_ext::IntegerToDecimal;
-use astroport::observation::{Observation, PrecommitObservation};
-use astroport_circular_buffer::error::BufferResult;
-use astroport_circular_buffer::BufferManager;
-use astroport_pcl_common::state::{Config, Precisions};
-use astroport_pcl_common::utils::{safe_sma_buffer_not_full, safe_sma_calculation};
+use gridiron::asset::{Asset, DecimalAsset};
+use gridiron::cosmwasm_ext::IntegerToDecimal;
+use gridiron::observation::{Observation, PrecommitObservation};
+use gridiron_circular_buffer::error::BufferResult;
+use gridiron_circular_buffer::BufferManager;
+use gridiron_pcl_common::state::{Config, Precisions};
+use gridiron_pcl_common::utils::{safe_sma_buffer_not_full, safe_sma_calculation};
 
 use crate::error::ContractError;
 use crate::orderbook::state::OrderbookState;

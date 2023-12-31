@@ -12,33 +12,33 @@ use cw20::{Cw20ExecuteMsg, Cw20ReceiveMsg, MinterResponse};
 use cw_utils::parse_instantiate_response_data;
 use itertools::Itertools;
 
-use astroport::asset::AssetInfoExt;
-use astroport::asset::{
+use gridiron::asset::AssetInfoExt;
+use gridiron::asset::{
     addr_opt_validate, format_lp_token_name, token_asset, Asset, AssetInfo, CoinsExt,
     Decimal256Ext, PairInfo, MINIMUM_LIQUIDITY_AMOUNT,
 };
-use astroport::common::{claim_ownership, drop_ownership_proposal, propose_new_owner};
-use astroport::cosmwasm_ext::{AbsDiff, DecimalToInteger, IntegerToDecimal};
-use astroport::factory::PairType;
-use astroport::observation::{PrecommitObservation, OBSERVATIONS_SIZE};
-use astroport::pair::{
+use gridiron::common::{claim_ownership, drop_ownership_proposal, propose_new_owner};
+use gridiron::cosmwasm_ext::{AbsDiff, DecimalToInteger, IntegerToDecimal};
+use gridiron::factory::PairType;
+use gridiron::observation::{PrecommitObservation, OBSERVATIONS_SIZE};
+use gridiron::pair::{
     Cw20HookMsg, ExecuteMsg, FeeShareConfig, InstantiateMsg, MAX_FEE_SHARE_BPS, MIN_TRADE_SIZE,
 };
-use astroport::pair_concentrated::{
+use gridiron::pair_concentrated::{
     ConcentratedPoolParams, ConcentratedPoolUpdateParams, MigrateMsg, UpdatePoolParams,
 };
-use astroport::querier::{query_factory_config, query_fee_info, query_supply};
-use astroport::token::InstantiateMsg as TokenInstantiateMsg;
-use astroport_circular_buffer::BufferManager;
-use astroport_pcl_common::state::{
+use gridiron::querier::{query_factory_config, query_fee_info, query_supply};
+use gridiron::token::InstantiateMsg as TokenInstantiateMsg;
+use gridiron_circular_buffer::BufferManager;
+use gridiron_pcl_common::state::{
     AmpGamma, Config, PoolParams, PoolState, Precisions, PriceState,
 };
-use astroport_pcl_common::utils::{
+use gridiron_pcl_common::utils::{
     assert_max_spread, assert_slippage_tolerance, before_swap_check, calc_provide_fee,
     check_asset_infos, check_assets, check_cw20_in_pool, check_pair_registered, compute_swap,
     get_share_in_assets, mint_liquidity_token_message,
 };
-use astroport_pcl_common::{calc_d, get_xcp};
+use gridiron_pcl_common::{calc_d, get_xcp};
 
 use crate::error::ContractError;
 use crate::migration::migrate_config;
@@ -151,7 +151,7 @@ pub fn instantiate(
                 marketing: None,
             },
             vec![],
-            String::from("Astroport LP token"),
+            String::from("Gridiron LP token"),
         )?,
         INSTANTIATE_TOKEN_REPLY_ID,
     );
@@ -957,7 +957,7 @@ pub fn migrate(deps: DepsMut, _env: Env, _msg: MigrateMsg) -> Result<Response, C
     let contract_version = get_contract_version(deps.storage)?;
 
     match contract_version.contract.as_ref() {
-        "astroport-pair-concentrated" => match contract_version.version.as_ref() {
+        "gridiron-pair-concentrated" => match contract_version.version.as_ref() {
             "1.2.13" | "1.2.14" => {
                 migrate_config(deps.storage)?;
                 BufferManager::init(deps.storage, OBSERVATIONS, OBSERVATIONS_SIZE)?;

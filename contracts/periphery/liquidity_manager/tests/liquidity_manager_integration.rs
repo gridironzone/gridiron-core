@@ -2,9 +2,9 @@
 
 use cosmwasm_std::{Addr, Uint128};
 
-use astroport::asset::{native_asset, AssetInfoExt};
-use astroport::pair::{StablePoolParams, XYKPoolParams};
-use astroport_liquidity_manager::error::ContractError;
+use gridiron::asset::{native_asset, AssetInfoExt};
+use gridiron::pair::{StablePoolParams, XYKPoolParams};
+use gridiron_liquidity_manager::error::ContractError;
 
 use crate::helper::{f64_to_dec, Helper, PoolParams, TestCoin};
 
@@ -69,7 +69,7 @@ fn test_xyk() {
 
     // However, he is safe because of slippage assertion.
     assert_eq!(
-        astroport_pair::error::ContractError::MaxSlippageAssertion {},
+        gridiron_pair::error::ContractError::MaxSlippageAssertion {},
         err.downcast().unwrap()
     );
 

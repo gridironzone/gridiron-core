@@ -1,4 +1,4 @@
-use astroport::cw20_ics20::TransferMsg;
+use gridiron::cw20_ics20::TransferMsg;
 use cosmwasm_schema::{cw_serde, QueryResponses};
 use cosmwasm_std::Addr;
 use cw20::Cw20ReceiveMsg;

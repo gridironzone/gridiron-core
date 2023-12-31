@@ -9,7 +9,7 @@ use cw20::Cw20ExecuteMsg;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
-use astroport::outpost_handler::Cw20HookMsg;
+use gridiron::outpost_handler::Cw20HookMsg;
 
 use crate::amount::Amount;
 use crate::error::{ContractError, Never};
@@ -492,7 +492,7 @@ mod test {
     use cosmwasm_std::{coins, to_vec, IbcEndpoint, IbcMsg, IbcTimeout, Timestamp};
     use cw20::Cw20ReceiveMsg;
 
-    use astroport::cw20_ics20::TransferMsg;
+    use gridiron::cw20_ics20::TransferMsg;
 
     use crate::contract::{execute, migrate, query_channel};
     use crate::msg::{ExecuteMsg, MigrateMsg};

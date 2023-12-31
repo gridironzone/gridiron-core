@@ -3,15 +3,15 @@ use cw2::{set_contract_version, CONTRACT};
 use cw_storage_plus::Item;
 use injective_cosmwasm::{InjectiveMsgWrapper, InjectiveQueryWrapper};
 
-use astroport::factory::PairType;
-use astroport::pair_concentrated_inj::MigrateMsg;
-use astroport_pcl_common::state::Config;
+use gridiron::factory::PairType;
+use gridiron::pair_concentrated_inj::MigrateMsg;
+use gridiron_pcl_common::state::Config;
 
 use crate::contract::{CONTRACT_NAME, CONTRACT_VERSION};
 use crate::orderbook::state::OrderbookState;
 use crate::state::CONFIG;
 
-const MIGRATE_FROM: &str = "astroport-pair-concentrated";
+const MIGRATE_FROM: &str = "gridiron-pair-concentrated";
 const MIGRATION_VERSION: &str = "2.2.2";
 
 /// Manages the contract migration.

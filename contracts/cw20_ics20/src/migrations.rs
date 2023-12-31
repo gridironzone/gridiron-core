@@ -1,4 +1,4 @@
-// standard_v1 is anything before the custom Astroport v1.1.1,
+// standard_v1 is anything before the custom Gridiron v1.1.1,
 // specifically we're upgrading from cw-plus/cw20-ics20 v0.15
 pub mod standard_v1 {
     use cosmwasm_schema::cw_serde;

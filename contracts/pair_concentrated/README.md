@@ -1,4 +1,4 @@
-# Astroport Concentrated Liquidity Pair
+# Gridiron Concentrated Liquidity Pair
 
 [//]: # (TODO: write README)
 

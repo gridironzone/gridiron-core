@@ -6,13 +6,13 @@ use cosmwasm_std::{
 use cw20::{Cw20ExecuteMsg, Cw20ReceiveMsg, MinterResponse};
 use proptest::prelude::*;
 
-use astroport::asset::{Asset, AssetInfo, PairInfo};
-use astroport::factory::PairType;
-use astroport::pair::{
+use gridiron::asset::{Asset, AssetInfo, PairInfo};
+use gridiron::factory::PairType;
+use gridiron::pair::{
     Cw20HookMsg, ExecuteMsg, InstantiateMsg, PoolResponse, ReverseSimulationResponse,
     SimulationResponse, TWAP_PRECISION,
 };
-use astroport::token::InstantiateMsg as TokenInstantiateMsg;
+use gridiron::token::InstantiateMsg as TokenInstantiateMsg;
 
 use crate::contract::compute_offer_amount;
 use crate::contract::reply;
@@ -103,7 +103,7 @@ fn proper_initialization() {
                 .unwrap(),
                 funds: vec![],
                 admin: None,
-                label: String::from("Astroport LP token"),
+                label: String::from("Gridiron LP token"),
             }
             .into(),
             id: 1,

@@ -1,7 +1,7 @@
 [package]
-name = "astroport-generator-proxy-template"
+name = "gridiron-generator-proxy-template"
 version = "0.0.0"
-authors = ["Astroport"]
+authors = ["Gridiron"]
 edition = "2021"
 
 exclude = [
@@ -25,6 +25,6 @@ cw-storage-plus = "0.15"
 thiserror = { version = "1.0" }
 cw2 = "0.15"
 cw20 = "0.15"
-astroport = {path = "../../packages/astroport"}
+gridiron = {path = "../../packages/gridiron"}
 cosmwasm-schema = { version = "1.1" }
 

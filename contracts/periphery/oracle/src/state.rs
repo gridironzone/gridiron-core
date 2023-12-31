@@ -1,6 +1,6 @@
 use cosmwasm_schema::cw_serde;
 
-use astroport::asset::{AssetInfo, PairInfo};
+use gridiron::asset::{AssetInfo, PairInfo};
 use cosmwasm_std::{Addr, Decimal256, DepsMut, StdResult, Storage, Uint128};
 use cw_storage_plus::{Item, Map};
 

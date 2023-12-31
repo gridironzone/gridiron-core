@@ -17,62 +17,62 @@ use cw_multi_test::{
 use itertools::Itertools;
 
 use crate::helper::broken_cw20;
-use astroport::asset::{Asset, AssetInfo, AssetInfoExt, PairInfo};
-use astroport::factory::{PairConfig, PairType};
-use astroport::incentives::{
+use gridiron::asset::{Asset, AssetInfo, AssetInfoExt, PairInfo};
+use gridiron::factory::{PairConfig, PairType};
+use gridiron::incentives::{
     Config, ExecuteMsg, IncentivesSchedule, IncentivizationFeeInfo, InputSchedule,
     PoolInfoResponse, QueryMsg, RewardInfo, ScheduleResponse,
 };
-use astroport::pair::StablePoolParams;
-use astroport::vesting::{VestingAccount, VestingSchedule, VestingSchedulePoint};
-use astroport::{factory, native_coin_registry, pair, vesting};
+use gridiron::pair::StablePoolParams;
+use gridiron::vesting::{VestingAccount, VestingSchedule, VestingSchedulePoint};
+use gridiron::{factory, native_coin_registry, pair, vesting};
 
 fn factory_contract() -> Box<dyn Contract<Empty>> {
     Box::new(
         ContractWrapper::new_with_empty(
-            astroport_factory::contract::execute,
-            astroport_factory::contract::instantiate,
-            astroport_factory::contract::query,
+            gridiron_factory::contract::execute,
+            gridiron_factory::contract::instantiate,
+            gridiron_factory::contract::query,
         )
-        .with_reply_empty(astroport_factory::contract::reply),
+        .with_reply_empty(gridiron_factory::contract::reply),
     )
 }
 
 fn pair_contract() -> Box<dyn Contract<Empty>> {
     Box::new(
         ContractWrapper::new_with_empty(
-            astroport_pair::contract::execute,
-            astroport_pair::contract::instantiate,
-            astroport_pair::contract::query,
+            gridiron_pair::contract::execute,
+            gridiron_pair::contract::instantiate,
+            gridiron_pair::contract::query,
         )
-        .with_reply_empty(astroport_pair::contract::reply),
+        .with_reply_empty(gridiron_pair::contract::reply),
     )
 }
 
 fn pair_stable_contract() -> Box<dyn Contract<Empty>> {
     Box::new(
         ContractWrapper::new_with_empty(
-            astroport_pair_stable::contract::execute,
-            astroport_pair_stable::contract::instantiate,
-            astroport_pair_stable::contract::query,
+            gridiron_pair_stable::contract::execute,
+            gridiron_pair_stable::contract::instantiate,
+            gridiron_pair_stable::contract::query,
         )
-        .with_reply_empty(astroport_pair_stable::contract::reply),
+        .with_reply_empty(gridiron_pair_stable::contract::reply),
     )
 }
 
 fn coin_registry_contract() -> Box<dyn Contract<Empty>> {
     Box::new(ContractWrapper::new_with_empty(
-        astroport_native_coin_registry::contract::execute,
-        astroport_native_coin_registry::contract::instantiate,
-        astroport_native_coin_registry::contract::query,
+        gridiron_native_coin_registry::contract::execute,
+        gridiron_native_coin_registry::contract::instantiate,
+        gridiron_native_coin_registry::contract::query,
     ))
 }
 
 fn vesting_contract() -> Box<dyn Contract<Empty>> {
     Box::new(ContractWrapper::new_with_empty(
-        astroport_vesting::contract::execute,
-        astroport_vesting::contract::instantiate,
-        astroport_vesting::contract::query,
+        gridiron_vesting::contract::execute,
+        gridiron_vesting::contract::instantiate,
+        gridiron_vesting::contract::query,
     ))
 }
 
@@ -95,11 +95,11 @@ fn broken_token_contract() -> Box<dyn Contract<Empty>> {
 fn generator_contract() -> Box<dyn Contract<Empty>> {
     Box::new(
         ContractWrapper::new_with_empty(
-            astroport_incentives::execute::execute,
-            astroport_incentives::instantiate::instantiate,
-            astroport_incentives::query::query,
+            gridiron_incentives::execute::execute,
+            gridiron_incentives::instantiate::instantiate,
+            gridiron_incentives::query::query,
         )
-        .with_reply_empty(astroport_incentives::reply::reply),
+        .with_reply_empty(gridiron_incentives::reply::reply),
     )
 }
 
@@ -226,7 +226,7 @@ pub struct Helper {
 }
 
 impl Helper {
-    pub fn new(owner: &str, astro: &AssetInfo) -> AnyResult<Self> {
+    pub fn new(owner: &str, grid: &AssetInfo) -> AnyResult<Self> {
         let mut app = AppBuilder::new()
             .with_wasm::<FailingModule<_, _, Empty>, WasmKeeper<_, _>>(
                 WasmKeeper::new_with_custom_address_generator(TestAddr),
@@ -247,10 +247,10 @@ impl Helper {
                 owner.clone(),
                 &vesting::InstantiateMsg {
                     owner: owner.to_string(),
-                    vesting_token: astro.clone(),
+                    vesting_token: grid.clone(),
                 },
                 &[],
-                "Astroport Vesting",
+                "Gridiron Vesting",
                 None,
             )
             .unwrap();
@@ -264,7 +264,7 @@ impl Helper {
                     owner: owner.to_string(),
                 },
                 &[],
-                "Astroport Coin Registry",
+                "Gridiron Coin Registry",
                 None,
             )
             .unwrap();
@@ -304,25 +304,25 @@ impl Helper {
                     coin_registry_address: coin_registry_address.to_string(),
                 },
                 &[],
-                "Astroport Factory",
+                "Gridiron Factory",
                 None,
             )
             .unwrap();
 
-        let incentivization_fee = astro
+        let incentivization_fee = grid
             .with_balance(10_000_000000u128)
             .as_coin()
-            .expect("Test suite supports only native ASTRO");
+            .expect("Test suite supports only native GRID");
 
         let generator_code = app.store_code(generator_contract());
         let generator = app
             .instantiate_contract(
                 generator_code,
                 owner.clone(),
-                &astroport::incentives::InstantiateMsg {
+                &gridiron::incentives::InstantiateMsg {
                     owner: owner.to_string(),
                     factory: factory.to_string(),
-                    astro_token: astro.clone(),
+                    grid_token: grid.clone(),
                     vesting_contract: vesting.to_string(),
                     incentivization_fee_info: Some(IncentivizationFeeInfo {
                         fee_receiver: TestAddr::new("maker"),
@@ -331,7 +331,7 @@ impl Helper {
                     guardian: Some(TestAddr::new("guardian").to_string()),
                 },
                 &[],
-                "Astroport Generator",
+                "Gridiron Generator",
                 None,
             )
             .unwrap();
@@ -350,11 +350,11 @@ impl Helper {
         )
         .unwrap();
 
-        let astro_for_vesting = astro.with_balance(u128::MAX).as_coin().unwrap();
+        let grid_for_vesting = grid.with_balance(u128::MAX).as_coin().unwrap();
         app.init_modules(|router, _, storage| {
             router
                 .bank
-                .init_balance(storage, &owner, vec![astro_for_vesting.clone()])
+                .init_balance(storage, &owner, vec![grid_for_vesting.clone()])
         })
         .unwrap();
         app.execute_contract(
@@ -366,13 +366,13 @@ impl Helper {
                     schedules: vec![VestingSchedule {
                         start_point: VestingSchedulePoint {
                             time: app.block_info().time.seconds(),
-                            amount: astro_for_vesting.amount,
+                            amount: grid_for_vesting.amount,
                         },
                         end_point: None,
                     }],
                 }],
             },
-            &[astro_for_vesting],
+            &[grid_for_vesting],
         )
         .unwrap();
 

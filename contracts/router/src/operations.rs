@@ -1,7 +1,7 @@
-use astroport::asset::{Asset, AssetInfo};
-use astroport::pair::ExecuteMsg as PairExecuteMsg;
-use astroport::querier::{query_balance, query_pair_info, query_token_balance};
-use astroport::router::SwapOperation;
+use gridiron::asset::{Asset, AssetInfo};
+use gridiron::pair::ExecuteMsg as PairExecuteMsg;
+use gridiron::querier::{query_balance, query_pair_info, query_token_balance};
+use gridiron::router::SwapOperation;
 use cosmwasm_std::{
     to_binary, Coin, CosmosMsg, Decimal, DepsMut, Env, MessageInfo, Response, StdResult, WasmMsg,
 };
@@ -12,7 +12,7 @@ use crate::state::CONFIG;
 
 /// Execute a swap operation.
 ///
-/// * **operation** to perform (native or Astro swap with offer and ask asset information).
+/// * **operation** to perform (native or Grid swap with offer and ask asset information).
 ///
 /// * **to** address that receives the ask assets.
 ///
@@ -31,14 +31,14 @@ pub fn execute_swap_operation(
     }
 
     let message = match operation {
-        SwapOperation::AstroSwap {
+        SwapOperation::GridSwap {
             offer_asset_info,
             ask_asset_info,
         } => {
             let config = CONFIG.load(deps.storage)?;
             let pair_info = query_pair_info(
                 &deps.querier,
-                config.astroport_factory,
+                config.gridiron_factory,
                 &[offer_asset_info.clone(), ask_asset_info.clone()],
             )?;
 
@@ -72,7 +72,7 @@ pub fn execute_swap_operation(
 
 /// Creates a message of type [`CosmosMsg`] representing a swap operation.
 ///
-/// * **pair_contract** Astroport pair contract for which the swap operation is performed.
+/// * **pair_contract** Gridiron pair contract for which the swap operation is performed.
 ///
 /// * **offer_asset** asset that is swapped. It also mentions the amount to swap.
 ///
@@ -118,7 +118,7 @@ pub fn asset_into_swap_msg(
             msg: to_binary(&Cw20ExecuteMsg::Send {
                 contract: pair_contract,
                 amount: offer_asset.amount,
-                msg: to_binary(&astroport::pair::Cw20HookMsg::Swap {
+                msg: to_binary(&gridiron::pair::Cw20HookMsg::Swap {
                     ask_asset_info: Some(ask_asset_info),
                     belief_price,
                     max_spread,

@@ -7,10 +7,10 @@ use std::collections::HashMap;
 use cosmwasm_std::{Addr, Decimal, Decimal256};
 use proptest::prelude::*;
 
-use astroport::asset::AssetInfoExt;
-use astroport::cosmwasm_ext::AbsDiff;
-use astroport_pair_concentrated_injective::error::ContractError;
-use astroport_pcl_common::error::PclError;
+use gridiron::asset::AssetInfoExt;
+use gridiron::cosmwasm_ext::AbsDiff;
+use gridiron_pair_concentrated_injective::error::ContractError;
+use gridiron_pcl_common::error::PclError;
 
 use crate::helper::{common_pcl_params, dec_to_f64, AppExtension, Helper, TestCoin};
 

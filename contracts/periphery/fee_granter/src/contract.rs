@@ -14,9 +14,9 @@ use cosmwasm_std::{
 use cw2::set_contract_version;
 use cw_utils::must_pay;
 
-use astroport::asset::validate_native_denom;
-use astroport::common::{claim_ownership, drop_ownership_proposal, propose_new_owner};
-use astroport::fee_granter::{Config, ExecuteMsg, InstantiateMsg};
+use gridiron::asset::validate_native_denom;
+use gridiron::common::{claim_ownership, drop_ownership_proposal, propose_new_owner};
+use gridiron::fee_granter::{Config, ExecuteMsg, InstantiateMsg};
 
 use crate::error::ContractError;
 use crate::state::{update_admins_with_validation, CONFIG, GRANTS, OWNERSHIP_PROPOSAL};

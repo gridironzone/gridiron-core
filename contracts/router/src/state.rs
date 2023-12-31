@@ -1,4 +1,4 @@
-use astroport::asset::AssetInfo;
+use gridiron::asset::AssetInfo;
 use cosmwasm_schema::cw_serde;
 use cosmwasm_std::{Addr, Uint128};
 use cw_storage_plus::Item;
@@ -10,7 +10,7 @@ pub const CONFIG: Item<Config> = Item::new("config");
 #[cw_serde]
 pub struct Config {
     /// The factory contract address
-    pub astroport_factory: Addr,
+    pub gridiron_factory: Addr,
 }
 
 pub const REPLY_DATA: Item<ReplyData> = Item::new("reply_data");

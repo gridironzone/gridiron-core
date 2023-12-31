@@ -4,13 +4,13 @@ use crate::test_utils::delegation_helper::DelegationHelper;
 use crate::test_utils::escrow_helper::EscrowHelper;
 use crate::{mint_tokens, store_whitelist_code};
 use anyhow::Result as AnyResult;
-use astroport::asset::{token_asset_info, AssetInfo, PairInfo};
-use astroport::factory::{PairConfig, PairType};
-use astroport::vesting::{Cw20HookMsg as VestingHookMsg, VestingAccount};
-use astroport::vesting::{InstantiateMsg, VestingSchedule, VestingSchedulePoint};
-use astroport_governance::generator_controller::{ExecuteMsg, QueryMsg};
-use astroport_governance::generator_controller::{UserInfoResponse, VotedPoolInfoResponse};
-use astroport_mocks::cw_multi_test::{App, AppResponse, ContractWrapper, Executor};
+use gridiron::asset::{token_asset_info, AssetInfo, PairInfo};
+use gridiron::factory::{PairConfig, PairType};
+use gridiron::vesting::{Cw20HookMsg as VestingHookMsg, VestingAccount};
+use gridiron::vesting::{InstantiateMsg, VestingSchedule, VestingSchedulePoint};
+use gridiron_governance::generator_controller::{ExecuteMsg, QueryMsg};
+use gridiron_governance::generator_controller::{UserInfoResponse, VotedPoolInfoResponse};
+use gridiron_mocks::cw_multi_test::{App, AppResponse, ContractWrapper, Executor};
 use cosmwasm_std::{to_binary, Addr, StdResult, Uint128, Uint64};
 use cw20::Cw20ExecuteMsg;
 
@@ -32,27 +32,27 @@ impl ControllerHelper {
 
         let pair_contract = Box::new(
             ContractWrapper::new_with_empty(
-                astroport_pair::contract::execute,
-                astroport_pair::contract::instantiate,
-                astroport_pair::contract::query,
+                gridiron_pair::contract::execute,
+                gridiron_pair::contract::instantiate,
+                gridiron_pair::contract::query,
             )
-            .with_reply_empty(astroport_pair::contract::reply),
+            .with_reply_empty(gridiron_pair::contract::reply),
         );
 
         let pair_code_id = router.store_code(pair_contract);
 
         let factory_contract = Box::new(
             ContractWrapper::new_with_empty(
-                astroport_factory::contract::execute,
-                astroport_factory::contract::instantiate,
-                astroport_factory::contract::query,
+                gridiron_factory::contract::execute,
+                gridiron_factory::contract::instantiate,
+                gridiron_factory::contract::query,
             )
-            .with_reply_empty(astroport_factory::contract::reply),
+            .with_reply_empty(gridiron_factory::contract::reply),
         );
 
         let factory_code_id = router.store_code(factory_contract);
 
-        let msg = astroport::factory::InstantiateMsg {
+        let msg = gridiron::factory::InstantiateMsg {
             pair_configs: vec![PairConfig {
                 code_id: pair_code_id,
                 pair_type: PairType::Xyk {},
@@ -61,7 +61,7 @@ impl ControllerHelper {
                 is_disabled: false,
                 is_generator_disabled: false,
             }],
-            token_code_id: escrow_helper.astro_token_code_id,
+            token_code_id: escrow_helper.grid_token_code_id,
             fee_address: None,
             generator_address: None,
             owner: owner.to_string(),
@@ -75,23 +75,23 @@ impl ControllerHelper {
 
         let generator_contract = Box::new(
             ContractWrapper::new_with_empty(
-                astroport_generator::contract::execute,
-                astroport_generator::contract::instantiate,
-                astroport_generator::contract::query,
+                gridiron_generator::contract::execute,
+                gridiron_generator::contract::instantiate,
+                gridiron_generator::contract::query,
             )
-            .with_reply_empty(astroport_generator::contract::reply),
+            .with_reply_empty(gridiron_generator::contract::reply),
         );
 
         let vesting_contract = Box::new(ContractWrapper::new_with_empty(
-            astroport_vesting::contract::execute,
-            astroport_vesting::contract::instantiate,
-            astroport_vesting::contract::query,
+            gridiron_vesting::contract::execute,
+            gridiron_vesting::contract::instantiate,
+            gridiron_vesting::contract::query,
         ));
         let vesting_code_id = router.store_code(vesting_contract);
 
         let init_msg_vesting = InstantiateMsg {
             owner: owner.to_string(),
-            vesting_token: token_asset_info(escrow_helper.astro_token.clone()),
+            vesting_token: token_asset_info(escrow_helper.grid_token.clone()),
         };
 
         let vesting_instance = router
@@ -108,14 +108,14 @@ impl ControllerHelper {
         let whitelist_code_id = store_whitelist_code(router);
         let generator_code_id = router.store_code(generator_contract);
 
-        let init_msg = astroport::generator::InstantiateMsg {
+        let init_msg = gridiron::generator::InstantiateMsg {
             owner: owner.to_string(),
             factory: factory.to_string(),
             generator_controller: None,
             voting_escrow_delegation: Some(delegation_helper.delegation_instance.to_string()),
             voting_escrow: Some(escrow_helper.escrow_instance.to_string()),
             guardian: None,
-            astro_token: token_asset_info(escrow_helper.astro_token.clone()),
+            grid_token: token_asset_info(escrow_helper.grid_token.clone()),
             tokens_per_block: Uint128::new(10_000000),
             start_block: Uint64::from(router.block_info().height),
             vesting_contract: vesting_instance.to_string(),
@@ -140,7 +140,7 @@ impl ControllerHelper {
         ));
 
         let controller_code_id = router.store_code(controller_contract);
-        let init_msg = astroport_governance::generator_controller::InstantiateMsg {
+        let init_msg = gridiron_governance::generator_controller::InstantiateMsg {
             whitelisted_pools: vec![],
             owner: owner.to_string(),
             escrow_addr: escrow_helper.escrow_instance.to_string(),
@@ -163,7 +163,7 @@ impl ControllerHelper {
         mint_tokens(
             router,
             owner.clone(),
-            &escrow_helper.astro_token,
+            &escrow_helper.grid_token,
             &owner,
             1_000_000_000_000000,
         );
@@ -188,7 +188,7 @@ impl ControllerHelper {
         };
 
         router
-            .execute_contract(owner.clone(), escrow_helper.astro_token.clone(), &msg, &[])
+            .execute_contract(owner.clone(), escrow_helper.grid_token.clone(), &msg, &[])
             .unwrap();
 
         // Setup controller in generator contract
@@ -196,7 +196,7 @@ impl ControllerHelper {
             .execute_contract(
                 owner.clone(),
                 generator.clone(),
-                &astroport::generator::ExecuteMsg::UpdateConfig {
+                &gridiron::generator::ExecuteMsg::UpdateConfig {
                     vesting_contract: None,
                     generator_controller: Some(controller.to_string()),
                     guardian: None,
@@ -220,7 +220,7 @@ impl ControllerHelper {
     }
 
     pub fn init_cw20_token(&self, router: &mut App, name: &str) -> AnyResult<Addr> {
-        let msg = astroport::token::InstantiateMsg {
+        let msg = gridiron::token::InstantiateMsg {
             name: name.to_string(),
             symbol: name.to_string(),
             decimals: 6,
@@ -230,7 +230,7 @@ impl ControllerHelper {
         };
 
         router.instantiate_contract(
-            self.escrow_helper.astro_token_code_id,
+            self.escrow_helper.grid_token_code_id,
             Addr::unchecked(self.owner.clone()),
             &msg,
             &[],
@@ -252,7 +252,7 @@ impl ControllerHelper {
         router.execute_contract(
             Addr::unchecked(self.owner.clone()),
             self.factory.clone(),
-            &astroport::factory::ExecuteMsg::CreatePair {
+            &gridiron::factory::ExecuteMsg::CreatePair {
                 pair_type: PairType::Xyk {},
                 asset_infos: asset_infos.clone(),
                 init_params: None,
@@ -262,7 +262,7 @@ impl ControllerHelper {
 
         let res: PairInfo = router.wrap().query_wasm_smart(
             self.factory.clone(),
-            &astroport::factory::QueryMsg::Pair { asset_infos },
+            &gridiron::factory::QueryMsg::Pair { asset_infos },
         )?;
 
         Ok(res.liquidity_token)

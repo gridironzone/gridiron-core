@@ -1,6 +1,6 @@
-# Astroport Oracle
+# Gridiron Oracle
 
-This demo oracle contract calculates a 1 day TWAP for a xy=k Astroport pool.
+This demo oracle contract calculates a 1 day TWAP for a xy=k Gridiron pool.
 
 ---
 

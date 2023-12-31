@@ -1,16 +1,16 @@
-use astroport::asset::AssetInfo;
-use astroport::common::OwnershipProposal;
-use astroport::restricted_vector::RestrictedVector;
-use astroport::DecimalCheckedOps;
-use astroport::{
+use gridiron::asset::AssetInfo;
+use gridiron::common::OwnershipProposal;
+use gridiron::restricted_vector::RestrictedVector;
+use gridiron::DecimalCheckedOps;
+use gridiron::{
     generator::{PoolInfo, UserInfo, UserInfoV2},
     generator_proxy::QueryMsg as ProxyQueryMsg,
 };
-use astroport_governance::voting_escrow::{get_total_voting_power, get_voting_power};
-use astroport_governance::voting_escrow_delegation::get_adjusted_balance;
+use gridiron_governance::voting_escrow::{get_total_voting_power, get_voting_power};
+use gridiron_governance::voting_escrow_delegation::get_adjusted_balance;
 use cosmwasm_std::{Addr, Decimal, Deps, DepsMut, QuerierWrapper, StdResult, Storage, Uint128};
 
-use astroport::generator::Config;
+use gridiron::generator::Config;
 use cw20::BalanceResponse;
 use cw_storage_plus::{Item, Map};
 
@@ -19,8 +19,8 @@ use std::collections::HashMap;
 /// Constants to update user's virtual amount. For more info see update_virtual_amount() documentation.
 /// 0.4 of the LP tokens amount.
 const REAL_SHARE: Decimal = Decimal::raw(400000000000000000);
-/// 0.6 of the user's voting power aka vxASTRO balance.
-const VXASTRO_SHARE: Decimal = Decimal::raw(600000000000000000);
+/// 0.6 of the user's voting power aka vxGRID balance.
+const VXGRID_SHARE: Decimal = Decimal::raw(600000000000000000);
 
 /// Stores the contract config at the given key
 pub const CONFIG: Item<Config> = Item::new("config");
@@ -148,9 +148,9 @@ pub fn accumulate_pool_proxy_rewards(
 /// Saves map between a proxy and an asset info if it is not saved yet.
 pub fn update_proxy_asset(deps: DepsMut, proxy_addr: &Addr) -> StdResult<()> {
     if !PROXY_REWARD_ASSET.has(deps.storage, proxy_addr) {
-        let proxy_cfg: astroport::generator_proxy::ConfigResponse = deps
+        let proxy_cfg: gridiron::generator_proxy::ConfigResponse = deps
             .querier
-            .query_wasm_smart(proxy_addr, &astroport::generator_proxy::QueryMsg::Config {})?;
+            .query_wasm_smart(proxy_addr, &gridiron::generator_proxy::QueryMsg::Config {})?;
         let asset = AssetInfo::Token {
             contract_addr: deps.api.addr_validate(&proxy_cfg.reward_token_addr)?,
         };
@@ -167,8 +167,8 @@ pub fn update_proxy_asset(deps: DepsMut, proxy_addr: &Addr) -> StdResult<()> {
 /// - b_u is the amount of LP tokens a user staked in a generator
 ///
 /// - S is the total amount of LP tokens staked in a generator
-/// - w_i is a user’s current vxASTRO balance
-/// - W is the total amount of vxASTRO
+/// - w_i is a user’s current vxGRID balance
+/// - W is the total amount of vxGRID
 pub(crate) fn update_virtual_amount(
     querier: QuerierWrapper,
     cfg: &Config,
@@ -197,7 +197,7 @@ pub(crate) fn update_virtual_amount(
 
     let user_virtual_share = user_info.amount * REAL_SHARE;
 
-    let total_virtual_share = lp_balance * VXASTRO_SHARE;
+    let total_virtual_share = lp_balance * VXGRID_SHARE;
 
     let vx_share_emission = if !total_vp.is_zero() {
         Decimal::from_ratio(user_vp, total_vp)

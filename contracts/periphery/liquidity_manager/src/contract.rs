@@ -6,15 +6,15 @@ use cosmwasm_std::{
 };
 use cw20::{Cw20ExecuteMsg, Expiration};
 
-use astroport::asset::{addr_opt_validate, Asset, AssetInfo, AssetInfoExt, PairInfo};
-use astroport::factory::PairType;
-use astroport::liquidity_manager::{Cw20HookMsg, ExecuteMsg, InstantiateMsg};
-use astroport::pair::{
+use gridiron::asset::{addr_opt_validate, Asset, AssetInfo, AssetInfoExt, PairInfo};
+use gridiron::factory::PairType;
+use gridiron::liquidity_manager::{Cw20HookMsg, ExecuteMsg, InstantiateMsg};
+use gridiron::pair::{
     Cw20HookMsg as PairCw20HookMsg, ExecuteMsg as PairExecuteMsg, QueryMsg as PairQueryMsg,
     QueryMsg,
 };
-use astroport::querier::query_supply;
-use astroport_pair::contract::get_share_in_assets;
+use gridiron::querier::query_supply;
+use gridiron_pair::contract::get_share_in_assets;
 
 use crate::error::ContractError;
 use crate::state::{ActionParams, Config, ReplyData, CONFIG, REPLY_DATA};
@@ -30,7 +30,7 @@ pub fn instantiate(
     CONFIG.save(
         deps.storage,
         &Config {
-            factory_addr: deps.api.addr_validate(&msg.astroport_factory)?,
+            factory_addr: deps.api.addr_validate(&msg.gridiron_factory)?,
         },
     )?;
 

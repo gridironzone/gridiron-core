@@ -2,8 +2,8 @@ use cosmwasm_std::{Addr, Api, StdError, StdResult, Uint128};
 use cw_storage_plus::{Item, Map};
 use std::collections::HashSet;
 
-use astroport::common::{validate_addresses, OwnershipProposal};
-use astroport::fee_granter::Config;
+use gridiron::common::{validate_addresses, OwnershipProposal};
+use gridiron::fee_granter::Config;
 
 pub const CONFIG: Item<Config> = Item::new("config");
 

@@ -1,7 +1,7 @@
 use crate::state::{CONFIG, USER_INFO};
-use astroport::asset::AssetInfo;
+use gridiron::asset::AssetInfo;
 
-use astroport::generator::{Config, MigrateMsg};
+use gridiron::generator::{Config, MigrateMsg};
 use cosmwasm_schema::cw_serde;
 use cosmwasm_std::{Addr, Decimal, DepsMut, StdError, StdResult, Uint128, Uint64};
 use cw_storage_plus::Item;
@@ -17,13 +17,13 @@ pub struct ConfigV220 {
     pub generator_controller: Option<Addr>,
     /// The voting escrow contract address
     pub voting_escrow: Option<Addr>,
-    /// [`AssetInfo`] of the ASTRO token
-    pub astro_token: AssetInfo,
-    /// Total amount of ASTRO rewards per block
+    /// [`AssetInfo`] of the GRID token
+    pub grid_token: AssetInfo,
+    /// Total amount of GRID rewards per block
     pub tokens_per_block: Uint128,
     /// Total allocation points. Must be the sum of all allocation points in all active generators
     pub total_alloc_point: Uint128,
-    /// The block number when the ASTRO distribution starts
+    /// The block number when the GRID distribution starts
     pub start_block: Uint64,
     /// The vesting contract from which rewards are distributed
     pub vesting_contract: Addr,
@@ -50,7 +50,7 @@ pub fn migrate_configs_from_v220(deps: &mut DepsMut, msg: &MigrateMsg) -> StdRes
         generator_controller: cfg_220.generator_controller,
         voting_escrow: cfg_220.voting_escrow,
         voting_escrow_delegation: None,
-        astro_token: cfg_220.astro_token,
+        grid_token: cfg_220.grid_token,
         tokens_per_block: cfg_220.tokens_per_block,
         total_alloc_point: cfg_220.total_alloc_point,
         start_block: cfg_220.start_block,

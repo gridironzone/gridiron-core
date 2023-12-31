@@ -4,10 +4,10 @@ use crate::querier::{query_cumulative_prices, query_prices};
 use crate::state::{
     get_precision, store_precisions, Config, PriceCumulativeLast, CONFIG, PRICE_LAST,
 };
-use astroport::asset::{Asset, AssetInfo};
-use astroport::oracle::{ExecuteMsg, InstantiateMsg, MigrateMsg, QueryMsg};
-use astroport::pair::TWAP_PRECISION;
-use astroport::querier::query_pair_info;
+use gridiron::asset::{Asset, AssetInfo};
+use gridiron::oracle::{ExecuteMsg, InstantiateMsg, MigrateMsg, QueryMsg};
+use gridiron::pair::TWAP_PRECISION;
+use gridiron::querier::query_pair_info;
 
 use cosmwasm_std::{
     entry_point, to_binary, Binary, Decimal256, Deps, DepsMut, Env, MessageInfo, Response,
@@ -16,7 +16,7 @@ use cosmwasm_std::{
 use cw2::{get_contract_version, set_contract_version};
 
 /// Contract name that is used for migration.
-const CONTRACT_NAME: &str = "astroport-oracle";
+const CONTRACT_NAME: &str = "gridiron-oracle";
 /// Contract version that is used for migration.
 const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
 
@@ -70,7 +70,7 @@ pub fn instantiate(
 /// Exposes all the execute functions available in the contract.
 ///
 /// ## Variants
-/// * **ExecuteMsg::Update {}** Updates the local TWAP values for the assets in the Astroport pool.
+/// * **ExecuteMsg::Update {}** Updates the local TWAP values for the assets in the Gridiron pool.
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn execute(
     deps: DepsMut,
@@ -83,7 +83,7 @@ pub fn execute(
     }
 }
 
-/// Updates the local TWAP values for the tokens in the target Astroport pool.
+/// Updates the local TWAP values for the tokens in the target Gridiron pool.
 pub fn update(deps: DepsMut, env: Env) -> Result<Response, ContractError> {
     let config = CONFIG.load(deps.storage)?;
     let price_last = PRICE_LAST.load(deps.storage)?;
@@ -195,7 +195,7 @@ pub fn migrate(mut deps: DepsMut, _env: Env, _msg: MigrateMsg) -> Result<Respons
     let contract_version = get_contract_version(deps.storage)?;
 
     match contract_version.contract.as_ref() {
-        "astroport-oracle" => match contract_version.version.as_ref() {
+        "gridiron-oracle" => match contract_version.version.as_ref() {
             "1.0.0" | "1.0.1" | "1.0.2" => {
                 let config = CONFIG.load(deps.storage)?;
                 let price_last_v100 = PRICE_LAST_V100.load(deps.storage)?;

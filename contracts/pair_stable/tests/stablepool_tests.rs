@@ -3,10 +3,10 @@
 use cosmwasm_std::{Addr, Decimal, StdError};
 use std::str::FromStr;
 
-use astroport::asset::AssetInfoExt;
-use astroport::cosmwasm_ext::AbsDiff;
-use astroport::observation::OracleObservation;
-use astroport_pair_stable::error::ContractError;
+use gridiron::asset::AssetInfoExt;
+use gridiron::cosmwasm_ext::AbsDiff;
+use gridiron::observation::OracleObservation;
+use gridiron_pair_stable::error::ContractError;
 use helper::AppExtension;
 
 use crate::helper::{f64_to_dec, Helper, TestCoin};

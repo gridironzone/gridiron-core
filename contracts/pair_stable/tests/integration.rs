@@ -1,25 +1,25 @@
 #![cfg(not(tarpaulin_include))]
 
-use astroport::asset::{native_asset_info, Asset, AssetInfo, AssetInfoExt, PairInfo};
-use astroport::factory::{
+use gridiron::asset::{native_asset_info, Asset, AssetInfo, AssetInfoExt, PairInfo};
+use gridiron::factory::{
     ExecuteMsg as FactoryExecuteMsg, InstantiateMsg as FactoryInstantiateMsg, PairConfig, PairType,
     QueryMsg as FactoryQueryMsg,
 };
-use astroport::pair::{
+use gridiron::pair::{
     ConfigResponse, Cw20HookMsg, ExecuteMsg, InstantiateMsg, PoolResponse, QueryMsg,
     StablePoolConfig, StablePoolParams, StablePoolUpdateParams, MAX_FEE_SHARE_BPS,
 };
-use astroport_pair_stable::error::ContractError;
+use gridiron_pair_stable::error::ContractError;
 use std::cell::RefCell;
 use std::rc::Rc;
 use std::str::FromStr;
 
-use astroport::observation::OracleObservation;
-use astroport::token::InstantiateMsg as TokenInstantiateMsg;
-use astroport_mocks::cw_multi_test::{App, BasicApp, ContractWrapper, Executor};
-use astroport_mocks::pair_stable::MockStablePairBuilder;
-use astroport_mocks::{astroport_address, MockGeneratorBuilder};
-use astroport_pair_stable::math::{MAX_AMP, MAX_AMP_CHANGE, MIN_AMP_CHANGING_TIME};
+use gridiron::observation::OracleObservation;
+use gridiron::token::InstantiateMsg as TokenInstantiateMsg;
+use gridiron_mocks::cw_multi_test::{App, BasicApp, ContractWrapper, Executor};
+use gridiron_mocks::pair_stable::MockStablePairBuilder;
+use gridiron_mocks::{gridiron_address, MockGeneratorBuilder};
+use gridiron_pair_stable::math::{MAX_AMP, MAX_AMP_CHANGE, MIN_AMP_CHANGING_TIME};
 use cosmwasm_std::{
     attr, from_binary, to_binary, Addr, Coin, Decimal, QueryRequest, Uint128, WasmQuery,
 };
@@ -35,23 +35,23 @@ fn mock_app(owner: Addr, coins: Vec<Coin>) -> App {
 }
 
 fn store_token_code(app: &mut App) -> u64 {
-    let astro_token_contract = Box::new(ContractWrapper::new_with_empty(
-        astroport_token::contract::execute,
-        astroport_token::contract::instantiate,
-        astroport_token::contract::query,
+    let grid_token_contract = Box::new(ContractWrapper::new_with_empty(
+        gridiron_token::contract::execute,
+        gridiron_token::contract::instantiate,
+        gridiron_token::contract::query,
     ));
 
-    app.store_code(astro_token_contract)
+    app.store_code(grid_token_contract)
 }
 
 fn store_pair_code(app: &mut App) -> u64 {
     let pair_contract = Box::new(
         ContractWrapper::new_with_empty(
-            astroport_pair_stable::contract::execute,
-            astroport_pair_stable::contract::instantiate,
-            astroport_pair_stable::contract::query,
+            gridiron_pair_stable::contract::execute,
+            gridiron_pair_stable::contract::instantiate,
+            gridiron_pair_stable::contract::query,
         )
-        .with_reply_empty(astroport_pair_stable::contract::reply),
+        .with_reply_empty(gridiron_pair_stable::contract::reply),
     );
 
     app.store_code(pair_contract)
@@ -60,11 +60,11 @@ fn store_pair_code(app: &mut App) -> u64 {
 fn store_factory_code(app: &mut App) -> u64 {
     let factory_contract = Box::new(
         ContractWrapper::new_with_empty(
-            astroport_factory::contract::execute,
-            astroport_factory::contract::instantiate,
-            astroport_factory::contract::query,
+            gridiron_factory::contract::execute,
+            gridiron_factory::contract::instantiate,
+            gridiron_factory::contract::query,
         )
-        .with_reply_empty(astroport_factory::contract::reply),
+        .with_reply_empty(gridiron_factory::contract::reply),
     );
 
     app.store_code(factory_contract)
@@ -72,9 +72,9 @@ fn store_factory_code(app: &mut App) -> u64 {
 
 fn store_coin_registry_code(app: &mut App) -> u64 {
     let coin_registry_contract = Box::new(ContractWrapper::new_with_empty(
-        astroport_native_coin_registry::contract::execute,
-        astroport_native_coin_registry::contract::instantiate,
-        astroport_native_coin_registry::contract::query,
+        gridiron_native_coin_registry::contract::execute,
+        gridiron_native_coin_registry::contract::instantiate,
+        gridiron_native_coin_registry::contract::query,
     ));
 
     app.store_code(coin_registry_contract)
@@ -86,7 +86,7 @@ fn instantiate_coin_registry(mut app: &mut App, coins: Option<Vec<(String, u8)>>
         .instantiate_contract(
             coin_registry_id,
             Addr::unchecked(OWNER),
-            &astroport::native_coin_registry::InstantiateMsg {
+            &gridiron::native_coin_registry::InstantiateMsg {
                 owner: OWNER.to_string(),
             },
             &[],
@@ -99,7 +99,7 @@ fn instantiate_coin_registry(mut app: &mut App, coins: Option<Vec<(String, u8)>>
         app.execute_contract(
             Addr::unchecked(OWNER),
             coin_registry_address.clone(),
-            &astroport::native_coin_registry::ExecuteMsg::Add {
+            &gridiron::native_coin_registry::ExecuteMsg::Add {
                 native_coins: coins,
             },
             &[],
@@ -1527,14 +1527,14 @@ fn check_observe_queries() {
 
 #[test]
 fn provide_liquidity_with_autostaking_to_generator() {
-    let astroport = astroport_address();
+    let gridiron = gridiron_address();
 
     let app = Rc::new(RefCell::new(BasicApp::new(|router, _, storage| {
         router
             .bank
             .init_balance(
                 storage,
-                &astroport,
+                &gridiron,
                 vec![Coin {
                     denom: "ustake".to_owned(),
                     amount: Uint128::new(1_000_000_000000),
@@ -1547,26 +1547,26 @@ fn provide_liquidity_with_autostaking_to_generator() {
 
     let factory = generator.factory();
 
-    let astro_token_info = generator.astro_token_info();
+    let grid_token_info = generator.grid_token_info();
     let ustake = native_asset_info("ustake".to_owned());
 
     let pair = MockStablePairBuilder::new(&app)
         .with_factory(&factory)
-        .with_asset(&astro_token_info)
+        .with_asset(&grid_token_info)
         .with_asset(&ustake)
         .instantiate(None);
 
     pair.mint_allow_provide_and_stake(
-        &astroport,
+        &gridiron,
         &[
-            astro_token_info.with_balance(1_000_000000u128),
+            grid_token_info.with_balance(1_000_000000u128),
             ustake.with_balance(1_000_000000u128),
         ],
     );
 
     assert_eq!(pair.lp_token().balance(&pair.address), Uint128::new(1000));
     assert_eq!(
-        generator.query_deposit(&pair.lp_token(), &astroport),
+        generator.query_deposit(&pair.lp_token(), &gridiron),
         Uint128::new(1999_999000),
     );
 }

@@ -3,12 +3,12 @@ use std::str::FromStr;
 use cosmwasm_std::{coin, coins, Decimal, Timestamp, Uint128};
 use cw_multi_test::Executor;
 
-use astroport::asset::{native_asset_info, AssetInfo, AssetInfoExt};
-use astroport::incentives::{
+use gridiron::asset::{native_asset_info, AssetInfo, AssetInfoExt};
+use gridiron::incentives::{
     ExecuteMsg, IncentivizationFeeInfo, ScheduleResponse, EPOCHS_START, EPOCH_LENGTH,
     MAX_REWARD_TOKENS,
 };
-use astroport_incentives::error::ContractError;
+use gridiron_incentives::error::ContractError;
 
 use crate::helper::{assert_rewards, Helper, TestAddr};
 
@@ -16,8 +16,8 @@ mod helper;
 
 #[test]
 fn test_stake_unstake() {
-    let astro = native_asset_info("astro".to_string());
-    let mut helper = Helper::new("owner", &astro).unwrap();
+    let grid = native_asset_info("grid".to_string());
+    let mut helper = Helper::new("owner", &grid).unwrap();
 
     let user = TestAddr::new("user");
 
@@ -116,8 +116,8 @@ fn test_stake_unstake() {
 
 #[test]
 fn test_claim_rewards() {
-    let astro = native_asset_info("astro".to_string());
-    let mut helper = Helper::new("owner", &astro).unwrap();
+    let grid = native_asset_info("grid".to_string());
+    let mut helper = Helper::new("owner", &grid).unwrap();
     let owner = helper.owner.clone();
 
     let mut pools = vec![
@@ -152,12 +152,12 @@ fn test_claim_rewards() {
             let staker_addr = TestAddr::new(staker);
 
             // Pool doesn't exist in Generator yet
-            let astro_before = astro.query_pool(&helper.app.wrap(), &staker_addr).unwrap();
+            let grid_before = grid.query_pool(&helper.app.wrap(), &staker_addr).unwrap();
             helper
                 .claim_rewards(&staker_addr, vec![pair_info.liquidity_token.to_string()])
                 .unwrap_err();
-            let astro_after = astro.query_pool(&helper.app.wrap(), &staker_addr).unwrap();
-            assert_eq!((astro_after - astro_before).u128(), 0);
+            let grid_after = grid.query_pool(&helper.app.wrap(), &staker_addr).unwrap();
+            assert_eq!((grid_after - grid_before).u128(), 0);
 
             helper
                 .provide_liquidity(
@@ -256,7 +256,7 @@ fn test_claim_rewards() {
         .update_block(|block| block.time = block.time.plus_seconds(5));
 
     let user1 = TestAddr::new("user1");
-    let astro_before = astro.query_pool(&helper.app.wrap(), &user1).unwrap();
+    let grid_before = grid.query_pool(&helper.app.wrap(), &user1).unwrap();
     let err = helper
         .claim_rewards(
             &user1,
@@ -278,22 +278,22 @@ fn test_claim_rewards() {
     helper
         .claim_rewards(&user1, vec![pools[0].2.to_string(), pools[1].2.to_string()])
         .unwrap();
-    let astro_after = astro.query_pool(&helper.app.wrap(), &user1).unwrap();
-    assert_eq!((astro_after - astro_before).u128(), 2_500000);
+    let grid_after = grid.query_pool(&helper.app.wrap(), &user1).unwrap();
+    assert_eq!((grid_after - grid_before).u128(), 2_500000);
 
     let user2 = TestAddr::new("user2");
-    let astro_before = astro.query_pool(&helper.app.wrap(), &user2).unwrap();
+    let grid_before = grid.query_pool(&helper.app.wrap(), &user2).unwrap();
     helper
         .claim_rewards(&user2, vec![pools[0].2.to_string(), pools[2].2.to_string()])
         .unwrap();
-    let astro_after = astro.query_pool(&helper.app.wrap(), &user2).unwrap();
-    assert_eq!((astro_after - astro_before).u128(), 2_500000);
+    let grid_after = grid.query_pool(&helper.app.wrap(), &user2).unwrap();
+    assert_eq!((grid_after - grid_before).u128(), 2_500000);
 }
 
 #[test]
 fn test_incentives() {
-    let astro = native_asset_info("astro".to_string());
-    let mut helper = Helper::new("owner", &astro).unwrap();
+    let grid = native_asset_info("grid".to_string());
+    let mut helper = Helper::new("owner", &grid).unwrap();
     let owner = helper.owner.clone();
     let incentivization_fee = helper.incentivization_fee.clone();
 
@@ -341,7 +341,7 @@ fn test_incentives() {
         }
     );
     let err = helper
-        .incentivize(&bank, &lp_token, schedule.clone(), &coins(1, "astro"))
+        .incentivize(&bank, &lp_token, schedule.clone(), &coins(1, "grid"))
         .unwrap_err();
     assert_eq!(
         err.downcast::<ContractError>().unwrap(),
@@ -419,8 +419,8 @@ fn test_incentives() {
 
 #[test]
 fn test_cw20_incentives() {
-    let astro = native_asset_info("astro".to_string());
-    let mut helper = Helper::new("owner", &astro).unwrap();
+    let grid = native_asset_info("grid".to_string());
+    let mut helper = Helper::new("owner", &grid).unwrap();
     let owner = helper.owner.clone();
     let incentivization_fee = helper.incentivization_fee.clone();
 
@@ -511,8 +511,8 @@ fn test_cw20_incentives() {
 
 #[test]
 fn test_multiple_schedules_same_reward() {
-    let astro = native_asset_info("astro".to_string());
-    let mut helper = Helper::new("owner", &astro).unwrap();
+    let grid = native_asset_info("grid".to_string());
+    let mut helper = Helper::new("owner", &grid).unwrap();
     let owner = helper.owner.clone();
     let incentivization_fee = helper.incentivization_fee.clone();
 
@@ -535,7 +535,7 @@ fn test_multiple_schedules_same_reward() {
         )
         .unwrap();
 
-    // Incentivize with ASTRO
+    // Incentivize with GRID
     helper.setup_pools(vec![(lp_token.clone(), 100)]).unwrap();
     helper.set_tokens_per_second(100).unwrap();
 
@@ -584,9 +584,9 @@ fn test_multiple_schedules_same_reward() {
         .query_pool(&helper.app.wrap(), &user)
         .unwrap();
     assert_eq!(reward_balance.u128(), 207_189296);
-    // And received ASTRO rewards
-    let astro_reward_balance = astro.query_pool(&helper.app.wrap(), &user).unwrap();
-    assert_eq!(astro_reward_balance.u128(), 86400 * 100);
+    // And received GRID rewards
+    let grid_reward_balance = grid.query_pool(&helper.app.wrap(), &user).unwrap();
+    assert_eq!(grid_reward_balance.u128(), 86400 * 100);
 
     // Iterate till the end of the longest schedule by 1 day and claim rewards
     loop {
@@ -613,17 +613,17 @@ fn test_multiple_schedules_same_reward() {
     assert_eq!(reward_balance.u128(), 4999_999972);
 
     let time_now = helper.app.block_info().time.seconds();
-    let astro_reward_balance = astro.query_pool(&helper.app.wrap(), &user).unwrap();
+    let grid_reward_balance = grid.query_pool(&helper.app.wrap(), &user).unwrap();
     assert_eq!(
-        astro_reward_balance.u128(),
+        grid_reward_balance.u128(),
         u128::from(time_now - time_before_claims) * 100
     );
 }
 
 #[test]
 fn test_multiple_schedules_different_reward() {
-    let astro = native_asset_info("astro".to_string());
-    let mut helper = Helper::new("owner", &astro).unwrap();
+    let grid = native_asset_info("grid".to_string());
+    let mut helper = Helper::new("owner", &grid).unwrap();
     let owner = helper.owner.clone();
     let incentivization_fee = helper.incentivization_fee.clone();
 
@@ -646,7 +646,7 @@ fn test_multiple_schedules_different_reward() {
         )
         .unwrap();
 
-    // Incentivize with ASTRO
+    // Incentivize with GRID
     helper.setup_pools(vec![(lp_token.clone(), 100)]).unwrap();
     helper.set_tokens_per_second(100).unwrap();
 
@@ -715,9 +715,9 @@ fn test_multiple_schedules_different_reward() {
             .unwrap();
         assert_eq!(reward_balance.u128(), 47_629547);
     }
-    // And received ASTRO rewards
-    let astro_reward_balance = astro.query_pool(&helper.app.wrap(), &user).unwrap();
-    assert_eq!(astro_reward_balance.u128(), 86400 * 100);
+    // And received GRID rewards
+    let grid_reward_balance = grid.query_pool(&helper.app.wrap(), &user).unwrap();
+    assert_eq!(grid_reward_balance.u128(), 86400 * 100);
 
     // Iterate till the end of the longest schedule by 1 day and claim rewards
     loop {
@@ -755,17 +755,17 @@ fn test_multiple_schedules_different_reward() {
     }
 
     let time_now = helper.app.block_info().time.seconds();
-    let astro_reward_balance = astro.query_pool(&helper.app.wrap(), &user).unwrap();
+    let grid_reward_balance = grid.query_pool(&helper.app.wrap(), &user).unwrap();
     assert_eq!(
-        astro_reward_balance.u128(),
+        grid_reward_balance.u128(),
         u128::from(time_now - time_before_claims) * 100
     );
 }
 
 #[test]
-fn test_astro_external_reward() {
-    let astro = native_asset_info("astro".to_string());
-    let mut helper = Helper::new("owner", &astro).unwrap();
+fn test_grid_external_reward() {
+    let grid = native_asset_info("grid".to_string());
+    let mut helper = Helper::new("owner", &grid).unwrap();
     helper
         .app
         .update_block(|block| block.time = Timestamp::from_seconds(EPOCHS_START + EPOCH_LENGTH));
@@ -792,13 +792,13 @@ fn test_astro_external_reward() {
         )
         .unwrap();
 
-    // Incentivize with ASTRO
+    // Incentivize with GRID
     helper.setup_pools(vec![(lp_token.clone(), 100)]).unwrap();
     helper.set_tokens_per_second(100).unwrap();
 
-    // Setup external rewards: 2 equal external ASTRO rewards that must be summed up
+    // Setup external rewards: 2 equal external GRID rewards that must be summed up
     let bank = TestAddr::new("bank");
-    let reward = astro.with_balance(2u128 * 7 * 86400 * 25); // 25 uastro per second
+    let reward = grid.with_balance(2u128 * 7 * 86400 * 25); // 25 ugrid per second
     let (schedule, internal_sch) = helper.create_schedule(&reward, 2).unwrap();
     helper.mint_assets(&bank, &[reward.clone()]);
     helper.mint_coin(&bank, &incentivization_fee);
@@ -827,8 +827,8 @@ fn test_astro_external_reward() {
     helper.next_block(86400);
 
     helper.claim_rewards(&user, vec![lp_token.clone()]).unwrap();
-    let astro_reward_balance = astro.query_pool(&helper.app.wrap(), &user).unwrap();
-    assert_eq!(astro_reward_balance.u128(), 86400 * (100 + 50));
+    let grid_reward_balance = grid.query_pool(&helper.app.wrap(), &user).unwrap();
+    assert_eq!(grid_reward_balance.u128(), 86400 * (100 + 50));
 
     // Iterate till the end of the schedule by 1 day and claim rewards
     loop {
@@ -848,9 +848,9 @@ fn test_astro_external_reward() {
     }
 
     let time_now = helper.app.block_info().time.seconds();
-    let astro_reward_balance = astro.query_pool(&helper.app.wrap(), &user).unwrap();
+    let grid_reward_balance = grid.query_pool(&helper.app.wrap(), &user).unwrap();
     assert_eq!(
-        astro_reward_balance.u128(),
+        grid_reward_balance.u128(),
         u128::from(time_now - time_before_claims) * 100 // protocol rewards
             + u128::from(internal_sch.end_ts - internal_sch.next_epoch_start_ts) * 50 // external rewards
     );
@@ -858,8 +858,8 @@ fn test_astro_external_reward() {
 
 #[test]
 fn test_blocked_tokens() {
-    let astro = native_asset_info("astro".to_string());
-    let mut helper = Helper::new("owner", &astro).unwrap();
+    let grid = native_asset_info("grid".to_string());
+    let mut helper = Helper::new("owner", &grid).unwrap();
     let owner = helper.owner.clone();
     let guardian = TestAddr::new("guardian");
 
@@ -878,13 +878,13 @@ fn test_blocked_tokens() {
 
     // Check general validation
     let err = helper
-        .block_tokens(&guardian, &[astro.clone()])
+        .block_tokens(&guardian, &[grid.clone()])
         .unwrap_err();
     assert_eq!(
         err.root_cause().to_string(),
         format!(
-            "Generic error: Blocking ASTRO token {} is prohibited",
-            &astro
+            "Generic error: Blocking GRID token {} is prohibited",
+            &grid
         )
     );
     let err = helper
@@ -956,7 +956,7 @@ fn test_blocked_tokens() {
         .create_pair(&[tokens[0].clone(), tokens[2].clone()])
         .unwrap();
 
-    // Try to add ASTRO emissions to the 'blk' pair
+    // Try to add GRID emissions to the 'blk' pair
     let err = helper
         .setup_pools(vec![
             (norm_pair1_info.liquidity_token.to_string(), 1),
@@ -993,7 +993,7 @@ fn test_blocked_tokens() {
 
     // For simplicity we have no stakers in this test. However, all rewards are accrued in 'orphaned_rewards'
     let reward_info = helper.query_reward_info(norm_pair1_info.liquidity_token.as_str());
-    assert_eq!(reward_info[0].orphaned.to_uint_floor().u128(), 50 * 1000); // 50 astro * 1000 passed seconds
+    assert_eq!(reward_info[0].orphaned.to_uint_floor().u128(), 50 * 1000); // 50 grid * 1000 passed seconds
     let reward_info = helper.query_reward_info(norm_pair2_info.liquidity_token.as_str());
     assert_eq!(reward_info[0].orphaned.to_uint_floor().u128(), 50 * 1000);
     let reward_info = helper.query_reward_info(blk_pair_info.liquidity_token.as_str());
@@ -1028,8 +1028,8 @@ fn test_blocked_tokens() {
 
 #[test]
 fn test_blocked_pair_types() {
-    let astro = native_asset_info("astro".to_string());
-    let mut helper = Helper::new("owner", &astro).unwrap();
+    let grid = native_asset_info("grid".to_string());
+    let mut helper = Helper::new("owner", &grid).unwrap();
     let owner = helper.owner.clone();
 
     let tokens = [
@@ -1064,7 +1064,7 @@ fn test_blocked_pair_types() {
 
     // For simplicity we have no stakers in this test. However, all rewards are accrued in 'orphaned_rewards'
     let reward_info = helper.query_reward_info(norm_pair1_info.liquidity_token.as_str());
-    assert_eq!(reward_info[0].orphaned.to_uint_floor().u128(), 50 * 1000); // 50 astro * 1000 passed seconds
+    assert_eq!(reward_info[0].orphaned.to_uint_floor().u128(), 50 * 1000); // 50 grid * 1000 passed seconds
     let reward_info = helper.query_reward_info(norm_pair2_info.liquidity_token.as_str());
     assert_eq!(reward_info[0].orphaned.to_uint_floor().u128(), 50 * 1000);
     // Although this pair is blocked, it still gets rewards until manually deactivated
@@ -1154,8 +1154,8 @@ fn test_blocked_pair_types() {
 
 #[test]
 fn test_incentives_with_blocked() {
-    let astro = native_asset_info("astro".to_string());
-    let mut helper = Helper::new("owner", &astro).unwrap();
+    let grid = native_asset_info("grid".to_string());
+    let mut helper = Helper::new("owner", &grid).unwrap();
     let owner = helper.owner.clone();
     let incentivization_fee = helper.incentivization_fee.clone();
 
@@ -1191,9 +1191,9 @@ fn test_incentives_with_blocked() {
 
 #[test]
 fn test_remove_rewards() {
-    let astro = native_asset_info("astro".to_string());
+    let grid = native_asset_info("grid".to_string());
 
-    let mut helper = Helper::new("owner", &astro).unwrap();
+    let mut helper = Helper::new("owner", &grid).unwrap();
     helper
         .app
         .update_block(|block| block.time = Timestamp::from_seconds(EPOCHS_START + EPOCH_LENGTH));
@@ -1307,9 +1307,9 @@ fn test_remove_rewards() {
 
 #[test]
 fn test_long_unclaimed_rewards() {
-    let astro = native_asset_info("astro".to_string());
+    let grid = native_asset_info("grid".to_string());
 
-    let mut helper = Helper::new("owner", &astro).unwrap();
+    let mut helper = Helper::new("owner", &grid).unwrap();
     helper
         .app
         .update_block(|block| block.time = Timestamp::from_seconds(EPOCHS_START + EPOCH_LENGTH));
@@ -1434,8 +1434,8 @@ fn test_long_unclaimed_rewards() {
 
 #[test]
 fn test_queries() {
-    let astro = native_asset_info("astro".to_string());
-    let mut helper = Helper::new("owner", &astro).unwrap();
+    let grid = native_asset_info("grid".to_string());
+    let mut helper = Helper::new("owner", &grid).unwrap();
     let owner = helper.owner.clone();
     let incentivization_fee = helper.incentivization_fee.clone();
 
@@ -1585,8 +1585,8 @@ fn test_queries() {
 
 #[test]
 fn test_update_config() {
-    let astro = native_asset_info("astro".to_string());
-    let mut helper = Helper::new("owner", &astro).unwrap();
+    let grid = native_asset_info("grid".to_string());
+    let mut helper = Helper::new("owner", &grid).unwrap();
 
     let new_vesting = TestAddr::new("new_vesting");
     let new_generator_controller = TestAddr::new("new_generator_controller");
@@ -1632,8 +1632,8 @@ fn test_update_config() {
 
 #[test]
 fn test_change_ownership() {
-    let astro = native_asset_info("astro".to_string());
-    let mut helper = Helper::new("owner", &astro).unwrap();
+    let grid = native_asset_info("grid".to_string());
+    let mut helper = Helper::new("owner", &grid).unwrap();
 
     let new_owner = TestAddr::new("new_owner");
 
@@ -1734,9 +1734,9 @@ fn test_change_ownership() {
 
 #[test]
 fn test_incentive_without_funds() {
-    let astro = native_asset_info("astro".to_string());
+    let grid = native_asset_info("grid".to_string());
     let usdc = native_asset_info("usdc".to_string());
-    let mut helper = Helper::new("owner", &astro).unwrap();
+    let mut helper = Helper::new("owner", &grid).unwrap();
     let owner = helper.owner.clone();
     let asset_infos = [AssetInfo::native("foo"), AssetInfo::native("bar")];
     let pair_info = helper.create_pair(&asset_infos).unwrap();
@@ -1780,8 +1780,8 @@ fn test_incentive_without_funds() {
 
 #[test]
 fn test_claim_excess_rewards() {
-    let astro = native_asset_info("astro".to_string());
-    let mut helper = Helper::new("owner", &astro).unwrap();
+    let grid = native_asset_info("grid".to_string());
+    let mut helper = Helper::new("owner", &grid).unwrap();
     let owner = helper.owner.clone();
     let mut pools = vec![
         ("uusd", "eur", "".to_string(), vec!["user1", "user2"], 100),
@@ -1812,7 +1812,7 @@ fn test_claim_excess_rewards() {
         for staker in stakers {
             let staker_addr = TestAddr::new(staker);
             // Pool doesn't exist in Generator yet
-            let astro_before = astro.query_pool(&helper.app.wrap(), &staker_addr).unwrap();
+            let grid_before = grid.query_pool(&helper.app.wrap(), &staker_addr).unwrap();
             helper
                 .claim_rewards(
                     &staker_addr,
@@ -1822,8 +1822,8 @@ fn test_claim_excess_rewards() {
                     ],
                 )
                 .unwrap_err();
-            let astro_after = astro.query_pool(&helper.app.wrap(), &staker_addr).unwrap();
-            assert_eq!((astro_after - astro_before).u128(), 0);
+            let grid_after = grid.query_pool(&helper.app.wrap(), &staker_addr).unwrap();
+            assert_eq!((grid_after - grid_before).u128(), 0);
 
             helper
                 .provide_liquidity(
@@ -1842,7 +1842,7 @@ fn test_claim_excess_rewards() {
         .app
         .update_block(|block| block.time = block.time.plus_seconds(5));
     let user1 = TestAddr::new("user1");
-    let astro_before = astro.query_pool(&helper.app.wrap(), &user1).unwrap();
+    let grid_before = grid.query_pool(&helper.app.wrap(), &user1).unwrap();
     let err = helper
         .claim_rewards(
             &user1,
@@ -1862,14 +1862,14 @@ fn test_claim_excess_rewards() {
     helper
         .claim_rewards(&user1, vec![pools[0].2.to_string(), pools[1].2.to_string()])
         .unwrap();
-    let astro_after = astro.query_pool(&helper.app.wrap(), &user1).unwrap();
-    assert_eq!((astro_after - astro_before).u128(), 2_500000);
+    let grid_after = grid.query_pool(&helper.app.wrap(), &user1).unwrap();
+    assert_eq!((grid_after - grid_before).u128(), 2_500000);
 }
 
 #[test]
 fn test_user_claim_less() {
-    let astro = native_asset_info("astro".to_string());
-    let mut helper = Helper::new("owner", &astro).unwrap();
+    let grid = native_asset_info("grid".to_string());
+    let mut helper = Helper::new("owner", &grid).unwrap();
     let owner = helper.owner.clone();
     let incentivization_fee = helper.incentivization_fee.clone();
 
@@ -1968,8 +1968,8 @@ fn test_user_claim_less() {
 
 #[test]
 fn test_broken_cw20_incentives() {
-    let astro = native_asset_info("astro".to_string());
-    let mut helper = Helper::new("owner", &astro).unwrap();
+    let grid = native_asset_info("grid".to_string());
+    let mut helper = Helper::new("owner", &grid).unwrap();
     let owner = helper.owner.clone();
     let incentivization_fee = helper.incentivization_fee.clone();
 
@@ -2064,8 +2064,8 @@ fn test_broken_cw20_incentives() {
 
 #[test]
 fn test_factory_deregisters_any_pool() {
-    let astro = native_asset_info("astro".to_string());
-    let mut helper = Helper::new("owner", &astro).unwrap();
+    let grid = native_asset_info("grid".to_string());
+    let mut helper = Helper::new("owner", &grid).unwrap();
     let asset_infos = &[AssetInfo::native("usd"), AssetInfo::native("foo")];
 
     // factory contract create pair
@@ -2080,8 +2080,8 @@ fn test_factory_deregisters_any_pool() {
 
 #[test]
 fn test_orphaned_rewards() {
-    let astro = native_asset_info("astro".to_string());
-    let mut helper = Helper::new("owner", &astro).unwrap();
+    let grid = native_asset_info("grid".to_string());
+    let mut helper = Helper::new("owner", &grid).unwrap();
     let incentivization_fee = helper.incentivization_fee.clone();
 
     let asset_infos = [AssetInfo::native("foo"), AssetInfo::native("bar")];

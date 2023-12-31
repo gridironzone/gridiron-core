@@ -9,13 +9,13 @@ use std::collections::HashSet;
 
 use crate::error::ContractError;
 use crate::state::{CONFIG, OWNERSHIP_PROPOSAL};
-use astroport::common::{claim_ownership, drop_ownership_proposal, propose_new_owner};
-use astroport::native_coin_registry::{
+use gridiron::common::{claim_ownership, drop_ownership_proposal, propose_new_owner};
+use gridiron::native_coin_registry::{
     CoinResponse, Config, ExecuteMsg, InstantiateMsg, MigrateMsg, QueryMsg, COINS_INFO,
 };
 
 /// version info for migration info
-const CONTRACT_NAME: &str = "astroport-native-coin-registry";
+const CONTRACT_NAME: &str = "gridiron-native-coin-registry";
 const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
 
 /// Settings for pagination.
@@ -189,7 +189,7 @@ pub fn migrate(deps: DepsMut, _env: Env, _msg: MigrateMsg) -> Result<Response, C
     let contract_version = get_contract_version(deps.storage)?;
 
     match contract_version.contract.as_ref() {
-        "astroport-native-coin-registry" => match contract_version.version.as_ref() {
+        "gridiron-native-coin-registry" => match contract_version.version.as_ref() {
             "1.0.0" => {}
             _ => return Err(ContractError::MigrationError {}),
         },

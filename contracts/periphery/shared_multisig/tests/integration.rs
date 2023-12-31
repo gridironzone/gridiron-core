@@ -1,18 +1,18 @@
 #![cfg(not(tarpaulin_include))]
 
-use astroport::asset::{Asset, AssetInfo};
-use astroport::generator::PendingTokenResponse;
+use gridiron::asset::{Asset, AssetInfo};
+use gridiron::generator::PendingTokenResponse;
 use cosmwasm_std::{to_binary, Addr, Coin, CosmosMsg, Decimal, Uint128, WasmMsg};
 use cw20::Cw20ExecuteMsg;
 use cw3::{Status, Vote, VoteInfo, VoteListResponse, VoteResponse};
 use cw_utils::{Duration, ThresholdResponse};
 use std::{cell::RefCell, rc::Rc};
 
-use astroport::shared_multisig::{ExecuteMsg, PoolType, ProvideParams};
+use gridiron::shared_multisig::{ExecuteMsg, PoolType, ProvideParams};
 
-use astroport_mocks::cw_multi_test::{App, Executor};
-use astroport_mocks::shared_multisig::MockSharedMultisigBuilder;
-use astroport_mocks::{astroport_address, MockFactoryBuilder, MockGeneratorBuilder};
+use gridiron_mocks::cw_multi_test::{App, Executor};
+use gridiron_mocks::shared_multisig::MockSharedMultisigBuilder;
+use gridiron_mocks::{gridiron_address, MockFactoryBuilder, MockGeneratorBuilder};
 
 fn mock_app(owner: &Addr, coins: Option<Vec<Coin>>) -> App {
     let app = App::new(|router, _, storage| {
@@ -298,14 +298,14 @@ fn test_proposal() {
     let manager1 = Addr::unchecked(MANAGER1);
     let manager2 = Addr::unchecked(MANAGER2);
     let cheater = Addr::unchecked(CHEATER);
-    let astroport = astroport_address();
+    let gridiron = gridiron_address();
 
     let denom1 = String::from("untrn");
-    let denom2 = String::from("ibc/astro");
+    let denom2 = String::from("ibc/grid");
     let denom3 = String::from("usdt");
 
     let router = Rc::new(RefCell::new(mock_app(
-        &astroport,
+        &gridiron,
         Some(vec![
             Coin {
                 denom: denom1.clone(),
@@ -515,7 +515,7 @@ fn test_transfer() {
     let recipient = Addr::unchecked("recipient");
 
     let denom1 = String::from("untrn");
-    let denom2 = String::from("ibc/astro");
+    let denom2 = String::from("ibc/grid");
     let denom3 = String::from("usdt");
 
     let router = Rc::new(RefCell::new(mock_app(
@@ -703,7 +703,7 @@ fn test_transfer() {
         )
         .unwrap_err();
     assert_eq!(
-        "Unauthorized: manager1 cannot transfer ibc/astro",
+        "Unauthorized: manager1 cannot transfer ibc/grid",
         err.root_cause().to_string()
     );
 
@@ -859,7 +859,7 @@ fn test_target_pool() {
     let manager2 = Addr::unchecked(MANAGER2);
     let owner = Addr::unchecked(OWNER);
     let denom1 = String::from("untrn");
-    let denom2 = String::from("ibc/astro");
+    let denom2 = String::from("ibc/grid");
     let denom3 = String::from("usdt");
 
     let router = Rc::new(RefCell::new(mock_app(
@@ -1046,17 +1046,17 @@ fn test_target_pool() {
 
 #[test]
 fn test_provide_withdraw_pcl() {
-    let astroport = astroport_address();
+    let gridiron = gridiron_address();
     let manager1 = Addr::unchecked(MANAGER1);
     let manager2 = Addr::unchecked(MANAGER2);
     let recipient = Addr::unchecked("recipient");
 
     let denom1 = String::from("untrn");
-    let denom2 = String::from("ibc/astro");
+    let denom2 = String::from("ibc/grid");
     let denom3 = String::from("usdt");
 
     let router = Rc::new(RefCell::new(mock_app(
-        &astroport,
+        &gridiron,
         Some(vec![
             Coin {
                 denom: denom1.clone(),
@@ -1122,7 +1122,7 @@ fn test_provide_withdraw_pcl() {
     );
 
     // Sends tokens to the multisig
-    shared_multisig.send_tokens(&astroport, None, None).unwrap();
+    shared_multisig.send_tokens(&gridiron, None, None).unwrap();
 
     // Check the holder's balance for denom1
     let res = shared_multisig.query_native_balance(None, &denom1).unwrap();
@@ -1141,7 +1141,7 @@ fn test_provide_withdraw_pcl() {
 
     // send tokens to the recipient
     shared_multisig
-        .send_tokens(&astroport, None, Some(recipient.clone()))
+        .send_tokens(&gridiron, None, Some(recipient.clone()))
         .unwrap();
 
     // try to swap tokens
@@ -1252,17 +1252,17 @@ fn test_provide_withdraw_pcl() {
 
 #[test]
 fn test_provide_withdraw_xyk() {
-    let astroport = astroport_address();
+    let gridiron = gridiron_address();
     let manager1 = Addr::unchecked(MANAGER1);
     let manager2 = Addr::unchecked(MANAGER2);
     let recipient = Addr::unchecked("recipient");
 
     let denom1 = String::from("untrn");
-    let denom2 = String::from("ibc/astro");
+    let denom2 = String::from("ibc/grid");
     let denom3 = String::from("usdt");
 
     let router = Rc::new(RefCell::new(mock_app(
-        &astroport,
+        &gridiron,
         Some(vec![
             Coin {
                 denom: denom1.clone(),
@@ -1325,7 +1325,7 @@ fn test_provide_withdraw_xyk() {
     );
 
     // Sends tokens to the multisig
-    shared_multisig.send_tokens(&astroport, None, None).unwrap();
+    shared_multisig.send_tokens(&gridiron, None, None).unwrap();
 
     // Check the holder's balance for denom1
     let res = shared_multisig.query_native_balance(None, &denom1).unwrap();
@@ -1344,7 +1344,7 @@ fn test_provide_withdraw_xyk() {
 
     // send tokens to the recipient
     shared_multisig
-        .send_tokens(&astroport, None, Some(recipient.clone()))
+        .send_tokens(&gridiron, None, Some(recipient.clone()))
         .unwrap();
 
     // try to swap tokens
@@ -1459,7 +1459,7 @@ fn test_provide_to_both_pools() {
     let manager2 = Addr::unchecked(MANAGER2);
     let owner = Addr::unchecked(OWNER);
     let denom1 = String::from("untrn");
-    let denom2 = String::from("ibc/astro");
+    let denom2 = String::from("ibc/grid");
     let denom3 = String::from("usdt");
 
     let router = Rc::new(RefCell::new(mock_app(
@@ -1580,18 +1580,18 @@ fn test_provide_to_both_pools() {
 
 #[test]
 fn test_transfer_lp_tokens() {
-    let astroport = astroport_address();
+    let gridiron = gridiron_address();
     let manager1 = Addr::unchecked(MANAGER1);
     let manager2 = Addr::unchecked(MANAGER2);
     let cheater = Addr::unchecked(CHEATER);
     let recipient = Addr::unchecked("recipient");
 
     let denom1 = String::from("untrn");
-    let denom2 = String::from("ibc/astro");
+    let denom2 = String::from("ibc/grid");
     let denom3 = String::from("usdt");
 
     let router = Rc::new(RefCell::new(mock_app(
-        &astroport,
+        &gridiron,
         Some(vec![
             Coin {
                 denom: denom1.clone(),
@@ -1629,7 +1629,7 @@ fn test_transfer_lp_tokens() {
         MockSharedMultisigBuilder::new(&router).instantiate(&factory.address, None, None);
 
     // Sends tokens to the multisig
-    shared_multisig.send_tokens(&astroport, None, None).unwrap();
+    shared_multisig.send_tokens(&gridiron, None, None).unwrap();
 
     // Direct set up target pool without proposal
     shared_multisig
@@ -1729,7 +1729,7 @@ fn test_end_migrate_from_target_to_migration_pool() {
     let manager2 = Addr::unchecked(MANAGER2);
     let owner = Addr::unchecked(OWNER);
     let denom1 = String::from("untrn");
-    let denom2 = String::from("ibc/astro");
+    let denom2 = String::from("ibc/grid");
     let denom3 = String::from("usdt");
 
     let router = Rc::new(RefCell::new(mock_app(
@@ -1898,7 +1898,7 @@ fn test_withdraw_raqe_quit() {
     let manager2 = Addr::unchecked(MANAGER2);
     let owner = Addr::unchecked(OWNER);
     let denom1 = String::from("untrn");
-    let denom2 = String::from("ibc/astro");
+    let denom2 = String::from("ibc/grid");
     let denom3 = String::from("usdt");
 
     let router = Rc::new(RefCell::new(mock_app(
@@ -2022,16 +2022,16 @@ fn test_withdraw_raqe_quit() {
 
 #[test]
 fn test_autostake_and_withdraw() {
-    let astroport = astroport_address();
+    let gridiron = gridiron_address();
     let manager1 = Addr::unchecked(MANAGER1);
     let manager2 = Addr::unchecked(MANAGER2);
 
     let denom1 = String::from("untrn");
-    let denom2 = String::from("ibc/astro");
+    let denom2 = String::from("ibc/grid");
     let denom3 = String::from("usdt");
 
     let router = Rc::new(RefCell::new(mock_app(
-        &astroport,
+        &gridiron,
         Some(vec![
             Coin {
                 denom: denom1.clone(),
@@ -2050,7 +2050,7 @@ fn test_autostake_and_withdraw() {
 
     let mut generator = MockGeneratorBuilder::new(&router).instantiate();
     let factory = generator.factory();
-    let astro_token = generator.astro_token_info();
+    let grid_token = generator.grid_token_info();
     let coin_registry = factory.coin_registry();
     coin_registry.add(vec![(denom1.to_owned(), 6), (denom2.to_owned(), 6)]);
 
@@ -2083,7 +2083,7 @@ fn test_autostake_and_withdraw() {
     assert_eq!(config.target_pool, Some(xyk.address.clone()));
 
     // Sends tokens to the multisig
-    shared_multisig.send_tokens(&astroport, None, None).unwrap();
+    shared_multisig.send_tokens(&gridiron, None, None).unwrap();
 
     // Check the holder's balance for denom1
     let res = shared_multisig.query_native_balance(None, &denom1).unwrap();
@@ -2180,9 +2180,9 @@ fn test_autostake_and_withdraw() {
         },
     );
 
-    // Check the holder's ASTRO balance
+    // Check the holder's GRID balance
     let res = shared_multisig
-        .query_cw20_balance(&Addr::unchecked(astro_token.to_string()), None)
+        .query_cw20_balance(&Addr::unchecked(grid_token.to_string()), None)
         .unwrap();
     assert_eq!(res.balance, Uint128::new(100_000_000));
 

@@ -1,9 +1,9 @@
 [package]
-name = "astroport-router"
+name = "gridiron-router"
 version = "1.2.0"
-authors = ["Astroport"]
+authors = ["Gridiron"]
 edition = "2021"
-description = "The Astroport router contract - provides multi-hop swap functionality for Astroport pools"
+description = "The Gridiron router contract - provides multi-hop swap functionality for Gridiron pools"
 license = "Apache-2.0"
 
 exclude = [
@@ -28,13 +28,13 @@ cw20 = "0.15"
 cosmwasm-std = "1.1"
 cw-storage-plus = "0.15"
 integer-sqrt = "0.1"
-astroport = { path = "../../packages/astroport", version = "3.8" }
+gridiron = { path = "../../packages/gridiron", version = "3.8" }
 thiserror = { version = "1.0" }
 cosmwasm-schema = "1.1"
 
 [dev-dependencies]
-astroport-factory = { path = "../factory" }
-astroport-token = { path = "../token" }
-astroport-pair = { path = "../pair" }
+gridiron-factory = { path = "../factory" }
+gridiron-token = { path = "../token" }
+gridiron-pair = { path = "../pair" }
 anyhow = "1.0"
 cw-multi-test = "0.15"

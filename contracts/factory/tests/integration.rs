@@ -4,8 +4,8 @@ mod factory_helper;
 
 use cosmwasm_std::{attr, Addr};
 
-use astroport::asset::{AssetInfo, PairInfo};
-use astroport::factory::{
+use gridiron::asset::{AssetInfo, PairInfo};
+use gridiron::factory::{
     ConfigResponse, ExecuteMsg, FeeInfoResponse, InstantiateMsg, PairConfig, PairType, QueryMsg,
 };
 
@@ -19,11 +19,11 @@ fn mock_app() -> App {
 fn store_factory_code(app: &mut App) -> u64 {
     let factory_contract = Box::new(
         ContractWrapper::new_with_empty(
-            astroport_factory::contract::execute,
-            astroport_factory::contract::instantiate,
-            astroport_factory::contract::query,
+            gridiron_factory::contract::execute,
+            gridiron_factory::contract::instantiate,
+            gridiron_factory::contract::query,
         )
-        .with_reply_empty(astroport_factory::contract::reply),
+        .with_reply_empty(gridiron_factory::contract::reply),
     );
 
     app.store_code(factory_contract)

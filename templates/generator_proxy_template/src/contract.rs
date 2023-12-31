@@ -9,13 +9,13 @@ use cw20::{BalanceResponse, Cw20ExecuteMsg, Cw20QueryMsg, Cw20ReceiveMsg};
 
 use crate::error::ContractError;
 use crate::state::{Config, CONFIG};
-use astroport::generator_proxy::{
+use gridiron::generator_proxy::{
     CallbackMsg, ConfigResponse, Cw20HookMsg, ExecuteMsg, InstantiateMsg, MigrateMsg, QueryMsg,
 };
 use cw2::set_contract_version;
 
 /// Contract name that is used for migration.
-const CONTRACT_NAME: &str = "astroport-generator-proxy-template";
+const CONTRACT_NAME: &str = "gridiron-generator-proxy-template";
 /// Contract version that is used for migration.
 const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
 

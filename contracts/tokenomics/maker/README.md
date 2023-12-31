@@ -1,6 +1,6 @@
-# Astroport Maker
+# Gridiron Maker
 
-The Maker contract collects part of Astroport's pair fees (according to the factory's `maker_fee`). The accrued fees are swapped to ASTRO and then send to stakers and governance (according to the `governance_percent`).
+The Maker contract collects part of Gridiron's pair fees (according to the factory's `maker_fee`). The accrued fees are swapped to GRID and then send to stakers and governance (according to the `governance_percent`).
 
 ---
 
@@ -11,7 +11,7 @@ Initializes the contract with required addresses and the `governance_percent`.
 ```json
 {
   "owner": "terra...",
-  "astro_token_contract": "terra...",
+  "grid_token_contract": "terra...",
   "factory_contract": "terra...",
   "staking_contract": "terra...",
   "governance_contract": "terra...",
@@ -24,7 +24,7 @@ Initializes the contract with required addresses and the `governance_percent`.
 
 ### `collect`
 
-Swaps accrued fee tokens to ASTRO.
+Swaps accrued fee tokens to GRID.
 
 ```json
 {

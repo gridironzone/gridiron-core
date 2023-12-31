@@ -1,9 +1,9 @@
-use astroport::factory::PairType;
+use gridiron::factory::PairType;
 use cosmwasm_std::{CheckedFromRatioError, OverflowError, StdError, Uint128};
 use cw_utils::PaymentError;
 use thiserror::Error;
 
-use astroport::incentives::MAX_REWARD_TOKENS;
+use gridiron::incentives::MAX_REWARD_TOKENS;
 
 #[derive(Error, Debug, PartialEq)]
 pub enum ContractError {

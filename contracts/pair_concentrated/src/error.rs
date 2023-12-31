@@ -1,9 +1,9 @@
 use cosmwasm_std::{ConversionOverflowError, OverflowError, StdError};
 use thiserror::Error;
 
-use astroport::{asset::MINIMUM_LIQUIDITY_AMOUNT, pair::MAX_FEE_SHARE_BPS};
-use astroport_circular_buffer::error::BufferError;
-use astroport_pcl_common::error::PclError;
+use gridiron::{asset::MINIMUM_LIQUIDITY_AMOUNT, pair::MAX_FEE_SHARE_BPS};
+use gridiron_circular_buffer::error::BufferError;
+use gridiron_pcl_common::error::PclError;
 
 /// This enum describes pair contract errors
 #[derive(Error, Debug, PartialEq)]

@@ -8,13 +8,13 @@ import {
     NativeAsset,
     TokenAsset,
     NativeSwap,
-    AstroSwap,
+    GridSwap,
     performTransaction
 } from "../helpers.js"
 import {LCDClient, Coin, MsgExecuteContract, Numeric, Coins} from '@terra-money/terra.js';
 import util from 'util';
 
-export class Astroport {
+export class Gridiron {
     terra: LCDClient;
     wallet: any;
 
@@ -161,10 +161,10 @@ class Staking {
         this.addr = addr;
     }
 
-    async stakeAstro(astro_addr: string, amount: string) {
+    async stakeGrid(grid_addr: string, amount: string) {
         let msg = Buffer.from(JSON.stringify({enter: {}})).toString("base64");
 
-        await executeContract(this.terra, this.wallet, astro_addr, {
+        await executeContract(this.terra, this.wallet, grid_addr, {
             send: {
                 contract: this.addr,
                 amount,
@@ -173,10 +173,10 @@ class Staking {
         })
     }
 
-    async unstakeAstro(xastro_addr: string, amount: string) {
+    async unstakeGrid(xgrid_addr: string, amount: string) {
         let msg = Buffer.from(JSON.stringify({leave: {}})).toString("base64");
 
-        await executeContract(this.terra, this.wallet, xastro_addr, {
+        await executeContract(this.terra, this.wallet, xgrid_addr, {
             send: {
                 contract: this.addr,
                 amount,
@@ -261,7 +261,7 @@ export class Router {
         });
     }
 
-    async swapOperationsCW20(token_addr: string, amount: string, minimum_receive: string, operations: (NativeSwap|AstroSwap)[], to?: string) {
+    async swapOperationsCW20(token_addr: string, amount: string, minimum_receive: string, operations: (NativeSwap|GridSwap)[], to?: string) {
         let msg = Buffer.from(JSON.stringify({
             execute_swap_operations: {
                     operations: operations.map(value => value.getInfo()),
@@ -278,7 +278,7 @@ export class Router {
         })
     }
 
-    async swapOperations(operations: (NativeSwap | AstroSwap)[], coins: Coin, minimum_receive?: string, to?: string) {
+    async swapOperations(operations: (NativeSwap | GridSwap)[], coins: Coin, minimum_receive?: string, to?: string) {
         return await executeContract(this.terra, this.wallet, this.addr, {
             "execute_swap_operations": {
                 "operations": operations.map(value => value.getInfo()),

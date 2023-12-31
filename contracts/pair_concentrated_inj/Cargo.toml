@@ -1,9 +1,9 @@
 [package]
-name = "astroport-pair-concentrated-injective"
+name = "gridiron-pair-concentrated-injective"
 version = "2.2.2"
-authors = ["Astroport"]
+authors = ["Gridiron"]
 edition = "2021"
-description = "The Astroport concentrated liquidity pair which supports Injective orderbook integration"
+description = "The Gridiron concentrated liquidity pair which supports Injective orderbook integration"
 license = "MIT"
 
 exclude = [
@@ -24,11 +24,11 @@ backtraces = ["cosmwasm-std/backtraces"]
 library = []
 
 [dependencies]
-astroport = { path = "../../packages/astroport", version = "3", features = ["injective"] }
-astroport-factory = { path = "../factory", features = ["library"], version = "1" }
-astroport-pair-concentrated = { path = "../pair_concentrated", features = ["library"], version = "2.0.5" }
-astroport-circular-buffer = { path = "../../packages/circular_buffer", version = "0.1" }
-astroport-pcl-common = { path = "../../packages/astroport_pcl_common", version = "1" }
+gridiron = { path = "../../packages/gridiron", version = "3", features = ["injective"] }
+gridiron-factory = { path = "../factory", features = ["library"], version = "1" }
+gridiron-pair-concentrated = { path = "../pair_concentrated", features = ["library"], version = "2.0.5" }
+gridiron-circular-buffer = { path = "../../packages/circular_buffer", version = "0.1" }
+gridiron-pcl-common = { path = "../../packages/gridiron_pcl_common", version = "1" }
 cw2 = "0.15"
 cw20 = "0.15"
 cosmwasm-std = "1.1"
@@ -42,12 +42,12 @@ tiny-keccak = { version = "2.0.2", features = ["keccak"] }
 hex = "0.4.3"
 
 [dev-dependencies]
-astroport-token = { path = "../token" }
-astroport-mocks = { path = "../../packages/astroport_mocks" }
-astroport-factory = { path = "../factory" }
+gridiron-token = { path = "../token" }
+gridiron-mocks = { path = "../../packages/gridiron_mocks" }
+gridiron-factory = { path = "../factory" }
 proptest = "1.0"
 anyhow = "1.0"
 derivative = "2.2"
-astroport-native-coin-registry = { path = "../periphery/native_coin_registry" }
+gridiron-native-coin-registry = { path = "../periphery/native_coin_registry" }
 injective-math = "0.1"
 injective-testing = "0.1.1"

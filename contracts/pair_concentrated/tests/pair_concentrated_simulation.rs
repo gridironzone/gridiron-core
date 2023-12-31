@@ -5,11 +5,11 @@ extern crate core;
 mod helper;
 
 use crate::helper::{common_pcl_params, dec_to_f64, f64_to_dec, AppExtension, Helper, TestCoin};
-use astroport::asset::AssetInfoExt;
-use astroport::cosmwasm_ext::AbsDiff;
-use astroport::pair_concentrated::{ConcentratedPoolParams, ConcentratedPoolUpdateParams};
-use astroport_pair_concentrated::error::ContractError;
-use astroport_pcl_common::error::PclError;
+use gridiron::asset::AssetInfoExt;
+use gridiron::cosmwasm_ext::AbsDiff;
+use gridiron::pair_concentrated::{ConcentratedPoolParams, ConcentratedPoolUpdateParams};
+use gridiron_pair_concentrated::error::ContractError;
+use gridiron_pcl_common::error::PclError;
 use cosmwasm_std::{Addr, Decimal, Decimal256};
 use proptest::prelude::*;
 use std::collections::HashMap;

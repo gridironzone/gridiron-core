@@ -40,7 +40,7 @@ async function uploadAndInitToken(terra: LCDClient, wallet: any) {
     let network = readArtifact(terra.config.chainID)
 
     if (!network.tokenCodeID) {
-        network.tokenCodeID = await uploadContract(terra, wallet, join(ARTIFACTS_PATH, 'astroport_token.wasm')!)
+        network.tokenCodeID = await uploadContract(terra, wallet, join(ARTIFACTS_PATH, 'gridiron_token.wasm')!)
         writeArtifact(network, terra.config.chainID)
         console.log(`Token codeId: ${network.tokenCodeID}`)
     }
@@ -58,14 +58,14 @@ async function uploadAndInitToken(terra: LCDClient, wallet: any) {
             terra,
             wallet,
             chainConfigs.token.admin,
-            join(ARTIFACTS_PATH, 'astroport_token.wasm'),
+            join(ARTIFACTS_PATH, 'gridiron_token.wasm'),
             chainConfigs.token.initMsg,
             chainConfigs.token.label,
         )
 
         // @ts-ignore
         network.tokenAddress = resp.shift().shift()
-        console.log("astro:", network.tokenAddress)
+        console.log("grid:", network.tokenAddress)
         console.log(await queryContract(terra, network.tokenAddress, { token_info: {} }))
         console.log(await queryContract(terra, network.tokenAddress, { minter: {} }))
 
@@ -83,13 +83,13 @@ async function uploadPairContracts(terra: LCDClient, wallet: any) {
 
     if (!network.pairCodeID) {
         console.log('Register Pair Contract...')
-        network.pairCodeID = await uploadContract(terra, wallet, join(ARTIFACTS_PATH, 'astroport_pair.wasm')!)
+        network.pairCodeID = await uploadContract(terra, wallet, join(ARTIFACTS_PATH, 'gridiron_pair.wasm')!)
         writeArtifact(network, terra.config.chainID)
     }
 
     if (!network.pairStableCodeID) {
         console.log('Register Stable Pair Contract...')
-        network.pairStableCodeID = await uploadContract(terra, wallet, join(ARTIFACTS_PATH, 'astroport_pair_stable.wasm')!)
+        network.pairStableCodeID = await uploadContract(terra, wallet, join(ARTIFACTS_PATH, 'gridiron_pair_stable.wasm')!)
         writeArtifact(network, terra.config.chainID)
     }
 }
@@ -97,15 +97,15 @@ async function uploadPairContracts(terra: LCDClient, wallet: any) {
 async function uploadAndInitStaking(terra: LCDClient, wallet: any) {
     let network = readArtifact(terra.config.chainID)
 
-    if (!network.xastroTokenCodeID) {
-        console.log('Register xASTRO token contract...')
-        network.xastroTokenCodeID = await uploadContract(terra, wallet, join(ARTIFACTS_PATH, 'astroport_xastro_token.wasm')!)
+    if (!network.xgridTokenCodeID) {
+        console.log('Register xGRID token contract...')
+        network.xgridTokenCodeID = await uploadContract(terra, wallet, join(ARTIFACTS_PATH, 'gridiron_xgrid_token.wasm')!)
         writeArtifact(network, terra.config.chainID)
     }
 
     if (!network.stakingAddress) {
         chainConfigs.staking.initMsg.deposit_token_addr ||= network.tokenAddress
-        chainConfigs.staking.initMsg.token_code_id ||= network.xastroTokenCodeID
+        chainConfigs.staking.initMsg.token_code_id ||= network.xgridTokenCodeID
         chainConfigs.staking.initMsg.marketing.marketing ||= chainConfigs.generalInfo.multisig
         chainConfigs.staking.initMsg.owner ||= chainConfigs.generalInfo.multisig
         chainConfigs.staking.admin ||= chainConfigs.generalInfo.multisig
@@ -115,7 +115,7 @@ async function uploadAndInitStaking(terra: LCDClient, wallet: any) {
             terra,
             wallet,
             chainConfigs.staking.admin,
-            join(ARTIFACTS_PATH, 'astroport_staking.wasm'),
+            join(ARTIFACTS_PATH, 'gridiron_staking.wasm'),
             chainConfigs.staking.initMsg,
             chainConfigs.staking.label,
         )
@@ -124,10 +124,10 @@ async function uploadAndInitStaking(terra: LCDClient, wallet: any) {
         // @ts-ignore
         network.stakingAddress = addresses.shift();
         // @ts-ignore
-        network.xastroAddress = addresses.shift();
+        network.xgridAddress = addresses.shift();
 
         console.log(`Staking Contract Address: ${network.stakingAddress}`)
-        console.log(`xASTRO token Address: ${network.xastroAddress}`)
+        console.log(`xGRID token Address: ${network.xgridAddress}`)
         writeArtifact(network, terra.config.chainID)
     }
 }
@@ -161,7 +161,7 @@ async function uploadAndInitFactory(terra: LCDClient, wallet: any) {
             terra,
             wallet,
             chainConfigs.factory.admin,
-            join(ARTIFACTS_PATH, 'astroport_factory.wasm'),
+            join(ARTIFACTS_PATH, 'gridiron_factory.wasm'),
             chainConfigs.factory.initMsg,
             chainConfigs.factory.label
         )
@@ -186,7 +186,7 @@ async function uploadAndInitRouter(terra: LCDClient, wallet: any) {
     let network = readArtifact(terra.config.chainID)
 
     if (!network.routerAddress) {
-        chainConfigs.router.initMsg.astroport_factory ||= network.factoryAddress
+        chainConfigs.router.initMsg.gridiron_factory ||= network.factoryAddress
         chainConfigs.router.admin ||= chainConfigs.generalInfo.multisig;
 
         console.log('Deploying Router...')
@@ -194,7 +194,7 @@ async function uploadAndInitRouter(terra: LCDClient, wallet: any) {
             terra,
             wallet,
             chainConfigs.router.admin,
-            join(ARTIFACTS_PATH, 'astroport_router.wasm'),
+            join(ARTIFACTS_PATH, 'gridiron_router.wasm'),
             chainConfigs.router.initMsg,
             chainConfigs.router.label
         )
@@ -213,7 +213,7 @@ async function uploadAndInitMaker(terra: LCDClient, wallet: any) {
         chainConfigs.maker.initMsg.owner ||= chainConfigs.generalInfo.multisig;
         chainConfigs.maker.initMsg.factory_contract ||= network.factoryAddress;
         chainConfigs.maker.initMsg.staking_contract ||= network.stakingAddress;
-        chainConfigs.maker.initMsg.astro_token ||= {
+        chainConfigs.maker.initMsg.grid_token ||= {
             token: {
                 contract_addr: network.tokenAddress
             }
@@ -225,7 +225,7 @@ async function uploadAndInitMaker(terra: LCDClient, wallet: any) {
             terra,
             wallet,
             chainConfigs.maker.admin,
-            join(ARTIFACTS_PATH, 'astroport_maker.wasm'),
+            join(ARTIFACTS_PATH, 'gridiron_maker.wasm'),
             chainConfigs.maker.initMsg,
             chainConfigs.maker.label
         )
@@ -250,7 +250,7 @@ async function uploadAndInitTreasury(terra: LCDClient, wallet: any) {
 
     if (!network.whitelistCodeID) {
         console.log('Register Treasury Contract...')
-        network.whitelistCodeID = await uploadContract(terra, wallet, join(ARTIFACTS_PATH, 'astroport_whitelist.wasm')!)
+        network.whitelistCodeID = await uploadContract(terra, wallet, join(ARTIFACTS_PATH, 'gridiron_whitelist.wasm')!)
         writeArtifact(network, terra.config.chainID)
     }
 
@@ -288,7 +288,7 @@ async function uploadAndInitVesting(terra: LCDClient, wallet: any) {
             terra,
             wallet,
             chainConfigs.vesting.admin,
-            join(ARTIFACTS_PATH, 'astroport_vesting.wasm'),
+            join(ARTIFACTS_PATH, 'gridiron_vesting.wasm'),
             chainConfigs.vesting.initMsg,
             chainConfigs.vesting.label
         )
@@ -304,7 +304,7 @@ async function uploadAndInitGenerator(terra: LCDClient, wallet: any) {
     let network = readArtifact(terra.config.chainID)
 
     if (!network.generatorAddress) {
-        chainConfigs.generator.initMsg.astro_token ||= { token: { contract_addr: network.tokenAddress } };
+        chainConfigs.generator.initMsg.grid_token ||= { token: { contract_addr: network.tokenAddress } };
         chainConfigs.generator.initMsg.vesting_contract ||= network.vestingAddress;
         chainConfigs.generator.initMsg.factory ||= network.factoryAddress;
         chainConfigs.generator.initMsg.whitelist_code_id ||= network.whitelistCodeID;
@@ -316,7 +316,7 @@ async function uploadAndInitGenerator(terra: LCDClient, wallet: any) {
             terra,
             wallet,
             chainConfigs.generator.admin,
-            join(ARTIFACTS_PATH, 'astroport_generator.wasm'),
+            join(ARTIFACTS_PATH, 'gridiron_generator.wasm'),
             chainConfigs.generator.initMsg,
             chainConfigs.generator.label
         )

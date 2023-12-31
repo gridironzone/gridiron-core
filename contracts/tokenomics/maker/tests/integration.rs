@@ -1,15 +1,15 @@
 #![cfg(not(tarpaulin_include))]
 
-use astroport::asset::{
+use gridiron::asset::{
     native_asset, native_asset_info, token_asset, token_asset_info, Asset, AssetInfo, PairInfo,
 };
-use astroport::factory::{PairConfig, PairType, UpdateAddr};
-use astroport::maker::{
+use gridiron::factory::{PairConfig, PairType, UpdateAddr};
+use gridiron::maker::{
     AssetWithLimit, BalancesResponse, ConfigResponse, ExecuteMsg, InstantiateMsg, QueryMsg,
     SecondReceiverConfig, SecondReceiverParams,
 };
-use astroport::token::InstantiateMsg as TokenInstantiateMsg;
-use astroport_governance::utils::EPOCH_START;
+use gridiron::token::InstantiateMsg as TokenInstantiateMsg;
+use gridiron_governance::utils::EPOCH_START;
 use cosmwasm_std::{
     attr, coin, to_binary, Addr, Coin, Decimal, QueryRequest, Uint128, Uint64, WasmQuery,
 };
@@ -47,9 +47,9 @@ fn validate_and_send_funds(router: &mut App, sender: &Addr, recipient: &Addr, fu
 
 fn store_coin_registry_code(app: &mut App) -> u64 {
     let coin_registry_contract = Box::new(ContractWrapper::new_with_empty(
-        astroport_native_coin_registry::contract::execute,
-        astroport_native_coin_registry::contract::instantiate,
-        astroport_native_coin_registry::contract::query,
+        gridiron_native_coin_registry::contract::execute,
+        gridiron_native_coin_registry::contract::instantiate,
+        gridiron_native_coin_registry::contract::query,
     ));
 
     app.store_code(coin_registry_contract)
@@ -61,7 +61,7 @@ fn instantiate_coin_registry(mut app: &mut App, coins: Option<Vec<(String, u8)>>
         .instantiate_contract(
             coin_registry_id,
             Addr::unchecked(OWNER),
-            &astroport::native_coin_registry::InstantiateMsg {
+            &gridiron::native_coin_registry::InstantiateMsg {
                 owner: OWNER.to_string(),
             },
             &[],
@@ -74,7 +74,7 @@ fn instantiate_coin_registry(mut app: &mut App, coins: Option<Vec<(String, u8)>>
         app.execute_contract(
             Addr::unchecked(OWNER),
             coin_registry_address.clone(),
-            &astroport::native_coin_registry::ExecuteMsg::Add {
+            &gridiron::native_coin_registry::ExecuteMsg::Add {
                 native_coins: coins,
             },
             &[],
@@ -94,17 +94,17 @@ fn instantiate_contracts(
     pair_type: Option<PairType>,
     second_receiver_params: Option<SecondReceiverParams>,
 ) -> (Addr, Addr, Addr, Addr) {
-    let astro_token_contract = Box::new(ContractWrapper::new_with_empty(
-        astroport_token::contract::execute,
-        astroport_token::contract::instantiate,
-        astroport_token::contract::query,
+    let grid_token_contract = Box::new(ContractWrapper::new_with_empty(
+        gridiron_token::contract::execute,
+        gridiron_token::contract::instantiate,
+        gridiron_token::contract::query,
     ));
 
-    let astro_token_code_id = router.store_code(astro_token_contract);
+    let grid_token_code_id = router.store_code(grid_token_contract);
 
     let msg = TokenInstantiateMsg {
-        name: String::from("Astro token"),
-        symbol: String::from("ASTRO"),
+        name: String::from("Grid token"),
+        symbol: String::from("GRID"),
         decimals: 6,
         initial_balances: vec![],
         mint: Some(MinterResponse {
@@ -114,13 +114,13 @@ fn instantiate_contracts(
         marketing: None,
     };
 
-    let astro_token_instance = router
+    let grid_token_instance = router
         .instantiate_contract(
-            astro_token_code_id,
+            grid_token_code_id,
             owner.clone(),
             &msg,
             &[],
-            String::from("ASTRO"),
+            String::from("GRID"),
             None,
         )
         .unwrap();
@@ -129,22 +129,22 @@ fn instantiate_contracts(
         Some(PairType::Stable {}) => {
             let pair_contract = Box::new(
                 ContractWrapper::new_with_empty(
-                    astroport_pair_stable::contract::execute,
-                    astroport_pair_stable::contract::instantiate,
-                    astroport_pair_stable::contract::query,
+                    gridiron_pair_stable::contract::execute,
+                    gridiron_pair_stable::contract::instantiate,
+                    gridiron_pair_stable::contract::query,
                 )
-                .with_reply_empty(astroport_pair_stable::contract::reply),
+                .with_reply_empty(gridiron_pair_stable::contract::reply),
             );
             router.store_code(pair_contract)
         }
         _ => {
             let pair_contract = Box::new(
                 ContractWrapper::new_with_empty(
-                    astroport_pair::contract::execute,
-                    astroport_pair::contract::instantiate,
-                    astroport_pair::contract::query,
+                    gridiron_pair::contract::execute,
+                    gridiron_pair::contract::instantiate,
+                    gridiron_pair::contract::query,
                 )
-                .with_reply_empty(astroport_pair::contract::reply),
+                .with_reply_empty(gridiron_pair::contract::reply),
             );
             router.store_code(pair_contract)
         }
@@ -157,15 +157,15 @@ fn instantiate_contracts(
 
     let factory_contract = Box::new(
         ContractWrapper::new_with_empty(
-            astroport_factory::contract::execute,
-            astroport_factory::contract::instantiate,
-            astroport_factory::contract::query,
+            gridiron_factory::contract::execute,
+            gridiron_factory::contract::instantiate,
+            gridiron_factory::contract::query,
         )
-        .with_reply_empty(astroport_factory::contract::reply),
+        .with_reply_empty(gridiron_factory::contract::reply),
     );
 
     let factory_code_id = router.store_code(factory_contract);
-    let msg = astroport::factory::InstantiateMsg {
+    let msg = gridiron::factory::InstantiateMsg {
         pair_configs: vec![PairConfig {
             code_id: pair_code_id,
             pair_type: pair_type.unwrap_or(PairType::Xyk {}),
@@ -194,16 +194,16 @@ fn instantiate_contracts(
         .unwrap();
 
     let escrow_fee_distributor_contract = Box::new(ContractWrapper::new_with_empty(
-        astroport_escrow_fee_distributor::contract::execute,
-        astroport_escrow_fee_distributor::contract::instantiate,
-        astroport_escrow_fee_distributor::contract::query,
+        gridiron_escrow_fee_distributor::contract::execute,
+        gridiron_escrow_fee_distributor::contract::instantiate,
+        gridiron_escrow_fee_distributor::contract::query,
     ));
 
     let escrow_fee_distributor_code_id = router.store_code(escrow_fee_distributor_contract);
 
-    let init_msg = astroport_governance::escrow_fee_distributor::InstantiateMsg {
+    let init_msg = gridiron_governance::escrow_fee_distributor::InstantiateMsg {
         owner: owner.to_string(),
-        astro_token: astro_token_instance.to_string(),
+        grid_token: grid_token_instance.to_string(),
         voting_escrow_addr: "voting".to_string(),
         claim_many_limit: None,
         is_claim_disabled: None,
@@ -215,15 +215,15 @@ fn instantiate_contracts(
             owner.clone(),
             &init_msg,
             &[],
-            "Astroport escrow fee distributor",
+            "Gridiron escrow fee distributor",
             None,
         )
         .unwrap();
 
     let maker_contract = Box::new(ContractWrapper::new_with_empty(
-        astroport_maker::contract::execute,
-        astroport_maker::contract::instantiate,
-        astroport_maker::contract::query,
+        gridiron_maker::contract::execute,
+        gridiron_maker::contract::instantiate,
+        gridiron_maker::contract::query,
     ));
 
     let market_code_id = router.store_code(maker_contract);
@@ -234,7 +234,7 @@ fn instantiate_contracts(
         staking_contract: Some(staking.to_string()),
         governance_contract: Some(governance_instance.to_string()),
         governance_percent: Option::from(governance_percent),
-        astro_token: token_asset_info(astro_token_instance.clone()),
+        grid_token: token_asset_info(grid_token_instance.clone()),
         default_bridge: Some(native_asset_info("uluna".to_string())),
         max_spread,
         second_receiver_params,
@@ -251,7 +251,7 @@ fn instantiate_contracts(
         .unwrap();
 
     (
-        astro_token_instance,
+        grid_token_instance,
         factory_instance,
         maker_instance,
         governance_instance,
@@ -260,9 +260,9 @@ fn instantiate_contracts(
 
 fn instantiate_token(router: &mut App, owner: Addr, name: String, symbol: String) -> Addr {
     let token_contract = Box::new(ContractWrapper::new_with_empty(
-        astroport_token::contract::execute,
-        astroport_token::contract::instantiate,
-        astroport_token::contract::query,
+        gridiron_token::contract::execute,
+        gridiron_token::contract::instantiate,
+        gridiron_token::contract::query,
     ));
 
     let token_code_id = router.store_code(token_contract);
@@ -376,7 +376,7 @@ fn create_pair(
         .execute_contract(
             owner.clone(),
             factory_instance.clone(),
-            &astroport::factory::ExecuteMsg::CreatePair {
+            &gridiron::factory::ExecuteMsg::CreatePair {
                 pair_type: pair_type.unwrap_or(PairType::Xyk {}),
                 asset_infos: asset_infos.clone(),
                 init_params: None,
@@ -392,7 +392,7 @@ fn create_pair(
         .wrap()
         .query(&QueryRequest::Wasm(WasmQuery::Smart {
             contract_addr: factory_instance.clone().to_string(),
-            msg: to_binary(&astroport::factory::QueryMsg::Pair {
+            msg: to_binary(&gridiron::factory::QueryMsg::Pair {
                 asset_infos: asset_infos.clone(),
             })
             .unwrap(),
@@ -437,7 +437,7 @@ fn create_pair(
         .execute_contract(
             user.clone(),
             pair_info.contract_addr.clone(),
-            &astroport::pair::ExecuteMsg::ProvideLiquidity {
+            &gridiron::pair::ExecuteMsg::ProvideLiquidity {
                 assets: vec![assets[0].clone(), assets[1].clone()],
                 slippage_tolerance: None,
                 auto_stake: None,
@@ -469,7 +469,7 @@ fn update_config() {
     let staking = Addr::unchecked("staking");
     let governance_percent = Uint64::new(10);
 
-    let (astro_token_instance, factory_instance, maker_instance, governance_instance) =
+    let (grid_token_instance, factory_instance, maker_instance, governance_instance) =
         instantiate_contracts(
             &mut router,
             owner.clone(),
@@ -487,7 +487,7 @@ fn update_config() {
         .unwrap();
 
     assert_eq!(res.owner, owner);
-    assert_eq!(res.astro_token, token_asset_info(astro_token_instance));
+    assert_eq!(res.grid_token, token_asset_info(grid_token_instance));
     assert_eq!(res.factory_contract, factory_instance);
     assert_eq!(res.staking_contract, Some(staking));
     assert_eq!(res.governance_contract, Some(governance_instance));
@@ -618,7 +618,7 @@ fn test_maker_collect(
         );
     }
 
-    // Setup bridge to withdraw USDC via USDC -> TEST -> UUSD -> ASTRO route
+    // Setup bridge to withdraw USDC via USDC -> TEST -> UUSD -> GRID route
     router
         .execute_contract(
             owner.clone(),
@@ -737,7 +737,7 @@ fn collect_all() {
     let governance_percent = Uint64::new(0);
     let max_spread = Decimal::from_str("0.5").unwrap();
 
-    let (astro_token_instance, factory_instance, maker_instance, _) = instantiate_contracts(
+    let (grid_token_instance, factory_instance, maker_instance, _) = instantiate_contracts(
         &mut router,
         owner.clone(),
         staking.clone(),
@@ -788,14 +788,14 @@ fn collect_all() {
         ],
         vec![
             token_asset(bridge2_token_instance.clone(), Uint128::from(100_000_u128)),
-            token_asset(astro_token_instance.clone(), Uint128::from(100_000_u128)),
+            token_asset(grid_token_instance.clone(), Uint128::from(100_000_u128)),
         ],
     ];
 
     // Specify assets to swap
     let assets = vec![
         AssetWithLimit {
-            info: token_asset(astro_token_instance.clone(), Uint128::zero()).info,
+            info: token_asset(grid_token_instance.clone(), Uint128::zero()).info,
             limit: None,
         },
         AssetWithLimit {
@@ -832,7 +832,7 @@ fn collect_all() {
     ];
 
     let mint_balances = vec![
-        (astro_token_instance.clone(), 10u128),
+        (grid_token_instance.clone(), 10u128),
         (usdc_token_instance.clone(), 20u128),
         (test_token_instance.clone(), 30u128),
     ];
@@ -843,18 +843,18 @@ fn collect_all() {
     }];
 
     let expected_balances = vec![
-        token_asset(astro_token_instance.clone(), Uint128::new(10)),
+        token_asset(grid_token_instance.clone(), Uint128::new(10)),
         native_asset(uluna_asset.clone(), Uint128::new(100)),
         token_asset(usdc_token_instance.clone(), Uint128::new(20)),
         token_asset(test_token_instance.clone(), Uint128::new(30)),
     ];
 
     let collected_balances = vec![
-        // 154 ASTRO = 10 ASTRO +
-        // 98 ASTRO (100 uluna -> 100 usdc - 1 fee -> 109 bridge - 1 fee) +
-        // 18 ASTRO (20 usdc -> 20 test - 1 fee -> 19 bridge - 1 fee) +
-        // 28 ASTRO (30 test -> 30 bridge - 1 fee -> 29 - 1 fee)
-        (astro_token_instance.clone(), 154u128),
+        // 154 GRID = 10 GRID +
+        // 98 GRID (100 uluna -> 100 usdc - 1 fee -> 109 bridge - 1 fee) +
+        // 18 GRID (20 usdc -> 20 test - 1 fee -> 19 bridge - 1 fee) +
+        // 28 GRID (30 test -> 30 bridge - 1 fee -> 29 - 1 fee)
+        (grid_token_instance.clone(), 154u128),
         (usdc_token_instance.clone(), 0u128),
         (test_token_instance.clone(), 0u128),
     ];
@@ -898,7 +898,7 @@ fn collect_maxdepth_test() {
     let governance_percent = Uint64::new(10);
     let max_spread = Decimal::from_str("0.5").unwrap();
 
-    let (astro_token_instance, factory_instance, maker_instance, _) = instantiate_contracts(
+    let (grid_token_instance, factory_instance, maker_instance, _) = instantiate_contracts(
         &mut router,
         owner.clone(),
         staking.clone(),
@@ -953,7 +953,7 @@ fn collect_maxdepth_test() {
         ],
         vec![
             token_asset(bridge2_token_instance.clone(), Uint128::from(100_000_u128)),
-            token_asset(astro_token_instance.clone(), Uint128::from(100_000_u128)),
+            token_asset(grid_token_instance.clone(), Uint128::from(100_000_u128)),
         ],
     ] {
         let pair_info = create_pair(
@@ -968,7 +968,7 @@ fn collect_maxdepth_test() {
         pair_addresses.push(pair_info.contract_addr);
     }
 
-    // Setup bridge to withdraw USDC via the USDC -> TEST -> UUSD -> ASTRO route
+    // Setup bridge to withdraw USDC via the USDC -> TEST -> UUSD -> GRID route
     let err = router
         .execute_contract(
             owner.clone(),
@@ -1032,7 +1032,7 @@ fn collect_err_no_swap_pair() {
     let staking = Addr::unchecked("staking");
     let governance_percent = Uint64::new(50);
 
-    let (astro_token_instance, factory_instance, maker_instance, _) = instantiate_contracts(
+    let (grid_token_instance, factory_instance, maker_instance, _) = instantiate_contracts(
         &mut router,
         owner.clone(),
         staking.clone(),
@@ -1051,7 +1051,7 @@ fn collect_err_no_swap_pair() {
     for t in vec![
         vec![
             native_asset(ukrt_asset.clone(), Uint128::from(100_000_u128)),
-            token_asset(astro_token_instance.clone(), Uint128::from(100_000_u128)),
+            token_asset(grid_token_instance.clone(), Uint128::from(100_000_u128)),
         ],
         vec![
             native_asset(ukrt_asset.clone(), Uint128::from(100_000_u128)),
@@ -1063,7 +1063,7 @@ fn collect_err_no_swap_pair() {
         ],
         vec![
             native_asset(uusd_asset.clone(), Uint128::from(100_000_u128)),
-            token_asset(astro_token_instance.clone(), Uint128::from(100_000_u128)),
+            token_asset(grid_token_instance.clone(), Uint128::from(100_000_u128)),
         ],
     ] {
         create_pair(
@@ -1083,7 +1083,7 @@ fn collect_err_no_swap_pair() {
             limit: None,
         },
         AssetWithLimit {
-            info: token_asset(astro_token_instance.clone(), Uint128::zero()).info,
+            info: token_asset(grid_token_instance.clone(), Uint128::zero()).info,
             limit: None,
         },
         AssetWithLimit {
@@ -1093,7 +1093,7 @@ fn collect_err_no_swap_pair() {
     ];
 
     // Mint all tokens for the Maker
-    for t in vec![(astro_token_instance.clone(), 10u128)] {
+    for t in vec![(grid_token_instance.clone(), 10u128)] {
         let (token, amount) = t;
         mint_some_token(
             &mut router,
@@ -1157,7 +1157,7 @@ fn update_bridges() {
     let user = Addr::unchecked("user0000");
     let uusd_asset = String::from("uusd");
 
-    let (astro_token_instance, factory_instance, maker_instance, _) = instantiate_contracts(
+    let (grid_token_instance, factory_instance, maker_instance, _) = instantiate_contracts(
         &mut router,
         owner.clone(),
         staking.clone(),
@@ -1223,7 +1223,7 @@ fn update_bridges() {
         .unwrap_err();
     assert_eq!(
         err.root_cause().to_string(),
-        "Invalid bridge destination. uluna cannot be swapped to ASTRO"
+        "Invalid bridge destination. uluna cannot be swapped to GRID"
     );
 
     // Create pair so that add bridge check does not fail
@@ -1234,7 +1234,7 @@ fn update_bridges() {
         &factory_instance,
         vec![
             native_asset(uusd_asset.clone(), Uint128::from(100_000_u128)),
-            token_asset(astro_token_instance.clone(), Uint128::from(100_000_u128)),
+            token_asset(grid_token_instance.clone(), Uint128::from(100_000_u128)),
         ],
         None,
     );
@@ -1318,7 +1318,7 @@ fn collect_with_asset_limit() {
     let governance_percent = Uint64::new(10);
     let max_spread = Decimal::from_str("0.5").unwrap();
 
-    let (astro_token_instance, factory_instance, maker_instance, governance_instance) =
+    let (grid_token_instance, factory_instance, maker_instance, governance_instance) =
         instantiate_contracts(
             &mut router,
             owner.clone(),
@@ -1357,7 +1357,7 @@ fn collect_with_asset_limit() {
             token_asset(test_token_instance.clone(), Uint128::from(100_000_u128)),
         ],
         vec![
-            token_asset(astro_token_instance.clone(), Uint128::from(100_000_u128)),
+            token_asset(grid_token_instance.clone(), Uint128::from(100_000_u128)),
             native_asset(uusd_asset.clone(), Uint128::from(100_000_u128)),
         ],
         vec![
@@ -1370,7 +1370,7 @@ fn collect_with_asset_limit() {
         ],
         vec![
             token_asset(bridge2_token_instance.clone(), Uint128::from(100_000_u128)),
-            token_asset(astro_token_instance.clone(), Uint128::from(100_000_u128)),
+            token_asset(grid_token_instance.clone(), Uint128::from(100_000_u128)),
         ],
     ] {
         create_pair(
@@ -1398,7 +1398,7 @@ fn collect_with_asset_limit() {
     // Set assets to swap
     let assets = vec![
         AssetWithLimit {
-            info: token_asset(astro_token_instance.clone(), Uint128::zero()).info,
+            info: token_asset(grid_token_instance.clone(), Uint128::zero()).info,
             limit: Option::from(Uint128::new(5)),
         },
         AssetWithLimit {
@@ -1415,7 +1415,7 @@ fn collect_with_asset_limit() {
         },
     ];
 
-    // Setup bridge to withdraw USDC via the USDC -> TEST -> UUSD -> ASTRO route
+    // Setup bridge to withdraw USDC via the USDC -> TEST -> UUSD -> GRID route
     router
         .execute_contract(
             owner.clone(),
@@ -1449,7 +1449,7 @@ fn collect_with_asset_limit() {
 
     // Mint all tokens for Maker
     for t in vec![
-        (astro_token_instance.clone(), 10u128),
+        (grid_token_instance.clone(), 10u128),
         (usdc_token_instance.clone(), 20u128),
         (test_token_instance.clone(), 30u128),
     ] {
@@ -1472,7 +1472,7 @@ fn collect_with_asset_limit() {
     }
 
     let expected_balances = vec![
-        token_asset(astro_token_instance.clone(), Uint128::new(10)),
+        token_asset(grid_token_instance.clone(), Uint128::new(10)),
         token_asset(usdc_token_instance.clone(), Uint128::new(20)),
         token_asset(test_token_instance.clone(), Uint128::new(30)),
     ];
@@ -1524,11 +1524,11 @@ fn collect_with_asset_limit() {
         )
         .unwrap();
 
-    // Check Maker's balance of ASTRO tokens
+    // Check Maker's balance of GRID tokens
     check_balance(
         &mut router,
         maker_instance.clone(),
-        astro_token_instance.clone(),
+        grid_token_instance.clone(),
         Uint128::zero(),
     );
 
@@ -1549,8 +1549,8 @@ fn collect_with_asset_limit() {
     );
 
     // Check balances
-    // We are losing 1 ASTRO in fees per swap
-    // 40 ASTRO = 10 astro +
+    // We are losing 1 GRID in fees per swap
+    // 40 GRID = 10 grid +
     // 2 usdc (5 - fee for 3 swaps)
     // 28 test (30 - fee for 2 swaps)
     let amount = Uint128::new(40u128);
@@ -1558,11 +1558,11 @@ fn collect_with_asset_limit() {
         amount.multiply_ratio(Uint128::from(governance_percent), Uint128::new(100));
     let staking_amount = amount - governance_amount;
 
-    // Check the governance contract's balance for the ASTRO token
+    // Check the governance contract's balance for the GRID token
     check_balance(
         &mut router,
         governance_instance.clone(),
-        astro_token_instance.clone(),
+        grid_token_instance.clone(),
         governance_amount,
     );
 
@@ -1582,11 +1582,11 @@ fn collect_with_asset_limit() {
         Uint128::zero(),
     );
 
-    // Check the staking contract's balance for the ASTRO token
+    // Check the staking contract's balance for the GRID token
     check_balance(
         &mut router,
         staking.clone(),
-        astro_token_instance.clone(),
+        grid_token_instance.clone(),
         staking_amount,
     );
 
@@ -1630,7 +1630,7 @@ fn collect_with_second_receiver() {
     let governance_percent = Uint64::new(10);
     let max_spread = Decimal::from_str("0.5").unwrap();
 
-    let (astro_token_instance, factory_instance, maker_instance, governance_instance) =
+    let (grid_token_instance, factory_instance, maker_instance, governance_instance) =
         instantiate_contracts(
             &mut router,
             owner.clone(),
@@ -1672,7 +1672,7 @@ fn collect_with_second_receiver() {
             token_asset(test_token_instance.clone(), Uint128::from(100_000_u128)),
         ],
         vec![
-            token_asset(astro_token_instance.clone(), Uint128::from(100_000_u128)),
+            token_asset(grid_token_instance.clone(), Uint128::from(100_000_u128)),
             native_asset(uusd_asset.clone(), Uint128::from(100_000_u128)),
         ],
         vec![
@@ -1685,7 +1685,7 @@ fn collect_with_second_receiver() {
         ],
         vec![
             token_asset(bridge2_token_instance.clone(), Uint128::from(100_000_u128)),
-            token_asset(astro_token_instance.clone(), Uint128::from(100_000_u128)),
+            token_asset(grid_token_instance.clone(), Uint128::from(100_000_u128)),
         ],
     ] {
         create_pair(
@@ -1701,7 +1701,7 @@ fn collect_with_second_receiver() {
     // Set assets to swap
     let assets = vec![
         AssetWithLimit {
-            info: token_asset(astro_token_instance.clone(), Uint128::zero()).info,
+            info: token_asset(grid_token_instance.clone(), Uint128::zero()).info,
             limit: Option::from(Uint128::new(5)),
         },
         AssetWithLimit {
@@ -1718,7 +1718,7 @@ fn collect_with_second_receiver() {
         },
     ];
 
-    // Setup bridge to withdraw USDC via the USDC -> TEST -> UUSD -> ASTRO route
+    // Setup bridge to withdraw USDC via the USDC -> TEST -> UUSD -> GRID route
     router
         .execute_contract(
             owner.clone(),
@@ -1752,7 +1752,7 @@ fn collect_with_second_receiver() {
 
     // Mint all tokens for Maker
     for t in vec![
-        (astro_token_instance.clone(), 10u128),
+        (grid_token_instance.clone(), 10u128),
         (usdc_token_instance.clone(), 20u128),
         (test_token_instance.clone(), 30u128),
     ] {
@@ -1775,7 +1775,7 @@ fn collect_with_second_receiver() {
     }
 
     let expected_balances = vec![
-        token_asset(astro_token_instance.clone(), Uint128::new(10)),
+        token_asset(grid_token_instance.clone(), Uint128::new(10)),
         token_asset(usdc_token_instance.clone(), Uint128::new(20)),
         token_asset(test_token_instance.clone(), Uint128::new(30)),
     ];
@@ -1812,11 +1812,11 @@ fn collect_with_second_receiver() {
         )
         .unwrap();
 
-    // Check Maker's balance of ASTRO tokens
+    // Check Maker's balance of GRID tokens
     check_balance(
         &mut router,
         maker_instance.clone(),
-        astro_token_instance.clone(),
+        grid_token_instance.clone(),
         Uint128::zero(),
     );
 
@@ -1845,19 +1845,19 @@ fn collect_with_second_receiver() {
         .multiply_ratio(Uint128::from(governance_percent), Uint128::new(100));
     let staking_amount = amount - governance_amount - second_receiver_amount;
 
-    // Check the second receiver contract's balance for the ASTRO token
+    // Check the second receiver contract's balance for the GRID token
     check_balance(
         &mut router,
         Addr::unchecked("second_receiver"),
-        astro_token_instance.clone(),
+        grid_token_instance.clone(),
         second_receiver_amount,
     );
 
-    // Check the governance contract's balance for the ASTRO token
+    // Check the governance contract's balance for the GRID token
     check_balance(
         &mut router,
         governance_instance.clone(),
-        astro_token_instance.clone(),
+        grid_token_instance.clone(),
         governance_amount,
     );
 
@@ -1877,11 +1877,11 @@ fn collect_with_second_receiver() {
         Uint128::zero(),
     );
 
-    // Check the staking contract's balance for the ASTRO token
+    // Check the staking contract's balance for the GRID token
     check_balance(
         &mut router,
         staking.clone(),
-        astro_token_instance.clone(),
+        grid_token_instance.clone(),
         staking_amount,
     );
 
@@ -1902,18 +1902,18 @@ fn collect_with_second_receiver() {
     );
 }
 
-struct CheckDistributedAstro {
+struct CheckDistributedGrid {
     maker_amount: Uint128,
     governance_amount: Uint128,
     staking_amount: Uint128,
     governance_percent: Uint64,
     maker: Addr,
-    astro_token: Addr,
+    grid_token: Addr,
     governance: Addr,
     staking: Addr,
 }
 
-impl CheckDistributedAstro {
+impl CheckDistributedGrid {
     fn check(&mut self, router: &mut App, distributed_amount: u32) {
         let distributed_amount = Uint128::from(distributed_amount as u128);
         let cur_governance_amount = distributed_amount
@@ -1925,21 +1925,21 @@ impl CheckDistributedAstro {
         check_balance(
             router,
             self.maker.clone(),
-            self.astro_token.clone(),
+            self.grid_token.clone(),
             self.maker_amount,
         );
 
         check_balance(
             router,
             self.governance.clone(),
-            self.astro_token.clone(),
+            self.grid_token.clone(),
             self.governance_amount,
         );
 
         check_balance(
             router,
             self.staking.clone(),
-            self.astro_token.clone(),
+            self.grid_token.clone(),
             self.staking_amount,
         );
     }
@@ -1962,7 +1962,7 @@ fn distribute_initially_accrued_fees() {
     let governance_percent = Uint64::new(10);
     let user = Addr::unchecked("user0000");
 
-    let (astro_token_instance, factory_instance, maker_instance, governance_instance) =
+    let (grid_token_instance, factory_instance, maker_instance, governance_instance) =
         instantiate_contracts(
             &mut router,
             owner.clone(),
@@ -2010,7 +2010,7 @@ fn distribute_initially_accrued_fees() {
         ],
         vec![
             token_asset(bridge2_token_instance.clone(), Uint128::from(100_000_u128)),
-            token_asset(astro_token_instance.clone(), Uint128::from(100_000_u128)),
+            token_asset(grid_token_instance.clone(), Uint128::from(100_000_u128)),
         ],
     ] {
         create_pair(
@@ -2026,7 +2026,7 @@ fn distribute_initially_accrued_fees() {
     // Set assets to swap
     let assets = vec![
         AssetWithLimit {
-            info: token_asset(astro_token_instance.clone(), Uint128::zero()).info,
+            info: token_asset(grid_token_instance.clone(), Uint128::zero()).info,
             limit: None,
         },
         AssetWithLimit {
@@ -2047,7 +2047,7 @@ fn distribute_initially_accrued_fees() {
         },
     ];
 
-    // Setup bridge to withdraw USDC via the USDC -> TEST -> ASTRO route
+    // Setup bridge to withdraw USDC via the USDC -> TEST -> GRID route
     router
         .execute_contract(
             owner.clone(),
@@ -2075,7 +2075,7 @@ fn distribute_initially_accrued_fees() {
 
     // Mint all tokens for Maker
     for t in vec![
-        (astro_token_instance.clone(), 10u128),
+        (grid_token_instance.clone(), 10u128),
         (usdc_token_instance, 20u128),
         (test_token_instance, 30u128),
     ] {
@@ -2130,7 +2130,7 @@ fn distribute_initially_accrued_fees() {
         "Generic error: Number of blocks should be > 0"
     );
 
-    // Check that collect does not distribute ASTRO until rewards are enabled
+    // Check that collect does not distribute GRID until rewards are enabled
     router
         .execute_contract(
             Addr::unchecked("anyone"),
@@ -2141,12 +2141,12 @@ fn distribute_initially_accrued_fees() {
         .unwrap();
 
     // Balances checker
-    let mut checker = CheckDistributedAstro {
+    let mut checker = CheckDistributedGrid {
         maker_amount: Uint128::new(151_u128),
         governance_amount: Uint128::zero(),
         staking_amount: Uint128::zero(),
         maker: maker_instance.clone(),
-        astro_token: astro_token_instance.clone(),
+        grid_token: grid_token_instance.clone(),
         governance_percent,
         governance: governance_instance,
         staking,
@@ -2177,11 +2177,11 @@ fn distribute_initially_accrued_fees() {
         "Rewards collecting is already enabled"
     );
 
-    let astro_asset = AssetWithLimit {
-        info: token_asset_info(astro_token_instance.clone()),
+    let grid_asset = AssetWithLimit {
+        info: token_asset_info(grid_token_instance.clone()),
         limit: None,
     };
-    let assets = vec![astro_asset];
+    let assets = vec![grid_asset];
 
     router
         .execute_contract(
@@ -2224,16 +2224,16 @@ fn distribute_initially_accrued_fees() {
         )
         .unwrap();
 
-    // But no ASTRO were distributed
+    // But no GRID were distributed
     checker.check(&mut router, 0);
 
     router.update_block(next_block);
 
-    // Imagine that we received new fees the while pre-ugrade ASTRO is being distributed
+    // Imagine that we received new fees the while pre-ugrade GRID is being distributed
     mint_some_token(
         &mut router,
         owner.clone(),
-        astro_token_instance.clone(),
+        grid_token_instance.clone(),
         maker_instance.clone(),
         Uint128::from(30_u128),
     );
@@ -2250,13 +2250,13 @@ fn distribute_initially_accrued_fees() {
         .unwrap();
 
     checker.maker_amount += Uint128::from(30_u128);
-    // 45 = 30 minted astro + 15 distributed astro
+    // 45 = 30 minted grid + 15 distributed grid
     checker.check(&mut router, 45);
 
     // Checking that attributes are set properly
     for (attr, value) in [
-        ("astro_distribution", 30_u128),
-        ("preupgrade_astro_distribution", 15_u128),
+        ("grid_distribution", 30_u128),
+        ("preupgrade_grid_distribution", 15_u128),
     ] {
         let a = resp.events[1]
             .attributes
@@ -2309,20 +2309,20 @@ fn distribute_initially_accrued_fees() {
 
     checker.check(&mut router, 1);
 
-    // Check that the pre-upgrade ASTRO was fully distributed
+    // Check that the pre-upgrade GRID was fully distributed
     let res: ConfigResponse = router
         .wrap()
         .query_wasm_smart(&maker_instance, &QueryMsg::Config {})
         .unwrap();
 
     assert_eq!(res.remainder_reward.u128(), 0_u128);
-    assert_eq!(res.pre_upgrade_astro_amount.u128(), 151_u128);
+    assert_eq!(res.pre_upgrade_grid_amount.u128(), 151_u128);
 
     // Check usual collecting works
     mint_some_token(
         &mut router,
         owner,
-        astro_token_instance,
+        grid_token_instance,
         maker_instance.clone(),
         Uint128::from(115_u128),
     );
@@ -2343,13 +2343,13 @@ fn distribute_initially_accrued_fees() {
     let a = resp.events[1]
         .attributes
         .iter()
-        .find(|a| a.key == "astro_distribution")
+        .find(|a| a.key == "grid_distribution")
         .unwrap();
     assert_eq!(a.value, 115_u128.to_string());
     assert!(!resp.events[1]
         .attributes
         .iter()
-        .any(|a| a.key == "preupgrade_astro_distribution"));
+        .any(|a| a.key == "preupgrade_grid_distribution"));
 }
 
 #[ignore]
@@ -2375,7 +2375,7 @@ fn collect_3pools() {
     let staking = Addr::unchecked("staking");
     let max_spread = Decimal::from_str("0.5").unwrap();
 
-    let (astro_token_instance, factory_instance, maker_instance, _) = instantiate_contracts(
+    let (grid_token_instance, factory_instance, maker_instance, _) = instantiate_contracts(
         &mut router,
         owner.clone(),
         staking.clone(),
@@ -2413,11 +2413,11 @@ fn collect_3pools() {
             native_asset(uluna_asset.clone(), Uint128::from(100_000_u128)),
         ],
         vec![
-            token_asset(astro_token_instance.clone(), Uint128::from(100_000_u128)),
+            token_asset(grid_token_instance.clone(), Uint128::from(100_000_u128)),
             native_asset(uluna_asset.clone(), Uint128::from(100_000_u128)),
         ],
         vec![
-            token_asset(astro_token_instance.clone(), Uint128::from(100_000_u128)),
+            token_asset(grid_token_instance.clone(), Uint128::from(100_000_u128)),
             native_asset(uusd_asset.clone(), Uint128::from(100_000_u128)),
         ],
         vec![
@@ -2438,7 +2438,7 @@ fn collect_3pools() {
     // Set assets to swap
     let assets = vec![
         AssetWithLimit {
-            info: token_asset(astro_token_instance.clone(), Uint128::zero()).info,
+            info: token_asset(grid_token_instance.clone(), Uint128::zero()).info,
             limit: None,
         },
         AssetWithLimit {
@@ -2463,7 +2463,7 @@ fn collect_3pools() {
 
     // Mint all tokens for Maker
     for t in vec![
-        (astro_token_instance.clone(), 10u128),
+        (grid_token_instance.clone(), 10u128),
         (usdc_token_instance.clone(), 20u128),
         (test_token.clone(), 30u128),
     ] {
@@ -2486,7 +2486,7 @@ fn collect_3pools() {
     }
 
     let expected_balances = vec![
-        token_asset(astro_token_instance.clone(), Uint128::new(10)),
+        token_asset(grid_token_instance.clone(), Uint128::new(10)),
         token_asset(usdc_token_instance.clone(), Uint128::new(20)),
         token_asset(test_token.clone(), Uint128::new(30)),
     ];
@@ -2523,11 +2523,11 @@ fn collect_3pools() {
         )
         .unwrap();
 
-    // Check Maker's balance of ASTRO tokens
+    // Check Maker's balance of GRID tokens
     check_balance(
         &mut router,
         maker_instance.clone(),
-        astro_token_instance.clone(),
+        grid_token_instance.clone(),
         Uint128::zero(),
     );
 
@@ -2547,11 +2547,11 @@ fn collect_3pools() {
         Uint128::zero(),
     );
 
-    // Check the staking contract's balance for the ASTRO token
+    // Check the staking contract's balance for the GRID token
     check_balance(
         &mut router,
         staking.clone(),
-        astro_token_instance.clone(),
+        grid_token_instance.clone(),
         Uint128::new(62u128),
     );
 
@@ -2560,7 +2560,7 @@ fn collect_3pools() {
         .wrap()
         .query_wasm_smart(
             &factory_instance,
-            &astroport::factory::QueryMsg::Pair {
+            &gridiron::factory::QueryMsg::Pair {
                 asset_infos: vec![
                     token_asset_info(usdc_token_instance),
                     native_asset_info(uluna_asset),

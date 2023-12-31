@@ -5,11 +5,11 @@ use cosmwasm_std::{Addr, Decimal, Env, Order, StdError, StdResult, Storage, Uint
 use cw_storage_plus::{Bound, Item, Map};
 use itertools::Itertools;
 
-use astroport::asset::{Asset, AssetInfo, AssetInfoExt};
-use astroport::common::OwnershipProposal;
-use astroport::incentives::{Config, IncentivesSchedule};
-use astroport::incentives::{PoolInfoResponse, RewardInfo, RewardType};
-use astroport::incentives::{MAX_PAGE_LIMIT, MAX_REWARD_TOKENS};
+use gridiron::asset::{Asset, AssetInfo, AssetInfoExt};
+use gridiron::common::OwnershipProposal;
+use gridiron::incentives::{Config, IncentivesSchedule};
+use gridiron::incentives::{PoolInfoResponse, RewardInfo, RewardType};
+use gridiron::incentives::{MAX_PAGE_LIMIT, MAX_REWARD_TOKENS};
 
 use crate::error::ContractError;
 use crate::traits::RewardInfoExt;
@@ -20,7 +20,7 @@ pub const CONFIG: Item<Config> = Item::new("config");
 
 /// Contains a proposal to change contract ownership.
 pub const OWNERSHIP_PROPOSAL: Item<OwnershipProposal> = Item::new("ownership_proposal");
-/// Pools which receive ASTRO emissions
+/// Pools which receive GRID emissions
 pub const ACTIVE_POOLS: Item<Vec<(AssetInfo, Uint128)>> = Item::new("active_pools");
 /// Prohibited tokens set. Key: binary representing [`AssetInfo`] converted with [`crate::utils::asset_info_key`].
 pub const BLOCKED_TOKENS: Map<&[u8], ()> = Map::new("blocked_tokens");
@@ -203,18 +203,18 @@ impl PoolInfo {
             .collect()
     }
 
-    /// Set astro per second for this pool according to alloc points and general astro per second value
-    pub fn set_astro_rewards(&mut self, config: &Config, alloc_points: Uint128) {
-        if let Some(astro_reward_info) = self.rewards.iter_mut().find(|r| !r.reward.is_external()) {
-            astro_reward_info.rps = Decimal::from_ratio(
-                config.astro_per_second * alloc_points,
+    /// Set grid per second for this pool according to alloc points and general grid per second value
+    pub fn set_grid_rewards(&mut self, config: &Config, alloc_points: Uint128) {
+        if let Some(grid_reward_info) = self.rewards.iter_mut().find(|r| !r.reward.is_external()) {
+            grid_reward_info.rps = Decimal::from_ratio(
+                config.grid_per_second * alloc_points,
                 config.total_alloc_points,
             );
         } else {
             self.rewards.push(RewardInfo {
-                reward: RewardType::Int(config.astro_token.clone()),
+                reward: RewardType::Int(config.grid_token.clone()),
                 rps: Decimal::from_ratio(
-                    config.astro_per_second * alloc_points,
+                    config.grid_per_second * alloc_points,
                     config.total_alloc_points,
                 ),
                 index: Decimal::zero(),
@@ -223,19 +223,19 @@ impl PoolInfo {
         }
     }
 
-    /// Check whether this pools receiving ASTRO emissions
+    /// Check whether this pools receiving GRID emissions
     pub fn is_active_pool(&self) -> bool {
         self.rewards
             .iter()
             .any(|r| !r.reward.is_external() && !r.rps.is_zero())
     }
 
-    /// This function disables ASTRO rewards in a specific pool.
-    /// We must keep ASTRO schedule even tho reward per second becomes zero
+    /// This function disables GRID rewards in a specific pool.
+    /// We must keep GRID schedule even tho reward per second becomes zero
     /// because users still should be able to claim outstanding rewards according to indexes.
-    pub fn disable_astro_rewards(&mut self) {
-        if let Some(astro_reward_info) = self.rewards.iter_mut().find(|r| !r.reward.is_external()) {
-            astro_reward_info.rps = Decimal::zero();
+    pub fn disable_grid_rewards(&mut self) {
+        if let Some(grid_reward_info) = self.rewards.iter_mut().find(|r| !r.reward.is_external()) {
+            grid_reward_info.rps = Decimal::zero();
         }
     }
 

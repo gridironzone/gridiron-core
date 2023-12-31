@@ -1,8 +1,8 @@
-use astroport::asset::{Asset, AssetInfo, PairInfo};
-use astroport::factory::PairType;
-use astroport::factory::QueryMsg::Pair;
-use astroport::pair::CumulativePricesResponse;
-use astroport::pair::QueryMsg::CumulativePrices;
+use gridiron::asset::{Asset, AssetInfo, PairInfo};
+use gridiron::factory::PairType;
+use gridiron::factory::QueryMsg::Pair;
+use gridiron::pair::CumulativePricesResponse;
+use gridiron::pair::QueryMsg::CumulativePrices;
 use cosmwasm_std::testing::{MockApi, MockQuerier, MockStorage, MOCK_CONTRACT_ADDR};
 use cosmwasm_std::{
     from_binary, from_slice, to_binary, Addr, Coin, Empty, OwnedDeps, Querier, QuerierResult,

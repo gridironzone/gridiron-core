@@ -2,8 +2,8 @@ use cosmwasm_std::testing::{mock_env, mock_info, MOCK_CONTRACT_ADDR};
 use cosmwasm_std::{from_binary, to_binary, Addr, Coin, ReplyOn, SubMsg, Uint128, WasmMsg};
 use cw20::{Cw20ExecuteMsg, Cw20ReceiveMsg};
 
-use astroport::asset::{native_asset_info, AssetInfo};
-use astroport::router::{
+use gridiron::asset::{native_asset_info, AssetInfo};
+use gridiron::router::{
     ConfigResponse, Cw20HookMsg, ExecuteMsg, InstantiateMsg, QueryMsg,
     SimulateSwapOperationsResponse, SwapOperation, MAX_SWAP_OPERATIONS,
 };
@@ -17,7 +17,7 @@ fn proper_initialization() {
     let mut deps = mock_dependencies(&[]);
 
     let msg = InstantiateMsg {
-        astroport_factory: String::from("astroportfactory"),
+        gridiron_factory: String::from("gridironfactory"),
     };
 
     let env = mock_env();
@@ -29,14 +29,14 @@ fn proper_initialization() {
     // It worked, let's query the state
     let config: ConfigResponse =
         from_binary(&query(deps.as_ref(), env, QueryMsg::Config {}).unwrap()).unwrap();
-    assert_eq!("astroportfactory", config.astroport_factory.as_str());
+    assert_eq!("gridironfactory", config.gridiron_factory.as_str());
 }
 
 #[test]
 fn execute_swap_operations() {
     let mut deps = mock_dependencies(&[]);
     let msg = InstantiateMsg {
-        astroport_factory: String::from("astroportfactory"),
+        gridiron_factory: String::from("gridironfactory"),
     };
 
     let env = mock_env();
@@ -59,7 +59,7 @@ fn execute_swap_operations() {
 
     let msg = ExecuteMsg::ExecuteSwapOperations {
         operations: vec![
-            SwapOperation::AstroSwap {
+            SwapOperation::GridSwap {
                 offer_asset_info: AssetInfo::NativeToken {
                     denom: "ukrw".to_string(),
                 },
@@ -67,7 +67,7 @@ fn execute_swap_operations() {
                     contract_addr: Addr::unchecked("asset0001"),
                 },
             },
-            SwapOperation::AstroSwap {
+            SwapOperation::GridSwap {
                 offer_asset_info: AssetInfo::Token {
                     contract_addr: Addr::unchecked("asset0001"),
                 },
@@ -75,7 +75,7 @@ fn execute_swap_operations() {
                     denom: "uluna".to_string(),
                 },
             },
-            SwapOperation::AstroSwap {
+            SwapOperation::GridSwap {
                 offer_asset_info: AssetInfo::NativeToken {
                     denom: "uluna".to_string(),
                 },
@@ -100,7 +100,7 @@ fn execute_swap_operations() {
                     contract_addr: String::from(MOCK_CONTRACT_ADDR),
                     funds: vec![],
                     msg: to_binary(&ExecuteMsg::ExecuteSwapOperation {
-                        operation: SwapOperation::AstroSwap {
+                        operation: SwapOperation::GridSwap {
                             offer_asset_info: AssetInfo::NativeToken {
                                 denom: "ukrw".to_string(),
                             },
@@ -124,7 +124,7 @@ fn execute_swap_operations() {
                     contract_addr: String::from(MOCK_CONTRACT_ADDR),
                     funds: vec![],
                     msg: to_binary(&ExecuteMsg::ExecuteSwapOperation {
-                        operation: SwapOperation::AstroSwap {
+                        operation: SwapOperation::GridSwap {
                             offer_asset_info: AssetInfo::Token {
                                 contract_addr: Addr::unchecked("asset0001"),
                             },
@@ -148,7 +148,7 @@ fn execute_swap_operations() {
                     contract_addr: String::from(MOCK_CONTRACT_ADDR),
                     funds: vec![],
                     msg: to_binary(&ExecuteMsg::ExecuteSwapOperation {
-                        operation: SwapOperation::AstroSwap {
+                        operation: SwapOperation::GridSwap {
                             offer_asset_info: AssetInfo::NativeToken {
                                 denom: "uluna".to_string(),
                             },
@@ -175,7 +175,7 @@ fn execute_swap_operations() {
         amount: Uint128::from(1000000u128),
         msg: to_binary(&Cw20HookMsg::ExecuteSwapOperations {
             operations: vec![
-                SwapOperation::AstroSwap {
+                SwapOperation::GridSwap {
                     offer_asset_info: AssetInfo::NativeToken {
                         denom: "ukrw".to_string(),
                     },
@@ -183,7 +183,7 @@ fn execute_swap_operations() {
                         contract_addr: Addr::unchecked("asset0001"),
                     },
                 },
-                SwapOperation::AstroSwap {
+                SwapOperation::GridSwap {
                     offer_asset_info: AssetInfo::Token {
                         contract_addr: Addr::unchecked("asset0001"),
                     },
@@ -191,7 +191,7 @@ fn execute_swap_operations() {
                         denom: "uluna".to_string(),
                     },
                 },
-                SwapOperation::AstroSwap {
+                SwapOperation::GridSwap {
                     offer_asset_info: AssetInfo::NativeToken {
                         denom: "uluna".to_string(),
                     },
@@ -218,7 +218,7 @@ fn execute_swap_operations() {
                     contract_addr: String::from(MOCK_CONTRACT_ADDR),
                     funds: vec![],
                     msg: to_binary(&ExecuteMsg::ExecuteSwapOperation {
-                        operation: SwapOperation::AstroSwap {
+                        operation: SwapOperation::GridSwap {
                             offer_asset_info: AssetInfo::NativeToken {
                                 denom: "ukrw".to_string(),
                             },
@@ -242,7 +242,7 @@ fn execute_swap_operations() {
                     contract_addr: String::from(MOCK_CONTRACT_ADDR),
                     funds: vec![],
                     msg: to_binary(&ExecuteMsg::ExecuteSwapOperation {
-                        operation: SwapOperation::AstroSwap {
+                        operation: SwapOperation::GridSwap {
                             offer_asset_info: AssetInfo::Token {
                                 contract_addr: Addr::unchecked("asset0001"),
                             },
@@ -266,7 +266,7 @@ fn execute_swap_operations() {
                     contract_addr: String::from(MOCK_CONTRACT_ADDR),
                     funds: vec![],
                     msg: to_binary(&ExecuteMsg::ExecuteSwapOperation {
-                        operation: SwapOperation::AstroSwap {
+                        operation: SwapOperation::GridSwap {
                             offer_asset_info: AssetInfo::NativeToken {
                                 denom: "uluna".to_string(),
                             },
@@ -293,7 +293,7 @@ fn execute_swap_operations() {
 fn execute_swap_operation() {
     let mut deps = mock_dependencies(&[]);
     let msg = InstantiateMsg {
-        astroport_factory: String::from("astroportfactory"),
+        gridiron_factory: String::from("gridironfactory"),
     };
 
     let env = mock_env();
@@ -303,7 +303,7 @@ fn execute_swap_operation() {
     let _res = instantiate(deps.as_mut(), env, info, msg).unwrap();
 
     deps.querier
-        .with_astroport_pairs(&[(&"uusdasset".to_string(), &String::from("pair"))]);
+        .with_gridiron_pairs(&[(&"uusdasset".to_string(), &String::from("pair"))]);
     deps.querier.with_balance(&[(
         &String::from(MOCK_CONTRACT_ADDR),
         &[Coin {
@@ -313,7 +313,7 @@ fn execute_swap_operation() {
     )]);
 
     deps.querier
-        .with_astroport_pairs(&[(&"assetuusd".to_string(), &String::from("pair"))]);
+        .with_gridiron_pairs(&[(&"assetuusd".to_string(), &String::from("pair"))]);
     deps.querier.with_token_balances(&[(
         &String::from("asset"),
         &[(
@@ -322,7 +322,7 @@ fn execute_swap_operation() {
         )],
     )]);
     let msg = ExecuteMsg::ExecuteSwapOperation {
-        operation: SwapOperation::AstroSwap {
+        operation: SwapOperation::GridSwap {
             offer_asset_info: AssetInfo::Token {
                 contract_addr: Addr::unchecked("asset"),
             },
@@ -346,7 +346,7 @@ fn execute_swap_operation() {
                 msg: to_binary(&Cw20ExecuteMsg::Send {
                     contract: String::from("pair"),
                     amount: Uint128::new(1000000u128),
-                    msg: to_binary(&astroport::pair::Cw20HookMsg::Swap {
+                    msg: to_binary(&gridiron::pair::Cw20HookMsg::Swap {
                         ask_asset_info: Some(native_asset_info("uusd".to_string())),
                         belief_price: None,
                         max_spread: None,
@@ -369,7 +369,7 @@ fn query_buy_with_routes() {
     let mut deps = mock_dependencies(&[]);
 
     let msg = InstantiateMsg {
-        astroport_factory: String::from("astroportfactory"),
+        gridiron_factory: String::from("gridironfactory"),
     };
 
     let env = mock_env();
@@ -381,7 +381,7 @@ fn query_buy_with_routes() {
     let msg = QueryMsg::SimulateSwapOperations {
         offer_amount: Uint128::from(1000000u128),
         operations: vec![
-            SwapOperation::AstroSwap {
+            SwapOperation::GridSwap {
                 offer_asset_info: AssetInfo::NativeToken {
                     denom: "ukrw".to_string(),
                 },
@@ -389,7 +389,7 @@ fn query_buy_with_routes() {
                     contract_addr: Addr::unchecked("asset0000"),
                 },
             },
-            SwapOperation::AstroSwap {
+            SwapOperation::GridSwap {
                 offer_asset_info: AssetInfo::Token {
                     contract_addr: Addr::unchecked("asset0000"),
                 },
@@ -399,7 +399,7 @@ fn query_buy_with_routes() {
             },
         ],
     };
-    deps.querier.with_astroport_pairs(&[
+    deps.querier.with_gridiron_pairs(&[
         (&"ukrwasset0000".to_string(), &String::from("pair0000")),
         (&"asset0000uluna".to_string(), &String::from("pair0001")),
     ]);
@@ -435,7 +435,7 @@ fn query_buy_with_routes() {
 fn assert_maximum_receive_swap_operations() {
     let mut deps = mock_dependencies(&[]);
     let msg = InstantiateMsg {
-        astroport_factory: String::from("astroportfactory"),
+        gridiron_factory: String::from("gridironfactory"),
     };
 
     let env = mock_env();

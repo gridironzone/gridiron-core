@@ -7,13 +7,13 @@ use cosmwasm_std::{
 use cw20::Cw20ExecuteMsg;
 use itertools::Itertools;
 
-use astroport::asset::{Asset, AssetInfo, Decimal256Ext, DecimalAsset};
-use astroport::observation::{
+use gridiron::asset::{Asset, AssetInfo, Decimal256Ext, DecimalAsset};
+use gridiron::observation::{
     safe_sma_buffer_not_full, safe_sma_calculation, Observation, PrecommitObservation,
 };
-use astroport::querier::query_factory_config;
-use astroport_circular_buffer::error::BufferResult;
-use astroport_circular_buffer::BufferManager;
+use gridiron::querier::query_factory_config;
+use gridiron_circular_buffer::error::BufferResult;
+use gridiron_circular_buffer::BufferManager;
 
 use crate::error::ContractError;
 use crate::math::calc_y;
@@ -206,7 +206,7 @@ pub(crate) fn mint_liquidity_token_message(
                 &Cw20ExecuteMsg::Send {
                     contract: generator.to_string(),
                     amount,
-                    msg: to_binary(&astroport::generator::Cw20HookMsg::DepositFor(
+                    msg: to_binary(&gridiron::generator::Cw20HookMsg::DepositFor(
                         recipient.to_string(),
                     ))?,
                 },

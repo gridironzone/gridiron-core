@@ -13,11 +13,11 @@ use injective_cosmwasm::{
 };
 use tiny_keccak::Hasher;
 
-use astroport::asset::{Asset, AssetInfo, AssetInfoExt, DecimalAsset, PairInfo};
-use astroport::cosmwasm_ext::{AbsDiff, ConvertInto, IntegerToDecimal};
-use astroport::querier::{query_fee_info, query_supply};
-use astroport_pcl_common::calc_y;
-use astroport_pcl_common::state::{AmpGamma, Config, Precisions};
+use gridiron::asset::{Asset, AssetInfo, AssetInfoExt, DecimalAsset, PairInfo};
+use gridiron::cosmwasm_ext::{AbsDiff, ConvertInto, IntegerToDecimal};
+use gridiron::querier::{query_fee_info, query_supply};
+use gridiron_pcl_common::calc_y;
+use gridiron_pcl_common::state::{AmpGamma, Config, Precisions};
 
 use crate::contract::LP_TOKEN_PRECISION;
 use crate::error::ContractError;
@@ -250,7 +250,7 @@ pub fn compute_swap(
 }
 
 #[derive(Debug)]
-struct AstroSpotOrder {
+struct GridSpotOrder {
     price: Decimal256,
     amount: Decimal256,
     is_buy: bool,
@@ -260,7 +260,7 @@ struct AstroSpotOrder {
 pub struct SpotOrdersFactory<'a> {
     market_id: &'a MarketId,
     subaccount: &'a SubaccountId,
-    orders: Vec<AstroSpotOrder>,
+    orders: Vec<GridSpotOrder>,
     min_price_tick_size: Decimal256,
     precisions_ratio: Decimal256,
     base_precision: Decimal256,
@@ -290,7 +290,7 @@ impl<'a> SpotOrdersFactory<'a> {
 
     /// Buy base asset with quote asset
     pub fn buy(&mut self, price: Decimal256, amount: Decimal256) {
-        self.orders.push(AstroSpotOrder {
+        self.orders.push(GridSpotOrder {
             // Adjusting price to min_price_tick_size
             price: (price / self.min_price_tick_size).floor() * self.min_price_tick_size,
             amount,
@@ -300,7 +300,7 @@ impl<'a> SpotOrdersFactory<'a> {
 
     /// Sell base asset for quote asset
     pub fn sell(&mut self, price: Decimal256, amount: Decimal256) {
-        self.orders.push(AstroSpotOrder {
+        self.orders.push(GridSpotOrder {
             // Adjusting price to min_price_tick_size
             price: (price / self.min_price_tick_size).ceil() * self.min_price_tick_size,
             amount,
@@ -366,7 +366,7 @@ impl<'a> SpotOrdersFactory<'a> {
             // Decimal256 doesn't implement Hash, so we use string representation of price
             let entry = temp_orders_map
                 .entry((price.to_string(), order.is_buy))
-                .or_insert_with(|| AstroSpotOrder {
+                .or_insert_with(|| GridSpotOrder {
                     amount: Decimal256::zero(),
                     price,
                     ..*order
@@ -490,7 +490,7 @@ where
 mod tests {
     use cosmwasm_std::Addr;
 
-    use astroport::asset::{native_asset_info, token_asset_info};
+    use gridiron::asset::{native_asset_info, token_asset_info};
 
     use super::*;
 
@@ -516,7 +516,7 @@ mod tests {
     fn test_calc_market_ids_with_cw20() {
         let asset_infos = vec![
             native_asset_info("uusd".to_string()),
-            token_asset_info(Addr::unchecked("astro".to_string())),
+            token_asset_info(Addr::unchecked("grid".to_string())),
         ];
 
         let err = calc_market_ids(&asset_infos).unwrap_err();

@@ -11,31 +11,31 @@ use cw_utils::parse_instantiate_response_data;
 use injective_cosmwasm::{InjectiveMsgWrapper, InjectiveQuerier, InjectiveQueryWrapper};
 use itertools::Itertools;
 
-use astroport::asset::{
+use gridiron::asset::{
     addr_opt_validate, format_lp_token_name, Asset, AssetInfo, AssetInfoExt, CoinsExt,
     Decimal256Ext, PairInfo, MINIMUM_LIQUIDITY_AMOUNT,
 };
-use astroport::common::{claim_ownership, drop_ownership_proposal, propose_new_owner};
-use astroport::cosmwasm_ext::{AbsDiff, DecimalToInteger, IntegerToDecimal};
-use astroport::factory::PairType;
-use astroport::observation::{PrecommitObservation, OBSERVATIONS_SIZE};
-use astroport::pair::{Cw20HookMsg, InstantiateMsg, MIN_TRADE_SIZE};
-use astroport::pair_concentrated::UpdatePoolParams;
-use astroport::pair_concentrated_inj::{
+use gridiron::common::{claim_ownership, drop_ownership_proposal, propose_new_owner};
+use gridiron::cosmwasm_ext::{AbsDiff, DecimalToInteger, IntegerToDecimal};
+use gridiron::factory::PairType;
+use gridiron::observation::{PrecommitObservation, OBSERVATIONS_SIZE};
+use gridiron::pair::{Cw20HookMsg, InstantiateMsg, MIN_TRADE_SIZE};
+use gridiron::pair_concentrated::UpdatePoolParams;
+use gridiron::pair_concentrated_inj::{
     ConcentratedInjObParams, ConcentratedObPoolUpdateParams, ExecuteMsg,
 };
-use astroport::querier::{query_factory_config, query_fee_info, query_supply};
-use astroport::token::InstantiateMsg as TokenInstantiateMsg;
-use astroport_circular_buffer::BufferManager;
-use astroport_pcl_common::state::{
+use gridiron::querier::{query_factory_config, query_fee_info, query_supply};
+use gridiron::token::InstantiateMsg as TokenInstantiateMsg;
+use gridiron_circular_buffer::BufferManager;
+use gridiron_pcl_common::state::{
     AmpGamma, Config, PoolParams, PoolState, Precisions, PriceState,
 };
-use astroport_pcl_common::utils::{
+use gridiron_pcl_common::utils::{
     assert_max_spread, assert_slippage_tolerance, before_swap_check, calc_provide_fee,
     check_asset_infos, check_assets, check_pair_registered, compute_swap, get_share_in_assets,
     mint_liquidity_token_message,
 };
-use astroport_pcl_common::{calc_d, get_xcp};
+use gridiron_pcl_common::{calc_d, get_xcp};
 
 use crate::error::ContractError;
 use crate::orderbook::state::OrderbookState;
@@ -160,7 +160,7 @@ pub fn instantiate(
                 marketing: None,
             },
             vec![],
-            String::from("Astroport LP token"),
+            String::from("Gridiron LP token"),
         )?,
         INSTANTIATE_TOKEN_REPLY_ID,
     );

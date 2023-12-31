@@ -13,16 +13,16 @@ use proptest::prelude::*;
 use prost::Message;
 use sim::StableSwapModel;
 
-use astroport::asset::{native_asset, native_asset_info, Asset, AssetInfo};
-use astroport::observation::query_observation;
-use astroport::observation::Observation;
-use astroport::observation::OracleObservation;
-use astroport::pair::{
+use gridiron::asset::{native_asset, native_asset_info, Asset, AssetInfo};
+use gridiron::observation::query_observation;
+use gridiron::observation::Observation;
+use gridiron::observation::OracleObservation;
+use gridiron::pair::{
     ConfigResponse, Cw20HookMsg, ExecuteMsg, InstantiateMsg, PoolResponse, QueryMsg,
     SimulationResponse, StablePoolParams,
 };
-use astroport::token::InstantiateMsg as TokenInstantiateMsg;
-use astroport_circular_buffer::BufferManager;
+use gridiron::token::InstantiateMsg as TokenInstantiateMsg;
+use gridiron_circular_buffer::BufferManager;
 
 use crate::contract::{
     assert_max_spread, execute, instantiate, query, query_pool, query_reverse_simulation,
@@ -116,7 +116,7 @@ fn proper_initialization() {
                 .unwrap(),
                 funds: vec![],
                 admin: None,
-                label: String::from("Astroport LP token"),
+                label: String::from("Gridiron LP token"),
             }
             .into(),
             id: 1,

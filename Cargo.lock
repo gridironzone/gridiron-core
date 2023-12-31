@@ -22,24 +22,24 @@ checksum = "3b13c32d80ecc7ab747b80c3784bce54ee8a7a0cc4fbda9bf4cda2cf6fe90854"
 [[package]]
 name = "ap-valkyrie"
 version = "1.0.0"
-source = "git+https://github.com/astroport-fi/astro-generator-proxy-contracts?branch=main#e573a8f8542b99015cac910f024a5f20fd793f3c"
+source = "git+https://github.com/gridironzone/grid-generator-proxy-contracts?branch=main#e573a8f8542b99015cac910f024a5f20fd793f3c"
 dependencies = [
  "cosmwasm-schema",
  "cosmwasm-std",
 ]
 
 [[package]]
-name = "astro-satellite-package"
+name = "grid-satellite-package"
 version = "0.1.0"
-source = "git+https://github.com/astroport-fi/astroport_ibc#ffb48ebfd7dbbc010cf86c9b02bad236c456fca0"
+source = "git+https://github.com/gridironzone/gridiron_ibc#ffb48ebfd7dbbc010cf86c9b02bad236c456fca0"
 dependencies = [
- "astroport-governance",
+ "gridiron-governance",
  "cosmwasm-schema",
  "cosmwasm-std",
 ]
 
 [[package]]
-name = "astroport"
+name = "gridiron"
 version = "2.9.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d102b618016b3c1f1ebb5750617a73dbd294a3c941e54b12deabc931d771bc6e"
@@ -54,10 +54,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "astroport"
+name = "gridiron"
 version = "3.8.0"
 dependencies = [
- "astroport-circular-buffer",
+ "gridiron-circular-buffer",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cw-storage-plus 0.15.1",
@@ -72,7 +72,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "astroport-circular-buffer"
+name = "gridiron-circular-buffer"
 version = "0.1.0"
 dependencies = [
  "cosmwasm-schema",
@@ -82,10 +82,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "astroport-cw20-ics20"
+name = "gridiron-cw20-ics20"
 version = "1.1.1"
 dependencies = [
- "astroport 3.8.0",
+ "gridiron 3.8.0",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cw-controllers 1.1.0",
@@ -101,11 +101,11 @@ dependencies = [
 ]
 
 [[package]]
-name = "astroport-escrow-fee-distributor"
+name = "gridiron-escrow-fee-distributor"
 version = "1.0.2"
-source = "git+https://github.com/astroport-fi/astroport-governance#f0ef7c6dde76fc77ce360262923366a5cde3c3f8"
+source = "git+https://github.com/gridironzone/gridiron-governance#f0ef7c6dde76fc77ce360262923366a5cde3c3f8"
 dependencies = [
- "astroport-governance",
+ "gridiron-governance",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cw-storage-plus 0.15.1",
@@ -115,12 +115,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "astroport-factory"
+name = "gridiron-factory"
 version = "1.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4ecf768e2d3153bebfbe0c502ffa4199a52598e9b6e89fca54339615b2de77eb"
 dependencies = [
- "astroport 2.9.5",
+ "gridiron 2.9.5",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cw-storage-plus 0.15.1",
@@ -131,13 +131,13 @@ dependencies = [
 ]
 
 [[package]]
-name = "astroport-factory"
+name = "gridiron-factory"
 version = "1.6.0"
 dependencies = [
  "anyhow",
- "astroport 3.8.0",
- "astroport-pair",
- "astroport-token",
+ "gridiron 3.8.0",
+ "gridiron-pair",
+ "gridiron-token",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cw-multi-test 0.15.1",
@@ -152,14 +152,14 @@ dependencies = [
 ]
 
 [[package]]
-name = "astroport-fee-granter"
+name = "gridiron-fee-granter"
 version = "0.1.0"
 dependencies = [
- "astroport 3.8.0",
+ "gridiron 3.8.0",
  "cosmos-sdk-proto",
  "cosmwasm-schema",
  "cosmwasm-std",
- "cw-multi-test 0.16.5 (git+https://github.com/astroport-fi/cw-multi-test.git?rev=269a2c829d1ad25d67caa4600f72d2a21fb8fdeb)",
+ "cw-multi-test 0.16.5 (git+https://github.com/gridironzone/cw-multi-test.git?rev=269a2c829d1ad25d67caa4600f72d2a21fb8fdeb)",
  "cw-storage-plus 0.15.1",
  "cw-utils 1.0.1",
  "cw2 1.1.0",
@@ -167,22 +167,22 @@ dependencies = [
 ]
 
 [[package]]
-name = "astroport-generator"
+name = "gridiron-generator"
 version = "2.3.2"
 dependencies = [
  "anyhow",
- "astroport 3.8.0",
- "astroport-factory 1.6.0",
- "astroport-governance",
- "astroport-mocks",
- "astroport-native-coin-registry",
- "astroport-nft",
- "astroport-pair",
- "astroport-pair-stable",
- "astroport-staking",
- "astroport-token",
- "astroport-vesting",
- "astroport-whitelist",
+ "gridiron 3.8.0",
+ "gridiron-factory 1.6.0",
+ "gridiron-governance",
+ "gridiron-mocks",
+ "gridiron-native-coin-registry",
+ "gridiron-nft",
+ "gridiron-pair",
+ "gridiron-pair-stable",
+ "gridiron-staking",
+ "gridiron-token",
+ "gridiron-vesting",
+ "gridiron-whitelist",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cw-storage-plus 0.15.1",
@@ -203,10 +203,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "astroport-generator-proxy-template"
+name = "gridiron-generator-proxy-template"
 version = "0.0.0"
 dependencies = [
- "astroport 3.8.0",
+ "gridiron 3.8.0",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cw-storage-plus 0.15.1",
@@ -216,11 +216,11 @@ dependencies = [
 ]
 
 [[package]]
-name = "astroport-governance"
+name = "gridiron-governance"
 version = "1.2.0"
-source = "git+https://github.com/astroport-fi/astroport-governance#f0ef7c6dde76fc77ce360262923366a5cde3c3f8"
+source = "git+https://github.com/gridironzone/gridiron-governance#f0ef7c6dde76fc77ce360262923366a5cde3c3f8"
 dependencies = [
- "astroport 3.8.0",
+ "gridiron 3.8.0",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cw-storage-plus 0.15.1",
@@ -228,19 +228,19 @@ dependencies = [
 ]
 
 [[package]]
-name = "astroport-incentives"
+name = "gridiron-incentives"
 version = "1.0.0"
 dependencies = [
  "anyhow",
- "astroport 3.8.0",
- "astroport-factory 1.6.0",
- "astroport-native-coin-registry",
- "astroport-pair",
- "astroport-pair-stable",
- "astroport-vesting",
+ "gridiron 3.8.0",
+ "gridiron-factory 1.6.0",
+ "gridiron-native-coin-registry",
+ "gridiron-pair",
+ "gridiron-pair-stable",
+ "gridiron-vesting",
  "cosmwasm-schema",
  "cosmwasm-std",
- "cw-multi-test 0.16.5 (git+https://github.com/astroport-fi/cw-multi-test?branch=astroport_cozy_fork)",
+ "cw-multi-test 0.16.5 (git+https://github.com/gridironzone/cw-multi-test?branch=gridiron_cozy_fork)",
  "cw-storage-plus 0.15.1",
  "cw-utils 1.0.1",
  "cw2 1.1.0",
@@ -252,21 +252,21 @@ dependencies = [
 ]
 
 [[package]]
-name = "astroport-liquidity-manager"
+name = "gridiron-liquidity-manager"
 version = "1.0.3"
 dependencies = [
  "anyhow",
- "astroport 3.8.0",
- "astroport-factory 1.6.0",
- "astroport-generator",
- "astroport-native-coin-registry",
- "astroport-pair",
- "astroport-pair-stable",
- "astroport-token",
- "astroport-whitelist",
+ "gridiron 3.8.0",
+ "gridiron-factory 1.6.0",
+ "gridiron-generator",
+ "gridiron-native-coin-registry",
+ "gridiron-pair",
+ "gridiron-pair-stable",
+ "gridiron-token",
+ "gridiron-whitelist",
  "cosmwasm-schema",
  "cosmwasm-std",
- "cw-multi-test 0.16.5 (git+https://github.com/astroport-fi/cw-multi-test.git?rev=269a2c829d1ad25d67caa4600f72d2a21fb8fdeb)",
+ "cw-multi-test 0.16.5 (git+https://github.com/gridironzone/cw-multi-test.git?rev=269a2c829d1ad25d67caa4600f72d2a21fb8fdeb)",
  "cw-storage-plus 1.1.0",
  "cw20 0.15.1",
  "cw20-base 0.15.1",
@@ -277,18 +277,18 @@ dependencies = [
 ]
 
 [[package]]
-name = "astroport-maker"
+name = "gridiron-maker"
 version = "1.3.1"
 dependencies = [
- "astro-satellite-package",
- "astroport 3.8.0",
- "astroport-escrow-fee-distributor",
- "astroport-factory 1.6.0",
- "astroport-governance",
- "astroport-native-coin-registry",
- "astroport-pair",
- "astroport-pair-stable",
- "astroport-token",
+ "grid-satellite-package",
+ "gridiron 3.8.0",
+ "gridiron-escrow-fee-distributor",
+ "gridiron-factory 1.6.0",
+ "gridiron-governance",
+ "gridiron-native-coin-registry",
+ "gridiron-pair",
+ "gridiron-pair-stable",
+ "gridiron-token",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cw-multi-test 0.15.1",
@@ -299,26 +299,26 @@ dependencies = [
 ]
 
 [[package]]
-name = "astroport-mocks"
+name = "gridiron-mocks"
 version = "0.2.0"
 dependencies = [
  "anyhow",
- "astroport 3.8.0",
- "astroport-factory 1.6.0",
- "astroport-generator",
- "astroport-native-coin-registry",
- "astroport-pair",
- "astroport-pair-concentrated 2.3.0",
- "astroport-pair-stable",
- "astroport-shared-multisig",
- "astroport-staking",
- "astroport-token",
- "astroport-vesting",
- "astroport-whitelist",
- "astroport-xastro-token",
+ "gridiron 3.8.0",
+ "gridiron-factory 1.6.0",
+ "gridiron-generator",
+ "gridiron-native-coin-registry",
+ "gridiron-pair",
+ "gridiron-pair-concentrated 2.3.0",
+ "gridiron-pair-stable",
+ "gridiron-shared-multisig",
+ "gridiron-staking",
+ "gridiron-token",
+ "gridiron-vesting",
+ "gridiron-whitelist",
+ "gridiron-xgrid-token",
  "cosmwasm-schema",
  "cosmwasm-std",
- "cw-multi-test 0.16.5 (git+https://github.com/astroport-fi/cw-multi-test.git?rev=269a2c829d1ad25d67caa4600f72d2a21fb8fdeb)",
+ "cw-multi-test 0.16.5 (git+https://github.com/gridironzone/cw-multi-test.git?rev=269a2c829d1ad25d67caa4600f72d2a21fb8fdeb)",
  "cw-utils 1.0.1",
  "cw20 0.15.1",
  "cw3",
@@ -328,10 +328,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "astroport-native-coin-registry"
+name = "gridiron-native-coin-registry"
 version = "1.0.1"
 dependencies = [
- "astroport 3.8.0",
+ "gridiron 3.8.0",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cosmwasm-storage",
@@ -342,11 +342,11 @@ dependencies = [
 ]
 
 [[package]]
-name = "astroport-native-coin-wrapper"
+name = "gridiron-native-coin-wrapper"
 version = "0.1.0"
 dependencies = [
- "astroport 3.8.0",
- "astroport-token",
+ "gridiron 3.8.0",
+ "gridiron-token",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cw-multi-test 0.15.1",
@@ -358,11 +358,11 @@ dependencies = [
 ]
 
 [[package]]
-name = "astroport-nft"
+name = "gridiron-nft"
 version = "1.0.0"
-source = "git+https://github.com/astroport-fi/astroport-governance#f0ef7c6dde76fc77ce360262923366a5cde3c3f8"
+source = "git+https://github.com/gridironzone/gridiron-governance#f0ef7c6dde76fc77ce360262923366a5cde3c3f8"
 dependencies = [
- "astroport-governance",
+ "gridiron-governance",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cw2 0.15.1",
@@ -371,16 +371,16 @@ dependencies = [
 ]
 
 [[package]]
-name = "astroport-oracle"
+name = "gridiron-oracle"
 version = "2.1.1"
 dependencies = [
  "anyhow",
- "astroport 3.8.0",
- "astroport-factory 1.6.0",
- "astroport-native-coin-registry",
- "astroport-pair",
- "astroport-pair-stable",
- "astroport-token",
+ "gridiron 3.8.0",
+ "gridiron-factory 1.6.0",
+ "gridiron-native-coin-registry",
+ "gridiron-pair",
+ "gridiron-pair-stable",
+ "gridiron-token",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cw-multi-test 0.15.1",
@@ -392,13 +392,13 @@ dependencies = [
 ]
 
 [[package]]
-name = "astroport-pair"
+name = "gridiron-pair"
 version = "1.5.0"
 dependencies = [
- "astroport 3.8.0",
- "astroport-factory 1.6.0",
- "astroport-mocks",
- "astroport-token",
+ "gridiron 3.8.0",
+ "gridiron-factory 1.6.0",
+ "gridiron-mocks",
+ "gridiron-token",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cw-storage-plus 0.15.1",
@@ -413,15 +413,15 @@ dependencies = [
 ]
 
 [[package]]
-name = "astroport-pair-astro-xastro"
+name = "gridiron-pair-grid-xgrid"
 version = "1.0.3"
 dependencies = [
- "astroport 3.8.0",
- "astroport-factory 1.6.0",
- "astroport-pair-bonded",
- "astroport-staking",
- "astroport-token",
- "astroport-xastro-token",
+ "gridiron 3.8.0",
+ "gridiron-factory 1.6.0",
+ "gridiron-pair-bonded",
+ "gridiron-staking",
+ "gridiron-token",
+ "gridiron-xgrid-token",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cw-multi-test 0.15.1",
@@ -432,10 +432,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "astroport-pair-bonded"
+name = "gridiron-pair-bonded"
 version = "1.0.1"
 dependencies = [
- "astroport 3.8.0",
+ "gridiron 3.8.0",
  "cosmwasm-std",
  "cw-storage-plus 0.15.1",
  "cw2 0.15.1",
@@ -444,11 +444,11 @@ dependencies = [
 ]
 
 [[package]]
-name = "astroport-pair-bonded-template"
+name = "gridiron-pair-bonded-template"
 version = "1.0.0"
 dependencies = [
- "astroport 3.8.0",
- "astroport-pair-bonded",
+ "gridiron 3.8.0",
+ "gridiron-pair-bonded",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cw-storage-plus 0.15.1",
@@ -458,13 +458,13 @@ dependencies = [
 ]
 
 [[package]]
-name = "astroport-pair-concentrated"
+name = "gridiron-pair-concentrated"
 version = "1.2.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c7a25c6ccbeccd25d36706621db915b67ca5d919e192fb06d7dd35cf69152d84"
 dependencies = [
- "astroport 2.9.5",
- "astroport-factory 1.5.1",
+ "gridiron 2.9.5",
+ "gridiron-factory 1.5.1",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cw-storage-plus 0.15.1",
@@ -476,18 +476,18 @@ dependencies = [
 ]
 
 [[package]]
-name = "astroport-pair-concentrated"
+name = "gridiron-pair-concentrated"
 version = "2.3.0"
 dependencies = [
  "anyhow",
- "astroport 3.8.0",
- "astroport-circular-buffer",
- "astroport-factory 1.6.0",
- "astroport-mocks",
- "astroport-native-coin-registry",
- "astroport-pair-concentrated 1.2.13",
- "astroport-pcl-common",
- "astroport-token",
+ "gridiron 3.8.0",
+ "gridiron-circular-buffer",
+ "gridiron-factory 1.6.0",
+ "gridiron-mocks",
+ "gridiron-native-coin-registry",
+ "gridiron-pair-concentrated 1.2.13",
+ "gridiron-pcl-common",
+ "gridiron-token",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cw-storage-plus 0.15.1",
@@ -501,16 +501,16 @@ dependencies = [
 ]
 
 [[package]]
-name = "astroport-pair-stable"
+name = "gridiron-pair-stable"
 version = "3.4.0"
 dependencies = [
  "anyhow",
- "astroport 3.8.0",
- "astroport-circular-buffer",
- "astroport-factory 1.6.0",
- "astroport-mocks",
- "astroport-native-coin-registry",
- "astroport-token",
+ "gridiron 3.8.0",
+ "gridiron-circular-buffer",
+ "gridiron-factory 1.6.0",
+ "gridiron-mocks",
+ "gridiron-native-coin-registry",
+ "gridiron-token",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cw-storage-plus 0.15.1",
@@ -526,12 +526,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "astroport-pcl-common"
+name = "gridiron-pcl-common"
 version = "1.1.0"
 dependencies = [
  "anyhow",
- "astroport 3.8.0",
- "astroport-factory 1.6.0",
+ "gridiron 3.8.0",
+ "gridiron-factory 1.6.0",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cw-storage-plus 1.1.0",
@@ -541,14 +541,14 @@ dependencies = [
 ]
 
 [[package]]
-name = "astroport-router"
+name = "gridiron-router"
 version = "1.2.0"
 dependencies = [
  "anyhow",
- "astroport 3.8.0",
- "astroport-factory 1.6.0",
- "astroport-pair",
- "astroport-token",
+ "gridiron 3.8.0",
+ "gridiron-factory 1.6.0",
+ "gridiron-pair",
+ "gridiron-token",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cw-multi-test 0.15.1",
@@ -560,14 +560,14 @@ dependencies = [
 ]
 
 [[package]]
-name = "astroport-shared-multisig"
+name = "gridiron-shared-multisig"
 version = "1.0.0"
 dependencies = [
- "astroport 3.8.0",
- "astroport-generator",
- "astroport-mocks",
- "astroport-pair",
- "astroport-pair-concentrated 2.3.0",
+ "gridiron 3.8.0",
+ "gridiron-generator",
+ "gridiron-mocks",
+ "gridiron-pair",
+ "gridiron-pair-concentrated 2.3.0",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cw-storage-plus 0.15.1",
@@ -580,12 +580,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "astroport-staking"
+name = "gridiron-staking"
 version = "1.1.0"
 dependencies = [
- "astroport 3.8.0",
- "astroport-token",
- "astroport-xastro-token",
+ "gridiron 3.8.0",
+ "gridiron-token",
+ "gridiron-xgrid-token",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cw-multi-test 0.15.1",
@@ -598,10 +598,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "astroport-token"
+name = "gridiron-token"
 version = "1.1.1"
 dependencies = [
- "astroport 3.8.0",
+ "gridiron 3.8.0",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cw2 0.15.1",
@@ -611,11 +611,11 @@ dependencies = [
 ]
 
 [[package]]
-name = "astroport-vesting"
+name = "gridiron-vesting"
 version = "1.3.2"
 dependencies = [
- "astroport 3.8.0",
- "astroport-token",
+ "gridiron 3.8.0",
+ "gridiron-token",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cw-multi-test 0.15.1",
@@ -627,10 +627,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "astroport-whitelist"
+name = "gridiron-whitelist"
 version = "1.0.1"
 dependencies = [
- "astroport 3.8.0",
+ "gridiron 3.8.0",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cw1-whitelist",
@@ -639,10 +639,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "astroport-xastro-outpost-token"
+name = "gridiron-xgrid-outpost-token"
 version = "1.0.0"
 dependencies = [
- "astroport 3.8.0",
+ "gridiron 3.8.0",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cw-multi-test 0.15.1",
@@ -654,10 +654,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "astroport-xastro-token"
+name = "gridiron-xgrid-token"
 version = "1.1.0"
 dependencies = [
- "astroport 3.8.0",
+ "gridiron 3.8.0",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cw-multi-test 0.15.1",
@@ -992,7 +992,7 @@ dependencies = [
 [[package]]
 name = "cw-multi-test"
 version = "0.16.5"
-source = "git+https://github.com/astroport-fi/cw-multi-test?branch=astroport_cozy_fork#08a11aa26f9f35b41f707e803d4cdec38fd2e78d"
+source = "git+https://github.com/gridironzone/cw-multi-test?branch=gridiron_cozy_fork#08a11aa26f9f35b41f707e803d4cdec38fd2e78d"
 dependencies = [
  "anyhow",
  "cosmwasm-std",
@@ -1010,7 +1010,7 @@ dependencies = [
 [[package]]
 name = "cw-multi-test"
 version = "0.16.5"
-source = "git+https://github.com/astroport-fi/cw-multi-test.git?rev=269a2c829d1ad25d67caa4600f72d2a21fb8fdeb#269a2c829d1ad25d67caa4600f72d2a21fb8fdeb"
+source = "git+https://github.com/gridironzone/cw-multi-test.git?rev=269a2c829d1ad25d67caa4600f72d2a21fb8fdeb#269a2c829d1ad25d67caa4600f72d2a21fb8fdeb"
 dependencies = [
  "anyhow",
  "cosmwasm-std",
@@ -1596,9 +1596,9 @@ checksum = "a06f77d526c1a601b7c4cdd98f54b5eaabffc14d5f2f0296febdc7f357c6d3ba"
 [[package]]
 name = "generator-controller"
 version = "1.3.0"
-source = "git+https://github.com/astroport-fi/astroport-governance#f0ef7c6dde76fc77ce360262923366a5cde3c3f8"
+source = "git+https://github.com/gridironzone/gridiron-governance#f0ef7c6dde76fc77ce360262923366a5cde3c3f8"
 dependencies = [
- "astroport-governance",
+ "gridiron-governance",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cw-storage-plus 0.15.1",
@@ -1611,10 +1611,10 @@ dependencies = [
 [[package]]
 name = "generator-proxy-to-vkr"
 version = "0.0.0"
-source = "git+https://github.com/astroport-fi/astro-generator-proxy-contracts?branch=main#e573a8f8542b99015cac910f024a5f20fd793f3c"
+source = "git+https://github.com/gridironzone/grid-generator-proxy-contracts?branch=main#e573a8f8542b99015cac910f024a5f20fd793f3c"
 dependencies = [
  "ap-valkyrie",
- "astroport 3.8.0",
+ "gridiron 3.8.0",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cw-storage-plus 0.15.1",
@@ -2477,7 +2477,7 @@ dependencies = [
 [[package]]
 name = "sim"
 version = "0.1.0"
-source = "git+https://github.com/astroport-fi/astroport-sims?branch=main#744b25583373e964a9f9a1c51949a67bd68e6a17"
+source = "git+https://github.com/gridironzone/gridiron-sims?branch=main#744b25583373e964a9f9a1c51949a67bd68e6a17"
 dependencies = [
  "pyo3",
 ]
@@ -2746,7 +2746,7 @@ checksum = "e1766d682d402817b5ac4490b3c3002d91dfa0d22812f341609f97b08757359c"
 [[package]]
 name = "valkyrie"
 version = "1.0.8-beta.1"
-source = "git+https://github.com/astroport-fi/valkyrieprotocol?rev=b5fcb666f17d7e291f40365756e50fc0d7b9bf54#b5fcb666f17d7e291f40365756e50fc0d7b9bf54"
+source = "git+https://github.com/gridironzone/valkyrieprotocol?rev=b5fcb666f17d7e291f40365756e50fc0d7b9bf54#b5fcb666f17d7e291f40365756e50fc0d7b9bf54"
 dependencies = [
  "bigint",
  "cosmwasm-std",
@@ -2761,7 +2761,7 @@ dependencies = [
 [[package]]
 name = "valkyrie-lp-staking"
 version = "1.0.8-beta.1"
-source = "git+https://github.com/astroport-fi/valkyrieprotocol?rev=b5fcb666f17d7e291f40365756e50fc0d7b9bf54#b5fcb666f17d7e291f40365756e50fc0d7b9bf54"
+source = "git+https://github.com/gridironzone/valkyrieprotocol?rev=b5fcb666f17d7e291f40365756e50fc0d7b9bf54#b5fcb666f17d7e291f40365756e50fc0d7b9bf54"
 dependencies = [
  "cosmwasm-std",
  "cw-storage-plus 0.11.1",
@@ -2774,7 +2774,7 @@ dependencies = [
 [[package]]
 name = "valkyrie-vp"
 version = "1.0.8-beta.1"
-source = "git+https://github.com/astroport-fi/valkyrieprotocol?rev=b5fcb666f17d7e291f40365756e50fc0d7b9bf54#b5fcb666f17d7e291f40365756e50fc0d7b9bf54"
+source = "git+https://github.com/gridironzone/valkyrieprotocol?rev=b5fcb666f17d7e291f40365756e50fc0d7b9bf54#b5fcb666f17d7e291f40365756e50fc0d7b9bf54"
 dependencies = [
  "cosmwasm-std",
  "cw-storage-plus 0.11.1",
@@ -2795,9 +2795,9 @@ checksum = "49874b5167b65d7193b8aba1567f5c7d93d001cafc34600cee003eda787e483f"
 [[package]]
 name = "voting-escrow"
 version = "1.3.0"
-source = "git+https://github.com/astroport-fi/astroport-governance#f0ef7c6dde76fc77ce360262923366a5cde3c3f8"
+source = "git+https://github.com/gridironzone/gridiron-governance#f0ef7c6dde76fc77ce360262923366a5cde3c3f8"
 dependencies = [
- "astroport-governance",
+ "gridiron-governance",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cw-storage-plus 0.15.1",
@@ -2810,9 +2810,9 @@ dependencies = [
 [[package]]
 name = "voting-escrow-delegation"
 version = "1.0.0"
-source = "git+https://github.com/astroport-fi/astroport-governance#f0ef7c6dde76fc77ce360262923366a5cde3c3f8"
+source = "git+https://github.com/gridironzone/gridiron-governance#f0ef7c6dde76fc77ce360262923366a5cde3c3f8"
 dependencies = [
- "astroport-governance",
+ "gridiron-governance",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cw-storage-plus 0.15.1",

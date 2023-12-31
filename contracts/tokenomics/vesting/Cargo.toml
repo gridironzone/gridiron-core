@@ -1,7 +1,7 @@
 [package]
-name = "astroport-vesting"
+name = "gridiron-vesting"
 version = "1.3.2"
-authors = ["Astroport"]
+authors = ["Gridiron"]
 edition = "2021"
 
 [lib]
@@ -17,11 +17,11 @@ cw2 = { version = "0.15" }
 cw20 = { version = "0.15" }
 cosmwasm-std = { version = "1.1" }
 cw-storage-plus = "0.15"
-astroport = { path = "../../../packages/astroport", version = "3" }
+gridiron = { path = "../../../packages/gridiron", version = "3" }
 thiserror = { version = "1.0" }
 cw-utils = "0.15"
 cosmwasm-schema = { version = "1.1", default-features = false }
 
 [dev-dependencies]
 cw-multi-test = "0.15"
-astroport-token = { path = "../../token" }
+gridiron-token = { path = "../../token" }

@@ -1,32 +1,32 @@
 #![cfg(not(tarpaulin_include))]
 
 use anyhow::Result as AnyResult;
-use astroport::asset::AssetInfo;
-use astroport::factory::{PairConfig, PairType};
+use gridiron::asset::AssetInfo;
+use gridiron::factory::{PairConfig, PairType};
 use cosmwasm_std::{Addr, Binary};
 use cw20::MinterResponse;
 use cw_multi_test::{App, AppResponse, ContractWrapper, Executor};
 
 pub struct FactoryHelper {
     pub owner: Addr,
-    pub astro_token: Addr,
+    pub grid_token: Addr,
     pub factory: Addr,
     pub cw20_token_code_id: u64,
 }
 
 impl FactoryHelper {
     pub fn init(router: &mut App, owner: &Addr) -> Self {
-        let astro_token_contract = Box::new(ContractWrapper::new_with_empty(
-            astroport_token::contract::execute,
-            astroport_token::contract::instantiate,
-            astroport_token::contract::query,
+        let grid_token_contract = Box::new(ContractWrapper::new_with_empty(
+            gridiron_token::contract::execute,
+            gridiron_token::contract::instantiate,
+            gridiron_token::contract::query,
         ));
 
-        let cw20_token_code_id = router.store_code(astro_token_contract);
+        let cw20_token_code_id = router.store_code(grid_token_contract);
 
-        let msg = astroport::token::InstantiateMsg {
-            name: String::from("Astro token"),
-            symbol: String::from("ASTRO"),
+        let msg = gridiron::token::InstantiateMsg {
+            name: String::from("Grid token"),
+            symbol: String::from("GRID"),
             decimals: 6,
             initial_balances: vec![],
             mint: Some(MinterResponse {
@@ -36,40 +36,40 @@ impl FactoryHelper {
             marketing: None,
         };
 
-        let astro_token = router
+        let grid_token = router
             .instantiate_contract(
                 cw20_token_code_id,
                 owner.clone(),
                 &msg,
                 &[],
-                String::from("ASTRO"),
+                String::from("GRID"),
                 None,
             )
             .unwrap();
 
         let pair_contract = Box::new(
             ContractWrapper::new_with_empty(
-                astroport_pair::contract::execute,
-                astroport_pair::contract::instantiate,
-                astroport_pair::contract::query,
+                gridiron_pair::contract::execute,
+                gridiron_pair::contract::instantiate,
+                gridiron_pair::contract::query,
             )
-            .with_reply_empty(astroport_pair::contract::reply),
+            .with_reply_empty(gridiron_pair::contract::reply),
         );
 
         let pair_code_id = router.store_code(pair_contract);
 
         let factory_contract = Box::new(
             ContractWrapper::new_with_empty(
-                astroport_factory::contract::execute,
-                astroport_factory::contract::instantiate,
-                astroport_factory::contract::query,
+                gridiron_factory::contract::execute,
+                gridiron_factory::contract::instantiate,
+                gridiron_factory::contract::query,
             )
-            .with_reply_empty(astroport_factory::contract::reply),
+            .with_reply_empty(gridiron_factory::contract::reply),
         );
 
         let factory_code_id = router.store_code(factory_contract);
 
-        let msg = astroport::factory::InstantiateMsg {
+        let msg = gridiron::factory::InstantiateMsg {
             pair_configs: vec![PairConfig {
                 code_id: pair_code_id,
                 pair_type: PairType::Xyk {},
@@ -92,14 +92,14 @@ impl FactoryHelper {
                 owner.clone(),
                 &msg,
                 &[],
-                String::from("ASTRO"),
+                String::from("GRID"),
                 None,
             )
             .unwrap();
 
         Self {
             owner: owner.clone(),
-            astro_token,
+            grid_token,
             factory,
             cw20_token_code_id,
         }
@@ -115,7 +115,7 @@ impl FactoryHelper {
         whitelist_code_id: Option<u64>,
         coin_registry_address: Option<String>,
     ) -> AnyResult<AppResponse> {
-        let msg = astroport::factory::ExecuteMsg::UpdateConfig {
+        let msg = gridiron::factory::ExecuteMsg::UpdateConfig {
             token_code_id,
             fee_address,
             generator_address,
@@ -143,7 +143,7 @@ impl FactoryHelper {
             },
         ];
 
-        let msg = astroport::factory::ExecuteMsg::CreatePair {
+        let msg = gridiron::factory::ExecuteMsg::CreatePair {
             pair_type,
             asset_infos,
             init_params,
@@ -160,7 +160,7 @@ pub fn instantiate_token(
     token_name: &str,
     decimals: Option<u8>,
 ) -> Addr {
-    let init_msg = astroport::token::InstantiateMsg {
+    let init_msg = gridiron::token::InstantiateMsg {
         name: token_name.to_string(),
         symbol: token_name.to_string(),
         decimals: decimals.unwrap_or(6),

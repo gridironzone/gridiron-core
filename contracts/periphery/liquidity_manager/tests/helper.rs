@@ -16,18 +16,18 @@ use cw_multi_test::{App, AppResponse, Contract, ContractWrapper, Executor};
 use derivative::Derivative;
 use itertools::Itertools;
 
-use astroport::asset::{native_asset_info, token_asset_info, Asset, AssetInfo, PairInfo};
-use astroport::factory::{PairConfig, PairType};
-use astroport::liquidity_manager::{Cw20HookMsg, ExecuteMsg};
-use astroport::liquidity_manager::{InstantiateMsg, QueryMsg};
-use astroport::pair::{Cw20HookMsg as PairCw20HookMsg, ExecuteMsg as PairExecuteMsg};
-use astroport::pair::{
+use gridiron::asset::{native_asset_info, token_asset_info, Asset, AssetInfo, PairInfo};
+use gridiron::factory::{PairConfig, PairType};
+use gridiron::liquidity_manager::{Cw20HookMsg, ExecuteMsg};
+use gridiron::liquidity_manager::{InstantiateMsg, QueryMsg};
+use gridiron::pair::{Cw20HookMsg as PairCw20HookMsg, ExecuteMsg as PairExecuteMsg};
+use gridiron::pair::{
     ReverseSimulationResponse, SimulationResponse, StablePoolParams, XYKPoolParams,
 };
-use astroport::pair_concentrated::{ConcentratedPoolParams, QueryMsg as PairQueryMsg};
-use astroport::{factory, generator};
-use astroport_liquidity_manager::contract::{execute, instantiate, reply};
-use astroport_liquidity_manager::query::query;
+use gridiron::pair_concentrated::{ConcentratedPoolParams, QueryMsg as PairQueryMsg};
+use gridiron::{factory, generator};
+use gridiron_liquidity_manager::contract::{execute, instantiate, reply};
+use gridiron_liquidity_manager::query::query;
 
 const NATIVE_TOKEN_PRECISION: u8 = 6;
 
@@ -93,69 +93,69 @@ pub fn init_native_coins(test_coins: &[TestCoin]) -> Vec<Coin> {
 
 fn token_contract() -> Box<dyn Contract<Empty>> {
     Box::new(ContractWrapper::new_with_empty(
-        astroport_token::contract::execute,
-        astroport_token::contract::instantiate,
-        astroport_token::contract::query,
+        gridiron_token::contract::execute,
+        gridiron_token::contract::instantiate,
+        gridiron_token::contract::query,
     ))
 }
 
 fn xyk_pair_contract() -> Box<dyn Contract<Empty>> {
     Box::new(
         ContractWrapper::new_with_empty(
-            astroport_pair::contract::execute,
-            astroport_pair::contract::instantiate,
-            astroport_pair::contract::query,
+            gridiron_pair::contract::execute,
+            gridiron_pair::contract::instantiate,
+            gridiron_pair::contract::query,
         )
-        .with_reply_empty(astroport_pair::contract::reply),
+        .with_reply_empty(gridiron_pair::contract::reply),
     )
 }
 
 fn stable_pair_contract() -> Box<dyn Contract<Empty>> {
     Box::new(
         ContractWrapper::new_with_empty(
-            astroport_pair_stable::contract::execute,
-            astroport_pair_stable::contract::instantiate,
-            astroport_pair_stable::contract::query,
+            gridiron_pair_stable::contract::execute,
+            gridiron_pair_stable::contract::instantiate,
+            gridiron_pair_stable::contract::query,
         )
-        .with_reply_empty(astroport_pair_stable::contract::reply),
+        .with_reply_empty(gridiron_pair_stable::contract::reply),
     )
 }
 
 fn coin_registry_contract() -> Box<dyn Contract<Empty>> {
     Box::new(ContractWrapper::new_with_empty(
-        astroport_native_coin_registry::contract::execute,
-        astroport_native_coin_registry::contract::instantiate,
-        astroport_native_coin_registry::contract::query,
+        gridiron_native_coin_registry::contract::execute,
+        gridiron_native_coin_registry::contract::instantiate,
+        gridiron_native_coin_registry::contract::query,
     ))
 }
 
 fn factory_contract() -> Box<dyn Contract<Empty>> {
     Box::new(
         ContractWrapper::new_with_empty(
-            astroport_factory::contract::execute,
-            astroport_factory::contract::instantiate,
-            astroport_factory::contract::query,
+            gridiron_factory::contract::execute,
+            gridiron_factory::contract::instantiate,
+            gridiron_factory::contract::query,
         )
-        .with_reply_empty(astroport_factory::contract::reply),
+        .with_reply_empty(gridiron_factory::contract::reply),
     )
 }
 
 fn whitelist_contract() -> Box<dyn Contract<Empty>> {
     Box::new(ContractWrapper::new_with_empty(
-        astroport_whitelist::contract::execute,
-        astroport_whitelist::contract::instantiate,
-        astroport_whitelist::contract::query,
+        gridiron_whitelist::contract::execute,
+        gridiron_whitelist::contract::instantiate,
+        gridiron_whitelist::contract::query,
     ))
 }
 
 fn generator_contract() -> Box<dyn Contract<Empty>> {
     Box::new(
         ContractWrapper::new_with_empty(
-            astroport_generator::contract::execute,
-            astroport_generator::contract::instantiate,
-            astroport_generator::contract::query,
+            gridiron_generator::contract::execute,
+            gridiron_generator::contract::instantiate,
+            gridiron_generator::contract::query,
         )
-        .with_reply_empty(astroport_generator::contract::reply),
+        .with_reply_empty(gridiron_generator::contract::reply),
     )
 }
 
@@ -232,7 +232,7 @@ impl Helper {
             .instantiate_contract(
                 coin_registry_id,
                 owner.clone(),
-                &astroport::native_coin_registry::InstantiateMsg {
+                &gridiron::native_coin_registry::InstantiateMsg {
                     owner: owner.to_string(),
                 },
                 &[],
@@ -244,13 +244,13 @@ impl Helper {
         app.execute_contract(
             owner.clone(),
             coin_registry_address.clone(),
-            &astroport::native_coin_registry::ExecuteMsg::Add {
+            &gridiron::native_coin_registry::ExecuteMsg::Add {
                 native_coins: vec![("uluna".to_owned(), 6), ("uusd".to_owned(), 6)],
             },
             &[],
         )
         .unwrap();
-        let init_msg = astroport::factory::InstantiateMsg {
+        let init_msg = gridiron::factory::InstantiateMsg {
             fee_address: Some(fake_maker.to_string()),
             pair_configs: vec![PairConfig {
                 code_id: pair_code_id,
@@ -289,7 +289,7 @@ impl Helper {
                     voting_escrow_delegation: None,
                     voting_escrow: None,
                     guardian: None,
-                    astro_token: native_asset_info("astro".to_string()),
+                    grid_token: native_asset_info("grid".to_string()),
                     tokens_per_block: Default::default(),
                     start_block: Default::default(),
                     vesting_contract: "vesting".to_string(),
@@ -321,7 +321,7 @@ impl Helper {
                 manager_code,
                 owner.clone(),
                 &InstantiateMsg {
-                    astroport_factory: factory.to_string(),
+                    gridiron_factory: factory.to_string(),
                 },
                 &[],
                 "Liquidity manager",
@@ -334,7 +334,7 @@ impl Helper {
             .into_iter()
             .map(|(_, asset_info)| asset_info)
             .collect_vec();
-        let init_pair_msg = astroport::factory::ExecuteMsg::CreatePair {
+        let init_pair_msg = gridiron::factory::ExecuteMsg::CreatePair {
             pair_type,
             asset_infos: asset_infos.clone(),
             init_params: Some(inner_params),
@@ -344,7 +344,7 @@ impl Helper {
 
         let resp: PairInfo = app.wrap().query_wasm_smart(
             &factory,
-            &astroport::factory::QueryMsg::Pair { asset_infos },
+            &gridiron::factory::QueryMsg::Pair { asset_infos },
         )?;
 
         Ok(Self {
@@ -572,7 +572,7 @@ impl Helper {
         app.instantiate_contract(
             token_code,
             owner.clone(),
-            &astroport::token::InstantiateMsg {
+            &gridiron::token::InstantiateMsg {
                 symbol: name.to_string(),
                 name,
                 decimals,

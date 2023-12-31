@@ -1,6 +1,6 @@
 use cosmwasm_schema::write_api;
 
-use astroport::liquidity_manager::{ExecuteMsg, InstantiateMsg, QueryMsg};
+use gridiron::liquidity_manager::{ExecuteMsg, InstantiateMsg, QueryMsg};
 
 fn main() {
     write_api! {

@@ -1,9 +1,9 @@
 [package]
-name = "astroport-native-coin-wrapper"
+name = "gridiron-native-coin-wrapper"
 version = "0.1.0"
-authors = ["Astroport"]
-repository = "https://github.com/astroport-fi/astroport"
-homepage = "https://astroport.fi"
+authors = ["Gridiron"]
+repository = "https://github.com/gridironzone/gridiron"
+homepage = "https://gridiron.fi"
 edition = "2021"
 
 exclude = [
@@ -31,8 +31,8 @@ cw2 = "0.15"
 cw20 = "0.15"
 cw-utils = "0.15"
 thiserror = { version = "1.0" }
-astroport = { path = "../../../packages/astroport", version = "3" }
+gridiron = { path = "../../../packages/gridiron", version = "3" }
 
 [dev-dependencies]
 cw-multi-test = "0.15"
-astroport-token = { path = "../../token" }
+gridiron-token = { path = "../../token" }

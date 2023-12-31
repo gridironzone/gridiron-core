@@ -1,11 +1,11 @@
 use cosmwasm_std::Uint128;
 use cw_storage_plus::{Item, SnapshotMap};
 
-use astroport::asset::AssetInfo;
-use astroport::common::OwnershipProposal;
-use astroport::observation::Observation;
-use astroport_circular_buffer::CircularBuffer;
-use astroport_pcl_common::state::Config;
+use gridiron::asset::AssetInfo;
+use gridiron::common::OwnershipProposal;
+use gridiron::observation::Observation;
+use gridiron_circular_buffer::CircularBuffer;
+use gridiron_pcl_common::state::Config;
 
 /// Stores pool parameters and state.
 pub const CONFIG: Item<Config> = Item::new("config");

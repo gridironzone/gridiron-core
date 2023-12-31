@@ -1,6 +1,6 @@
 use cosmwasm_schema::write_api;
 
-use astroport::token::InstantiateMsg;
+use gridiron::token::InstantiateMsg;
 use cw20_base::msg::{ExecuteMsg, QueryMsg};
 
 fn main() {

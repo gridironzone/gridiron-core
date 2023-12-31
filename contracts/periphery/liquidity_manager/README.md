@@ -1,19 +1,19 @@
-# Astroport Liquidity Manager
+# Gridiron Liquidity Manager
 
-The Astroport Liquidity Manager is a contract that allows users to provide and withdraw liquidity from the 
-Astroport xyk and stable pools with additional slippage limit enforcement. This contract is meant to be non-upgradable and
-standalone. It depends only on the actual Astroport factory address. Liquidity Manager also exposes provide/withdraw simulation queries
+The Gridiron Liquidity Manager is a contract that allows users to provide and withdraw liquidity from the 
+Gridiron xyk and stable pools with additional slippage limit enforcement. This contract is meant to be non-upgradable and
+standalone. It depends only on the actual Gridiron factory address. Liquidity Manager also exposes provide/withdraw simulation queries
 for xyk and stable pools.
 
 ---
 
 ## InstantiateMsg
 
-Initializes the contract with the Astroport factory contract address.
+Initializes the contract with the Gridiron factory contract address.
 
 ```json
 {
-  "astroport_factory": "wasm1..."
+  "gridiron_factory": "wasm1..."
 }
 ```
 
@@ -21,7 +21,7 @@ Initializes the contract with the Astroport factory contract address.
 
 ### `receive`
 
-CW20 receive msg. Handles only withdraw messages which should come from Astroport LP tokens.
+CW20 receive msg. Handles only withdraw messages which should come from Gridiron LP tokens.
 
 ```json
 {
@@ -104,7 +104,7 @@ returns excess assets to the user.
 }
 ```
 
-`pair_msg` is equal to original Astroport provide message for all pools. `min_lp_to_receive` enforces after-provide check that the user receives at least the specified amount of LP tokens.
+`pair_msg` is equal to original Gridiron provide message for all pools. `min_lp_to_receive` enforces after-provide check that the user receives at least the specified amount of LP tokens.
 
 ## QueryMsg
 

@@ -1,9 +1,9 @@
-use astroport::observation::OBSERVATIONS_SIZE;
-use astroport::{
+use gridiron::observation::OBSERVATIONS_SIZE;
+use gridiron::{
     asset::{AssetInfo, PairInfo},
     querier::query_token_precision,
 };
-use astroport_circular_buffer::BufferManager;
+use gridiron_circular_buffer::BufferManager;
 use cosmwasm_schema::cw_serde;
 use cosmwasm_std::{Addr, DepsMut, QuerierWrapper, StdResult, Uint128};
 use cw_storage_plus::Item;

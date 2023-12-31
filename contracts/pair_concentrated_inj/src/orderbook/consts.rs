@@ -1,4 +1,4 @@
-use astroport::observation::OBSERVATIONS_SIZE;
+use gridiron::observation::OBSERVATIONS_SIZE;
 use std::ops::RangeInclusive;
 
 /// Validation limits for order size.

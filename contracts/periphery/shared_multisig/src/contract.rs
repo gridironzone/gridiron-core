@@ -8,19 +8,19 @@ use cosmwasm_std::{
 };
 use cw20::Cw20ExecuteMsg;
 
-use astroport::asset::{addr_opt_validate, validate_native_denom, Asset, AssetInfo};
-use astroport::common::{claim_ownership, drop_ownership_proposal, propose_new_owner};
+use gridiron::asset::{addr_opt_validate, validate_native_denom, Asset, AssetInfo};
+use gridiron::common::{claim_ownership, drop_ownership_proposal, propose_new_owner};
 
-use astroport::shared_multisig::{
+use gridiron::shared_multisig::{
     Config, ConfigResponse, ExecuteMsg, InstantiateMsg, MigrateMsg, MultisigRole, PoolType,
     ProvideParams, QueryMsg, DEFAULT_WEIGHT, TOTAL_WEIGHT,
 };
 
-use astroport::generator::{
+use gridiron::generator::{
     Cw20HookMsg, ExecuteMsg as GeneratorExecuteMsg, QueryMsg as GeneratorQueryMsg,
 };
 
-use astroport::querier::{query_balance, query_token_balance};
+use gridiron::querier::{query_balance, query_token_balance};
 use cw2::set_contract_version;
 use cw3::{
     Proposal, ProposalListResponse, ProposalResponse, Status, Vote, VoteInfo, VoteListResponse,
@@ -40,7 +40,7 @@ use crate::utils::{
 };
 
 // version info for migration info
-const CONTRACT_NAME: &str = "astroport-shared-multisig";
+const CONTRACT_NAME: &str = "gridiron-shared-multisig";
 const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
 
 #[cfg_attr(not(feature = "library"), entry_point)]

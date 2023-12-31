@@ -12,29 +12,29 @@ use cosmwasm_std::{
 use cw2::{get_contract_version, set_contract_version};
 use cw20::{Cw20ExecuteMsg, Cw20ReceiveMsg, MinterResponse};
 
-use astroport::asset::{
+use gridiron::asset::{
     addr_opt_validate, check_swap_parameters, format_lp_token_name, Asset, AssetInfo, CoinsExt,
     PairInfo, MINIMUM_LIQUIDITY_AMOUNT,
 };
-use astroport::factory::PairType;
-use astroport::generator::Cw20HookMsg as GeneratorHookMsg;
-use astroport::pair::{
+use gridiron::factory::PairType;
+use gridiron::generator::Cw20HookMsg as GeneratorHookMsg;
+use gridiron::pair::{
     ConfigResponse, FeeShareConfig, XYKPoolConfig, XYKPoolParams, XYKPoolUpdateParams,
     DEFAULT_SLIPPAGE, MAX_ALLOWED_SLIPPAGE, MAX_FEE_SHARE_BPS,
 };
-use astroport::pair::{
+use gridiron::pair::{
     CumulativePricesResponse, Cw20HookMsg, ExecuteMsg, InstantiateMsg, MigrateMsg, PoolResponse,
     QueryMsg, ReverseSimulationResponse, SimulationResponse, TWAP_PRECISION,
 };
-use astroport::querier::{query_factory_config, query_fee_info, query_supply};
-use astroport::{token::InstantiateMsg as TokenInstantiateMsg, U256};
+use gridiron::querier::{query_factory_config, query_fee_info, query_supply};
+use gridiron::{token::InstantiateMsg as TokenInstantiateMsg, U256};
 use cw_utils::parse_instantiate_response_data;
 
 use crate::error::ContractError;
 use crate::state::{Config, BALANCES, CONFIG};
 
 /// Contract name that is used for migration.
-const CONTRACT_NAME: &str = "astroport-pair";
+const CONTRACT_NAME: &str = "gridiron-pair";
 /// Contract version that is used for migration.
 const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
 /// A `reply` call code ID used for sub-messages.
@@ -110,7 +110,7 @@ pub fn instantiate(
             })?,
             funds: vec![],
             admin: None,
-            label: String::from("Astroport LP token"),
+            label: String::from("Gridiron LP token"),
         }
         .into(),
         id: INSTANTIATE_TOKEN_REPLY_ID,
@@ -1329,7 +1329,7 @@ pub fn migrate(deps: DepsMut, _env: Env, _msg: MigrateMsg) -> Result<Response, C
     let contract_version = get_contract_version(deps.storage)?;
 
     match contract_version.contract.as_ref() {
-        "astroport-pair" => match contract_version.version.as_ref() {
+        "gridiron-pair" => match contract_version.version.as_ref() {
             "1.0.0" | "1.0.1" | "1.1.0" | "1.2.0" => {
                 migration::add_asset_balances_tracking_flag(deps.storage)?;
             }

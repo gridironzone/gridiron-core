@@ -7,7 +7,7 @@ members = [
   "contracts/pair_stable",
   "contracts/pair_concentrated",
 #  "contracts/pair_concentrated_inj", TODO: rewrite OB liquidity deployment
-  "contracts/pair_astro_xastro",
+  "contracts/pair_grid_xgrid",
   "contracts/router",
   "contracts/token",
   "contracts/whitelist",
@@ -29,8 +29,8 @@ incremental = false
 overflow-checks = true
 strip = true
 
-[patch.'https://github.com/astroport-fi/astroport-core']
-astroport = { path = "packages/astroport" }
+[patch.'https://github.com/gridironzone/gridiron-core']
+gridiron = { path = "packages/gridiron" }
 
 [patch.crates-io]
-cw-multi-test = { git = "https://github.com/astroport-fi/cw-multi-test.git", rev = "269a2c829d1ad25d67caa4600f72d2a21fb8fdeb" }
+cw-multi-test = { git = "https://github.com/gridironzone/cw-multi-test.git", rev = "269a2c829d1ad25d67caa4600f72d2a21fb8fdeb" }

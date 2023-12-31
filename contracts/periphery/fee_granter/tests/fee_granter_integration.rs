@@ -1,8 +1,8 @@
-use astroport::fee_granter::{Config, ExecuteMsg, InstantiateMsg, QueryMsg};
-use astroport_fee_granter::contract::{execute, instantiate};
-use astroport_fee_granter::error::ContractError;
-use astroport_fee_granter::query::query;
-use astroport_fee_granter::state::MAX_ADMINS;
+use gridiron::fee_granter::{Config, ExecuteMsg, InstantiateMsg, QueryMsg};
+use gridiron_fee_granter::contract::{execute, instantiate};
+use gridiron_fee_granter::error::ContractError;
+use gridiron_fee_granter::query::query;
+use gridiron_fee_granter::state::MAX_ADMINS;
 use cosmwasm_std::{coins, Addr, Empty};
 use cw_multi_test::{App, Contract, ContractWrapper, Executor};
 

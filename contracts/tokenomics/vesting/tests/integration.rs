@@ -1,17 +1,17 @@
 #![cfg(not(tarpaulin_include))]
 
-use astroport::asset::{native_asset_info, token_asset_info};
-use astroport::querier::query_balance;
-use astroport::vesting::{QueryMsg, VestingAccountResponse, VestingAccountsResponse, VestingInfo};
-use astroport::{
+use gridiron::asset::{native_asset_info, token_asset_info};
+use gridiron::querier::query_balance;
+use gridiron::vesting::{QueryMsg, VestingAccountResponse, VestingAccountsResponse, VestingInfo};
+use gridiron::{
     token::InstantiateMsg as TokenInstantiateMsg,
     vesting::{
         Cw20HookMsg, ExecuteMsg, InstantiateMsg, VestingAccount, VestingSchedule,
         VestingSchedulePoint,
     },
 };
-use astroport_vesting::error::ContractError;
-use astroport_vesting::state::Config;
+use gridiron_vesting::error::ContractError;
+use gridiron_vesting::state::Config;
 use cosmwasm_std::{coin, coins, to_binary, Addr, StdResult, Timestamp, Uint128};
 use cw20::{BalanceResponse, Cw20ExecuteMsg, Cw20QueryMsg, MinterResponse};
 use cw_multi_test::{App, ContractWrapper, Executor};
@@ -21,7 +21,7 @@ const OWNER1: &str = "owner1";
 const USER1: &str = "user1";
 const USER2: &str = "user2";
 const TOKEN_INITIAL_AMOUNT: u128 = 1_000_000_000_000000;
-const IBC_ASTRO: &str = "ibc/ASTRO-TOKEN";
+const IBC_GRID: &str = "ibc/GRID-TOKEN";
 
 #[test]
 fn claim() {
@@ -32,10 +32,10 @@ fn claim() {
 
     let token_code_id = store_token_code(&mut app);
 
-    let astro_token_instance =
-        instantiate_token(&mut app, token_code_id, "ASTRO", Some(1_000_000_000_000000));
+    let grid_token_instance =
+        instantiate_token(&mut app, token_code_id, "GRID", Some(1_000_000_000_000000));
 
-    let vesting_instance = instantiate_vesting(&mut app, &astro_token_instance);
+    let vesting_instance = instantiate_vesting(&mut app, &grid_token_instance);
 
     let current_time = app.block_info().time.seconds();
 
@@ -83,7 +83,7 @@ fn claim() {
     };
 
     let res = app
-        .execute_contract(owner.clone(), astro_token_instance.clone(), &msg, &[])
+        .execute_contract(owner.clone(), grid_token_instance.clone(), &msg, &[])
         .unwrap_err();
     assert_eq!(
         res.root_cause().to_string(),
@@ -133,7 +133,7 @@ fn claim() {
         amount: Uint128::from(300u128),
     };
 
-    app.execute_contract(owner.clone(), astro_token_instance.clone(), &msg, &[])
+    app.execute_contract(owner.clone(), grid_token_instance.clone(), &msg, &[])
         .unwrap();
 
     app.update_block(|b| {
@@ -154,7 +154,7 @@ fn claim() {
     // Check owner balance
     check_token_balance(
         &mut app,
-        &astro_token_instance,
+        &grid_token_instance,
         &owner.clone(),
         TOKEN_INITIAL_AMOUNT - 300u128,
     );
@@ -162,7 +162,7 @@ fn claim() {
     // Check vesting balance
     check_token_balance(
         &mut app,
-        &astro_token_instance,
+        &grid_token_instance,
         &vesting_instance.clone(),
         300u128,
     );
@@ -188,18 +188,18 @@ fn claim() {
     // Check vesting balance
     check_token_balance(
         &mut app,
-        &astro_token_instance,
+        &grid_token_instance,
         &vesting_instance.clone(),
         0u128,
     );
 
     // Check user balance
-    check_token_balance(&mut app, &astro_token_instance, &user1.clone(), 300u128);
+    check_token_balance(&mut app, &grid_token_instance, &user1.clone(), 300u128);
 
     // Owner balance mustn't change after claim
     check_token_balance(
         &mut app,
-        &astro_token_instance,
+        &grid_token_instance,
         &owner.clone(),
         TOKEN_INITIAL_AMOUNT - 300u128,
     );
@@ -303,7 +303,7 @@ fn claim_native() {
         owner.clone(),
         vesting_instance.clone(),
         &msg,
-        &coins(300, IBC_ASTRO),
+        &coins(300, IBC_GRID),
     )
     .unwrap();
 
@@ -323,13 +323,13 @@ fn claim_native() {
     assert_eq!(user1_vesting_amount.clone(), Uint128::new(300u128));
 
     // Check owner balance
-    let bal = query_balance(&app.wrap(), &owner, IBC_ASTRO)
+    let bal = query_balance(&app.wrap(), &owner, IBC_GRID)
         .unwrap()
         .u128();
     assert_eq!(bal, TOKEN_INITIAL_AMOUNT - 300u128);
 
     // Check vesting balance
-    let bal = query_balance(&app.wrap(), &vesting_instance, IBC_ASTRO)
+    let bal = query_balance(&app.wrap(), &vesting_instance, IBC_GRID)
         .unwrap()
         .u128();
     assert_eq!(bal, 300u128);
@@ -353,19 +353,19 @@ fn claim_native() {
     assert_eq!(vesting_res.info.released_amount, Uint128::from(300u128));
 
     // Check vesting balance
-    let bal = query_balance(&app.wrap(), &vesting_instance, IBC_ASTRO)
+    let bal = query_balance(&app.wrap(), &vesting_instance, IBC_GRID)
         .unwrap()
         .u128();
     assert_eq!(bal, 0);
 
     // Check user balance
-    let bal = query_balance(&app.wrap(), &user1, IBC_ASTRO)
+    let bal = query_balance(&app.wrap(), &user1, IBC_GRID)
         .unwrap()
         .u128();
     assert_eq!(bal, 300);
 
     // Owner balance mustn't change after claim
-    let bal = query_balance(&app.wrap(), &owner, IBC_ASTRO)
+    let bal = query_balance(&app.wrap(), &owner, IBC_GRID)
         .unwrap()
         .u128();
     assert_eq!(bal, TOKEN_INITIAL_AMOUNT - 300u128);
@@ -393,8 +393,8 @@ fn register_vesting_accounts() {
 
     let token_code_id = store_token_code(&mut app);
 
-    let astro_token_instance =
-        instantiate_token(&mut app, token_code_id, "ASTRO", Some(1_000_000_000_000000));
+    let grid_token_instance =
+        instantiate_token(&mut app, token_code_id, "GRID", Some(1_000_000_000_000000));
 
     let noname_token_instance = instantiate_token(
         &mut app,
@@ -410,7 +410,7 @@ fn register_vesting_accounts() {
         TOKEN_INITIAL_AMOUNT,
     );
 
-    let vesting_instance = instantiate_vesting(&mut app, &astro_token_instance);
+    let vesting_instance = instantiate_vesting(&mut app, &grid_token_instance);
 
     let current_time = app.block_info().time.seconds();
 
@@ -436,7 +436,7 @@ fn register_vesting_accounts() {
     };
 
     let res = app
-        .execute_contract(owner.clone(), astro_token_instance.clone(), &msg, &[])
+        .execute_contract(owner.clone(), grid_token_instance.clone(), &msg, &[])
         .unwrap_err();
     assert_eq!(res.root_cause().to_string(), "Vesting schedule error on addr: user1. Should satisfy: (start < end, end > current_time and start_amount < end_amount)");
 
@@ -464,7 +464,7 @@ fn register_vesting_accounts() {
     let res = app
         .execute_contract(
             user1.clone(),
-            astro_token_instance.clone(),
+            grid_token_instance.clone(),
             &msg.clone(),
             &[],
         )
@@ -476,7 +476,7 @@ fn register_vesting_accounts() {
         .unwrap_err();
     assert_eq!(res.root_cause().to_string(), "Unauthorized");
 
-    // Checking that execute endpoint with native coin is unreachable if ASTRO is a cw20 token
+    // Checking that execute endpoint with native coin is unreachable if GRID is a cw20 token
     let native_msg = ExecuteMsg::RegisterVestingAccounts {
         vesting_accounts: vec![VestingAccount {
             address: user1.to_string(),
@@ -504,7 +504,7 @@ fn register_vesting_accounts() {
     assert_eq!(ContractError::Unauthorized {}, err.downcast().unwrap());
 
     let _res = app
-        .execute_contract(owner.clone(), astro_token_instance.clone(), &msg, &[])
+        .execute_contract(owner.clone(), grid_token_instance.clone(), &msg, &[])
         .unwrap();
 
     app.update_block(|b| {
@@ -524,13 +524,13 @@ fn register_vesting_accounts() {
     assert_eq!(user1_vesting_amount.clone(), Uint128::new(100u128));
     check_token_balance(
         &mut app,
-        &astro_token_instance,
+        &grid_token_instance,
         &owner.clone(),
         TOKEN_INITIAL_AMOUNT - 100u128,
     );
     check_token_balance(
         &mut app,
-        &astro_token_instance,
+        &grid_token_instance,
         &vesting_instance.clone(),
         100u128,
     );
@@ -560,7 +560,7 @@ fn register_vesting_accounts() {
     };
 
     let _res = app
-        .execute_contract(owner.clone(), astro_token_instance.clone(), &msg, &[])
+        .execute_contract(owner.clone(), grid_token_instance.clone(), &msg, &[])
         .unwrap();
 
     app.update_block(|b| {
@@ -579,13 +579,13 @@ fn register_vesting_accounts() {
 
     check_token_balance(
         &mut app,
-        &astro_token_instance,
+        &grid_token_instance,
         &owner.clone(),
         TOKEN_INITIAL_AMOUNT - 300u128,
     );
     check_token_balance(
         &mut app,
-        &astro_token_instance,
+        &grid_token_instance,
         &vesting_instance.clone(),
         300u128,
     );
@@ -619,7 +619,7 @@ fn register_vesting_accounts() {
     };
 
     let _res = app
-        .execute_contract(owner.clone(), astro_token_instance.clone(), &msg, &[])
+        .execute_contract(owner.clone(), grid_token_instance.clone(), &msg, &[])
         .unwrap();
 
     app.update_block(|b| {
@@ -639,13 +639,13 @@ fn register_vesting_accounts() {
     assert_eq!(vesting_res, Uint128::new(110u128));
     check_token_balance(
         &mut app,
-        &astro_token_instance,
+        &grid_token_instance,
         &owner.clone(),
         TOKEN_INITIAL_AMOUNT - 310u128,
     );
     check_token_balance(
         &mut app,
-        &astro_token_instance,
+        &grid_token_instance,
         &vesting_instance.clone(),
         310u128,
     );
@@ -669,16 +669,16 @@ fn register_vesting_accounts() {
     assert_eq!(vesting_res.info.released_amount, Uint128::from(110u128));
     check_token_balance(
         &mut app,
-        &astro_token_instance,
+        &grid_token_instance,
         &vesting_instance.clone(),
         200u128,
     );
-    check_token_balance(&mut app, &astro_token_instance, &user1.clone(), 110u128);
+    check_token_balance(&mut app, &grid_token_instance, &user1.clone(), 110u128);
 
     // Owner balance mustn't change after claim
     check_token_balance(
         &mut app,
-        &astro_token_instance,
+        &grid_token_instance,
         &owner.clone(),
         TOKEN_INITIAL_AMOUNT - 310u128,
     );
@@ -821,7 +821,7 @@ fn register_vesting_accounts_native() {
         )
         .unwrap_err();
     assert_eq!(
-        ContractError::PaymentError(PaymentError::MissingDenom("ibc/ASTRO-TOKEN".to_string())),
+        ContractError::PaymentError(PaymentError::MissingDenom("ibc/GRID-TOKEN".to_string())),
         err.downcast().unwrap()
     );
 
@@ -829,7 +829,7 @@ fn register_vesting_accounts_native() {
         owner.clone(),
         vesting_instance.clone(),
         &native_msg,
-        &coins(100u128, IBC_ASTRO),
+        &coins(100u128, IBC_GRID),
     )
     .unwrap();
 
@@ -848,12 +848,12 @@ fn register_vesting_accounts_native() {
         .unwrap();
     assert_eq!(user1_vesting_amount.u128(), 100u128);
 
-    let bal = query_balance(&app.wrap(), &owner, IBC_ASTRO)
+    let bal = query_balance(&app.wrap(), &owner, IBC_GRID)
         .unwrap()
         .u128();
     assert_eq!(bal, TOKEN_INITIAL_AMOUNT - 100u128);
 
-    let bal = query_balance(&app.wrap(), &vesting_instance, IBC_ASTRO)
+    let bal = query_balance(&app.wrap(), &vesting_instance, IBC_GRID)
         .unwrap()
         .u128();
     assert_eq!(bal, 100);
@@ -881,7 +881,7 @@ fn register_vesting_accounts_native() {
         owner.clone(),
         vesting_instance.clone(),
         &msg,
-        &coins(200, IBC_ASTRO),
+        &coins(200, IBC_GRID),
     )
     .unwrap();
 
@@ -899,11 +899,11 @@ fn register_vesting_accounts_native() {
         .query_wasm_smart(vesting_instance.clone(), &msg)
         .unwrap();
 
-    let bal = query_balance(&app.wrap(), &owner, IBC_ASTRO)
+    let bal = query_balance(&app.wrap(), &owner, IBC_GRID)
         .unwrap()
         .u128();
     assert_eq!(bal, TOKEN_INITIAL_AMOUNT - 300u128);
-    let bal = query_balance(&app.wrap(), &vesting_instance, IBC_ASTRO)
+    let bal = query_balance(&app.wrap(), &vesting_instance, IBC_GRID)
         .unwrap()
         .u128();
     assert_eq!(bal, 300u128);
@@ -936,7 +936,7 @@ fn register_vesting_accounts_native() {
         owner.clone(),
         vesting_instance.clone(),
         &msg,
-        &coins(10, IBC_ASTRO),
+        &coins(10, IBC_GRID),
     )
     .unwrap();
 
@@ -955,11 +955,11 @@ fn register_vesting_accounts_native() {
         .unwrap();
     assert_eq!(vesting_res, Uint128::new(110u128));
 
-    let bal = query_balance(&app.wrap(), &owner, IBC_ASTRO)
+    let bal = query_balance(&app.wrap(), &owner, IBC_GRID)
         .unwrap()
         .u128();
     assert_eq!(bal, TOKEN_INITIAL_AMOUNT - 310u128);
-    let bal = query_balance(&app.wrap(), &vesting_instance, IBC_ASTRO)
+    let bal = query_balance(&app.wrap(), &vesting_instance, IBC_GRID)
         .unwrap()
         .u128();
     assert_eq!(bal, 310u128);
@@ -982,16 +982,16 @@ fn register_vesting_accounts_native() {
         .unwrap();
     assert_eq!(vesting_res.info.released_amount, Uint128::from(110u128));
 
-    let bal = query_balance(&app.wrap(), &vesting_instance, IBC_ASTRO)
+    let bal = query_balance(&app.wrap(), &vesting_instance, IBC_GRID)
         .unwrap()
         .u128();
     assert_eq!(bal, 200);
-    let bal = query_balance(&app.wrap(), &user1, IBC_ASTRO)
+    let bal = query_balance(&app.wrap(), &user1, IBC_GRID)
         .unwrap()
         .u128();
     assert_eq!(bal, 110u128);
 
-    let bal = query_balance(&app.wrap(), &owner, IBC_ASTRO)
+    let bal = query_balance(&app.wrap(), &owner, IBC_GRID)
         .unwrap()
         .u128();
     assert_eq!(bal, TOKEN_INITIAL_AMOUNT - 310u128);
@@ -1002,8 +1002,8 @@ fn withdraw_from_active_schedule() {
     let owner = Addr::unchecked(OWNER1);
     let mut app = mock_app(&owner);
     let token_code_id = store_token_code(&mut app);
-    let astro_token = instantiate_token(&mut app, token_code_id, "Astro", None);
-    let vesting_instance = instantiate_vesting(&mut app, &astro_token);
+    let grid_token = instantiate_token(&mut app, token_code_id, "Grid", None);
+    let vesting_instance = instantiate_vesting(&mut app, &grid_token);
 
     let user1 = Addr::unchecked("user1");
     let vested_amount = Uint128::new(100_000_000_000000);
@@ -1033,7 +1033,7 @@ fn withdraw_from_active_schedule() {
         .unwrap(),
         amount: vested_amount,
     };
-    app.execute_contract(owner.clone(), astro_token.clone(), &msg, &[])
+    app.execute_contract(owner.clone(), grid_token.clone(), &msg, &[])
         .unwrap();
 
     app.update_block(|b| b.time = Timestamp::from_seconds(now_ts));
@@ -1043,7 +1043,7 @@ fn withdraw_from_active_schedule() {
         &mut app,
         &user1,
         &vesting_instance,
-        &astro_token,
+        &grid_token,
         65_543_017_979452,
     );
 
@@ -1058,7 +1058,7 @@ fn withdraw_from_active_schedule() {
         .unwrap();
 
     // Recipient received tokens
-    let recipient_bal = query_token_balance(&mut app, &astro_token, &recipient);
+    let recipient_bal = query_token_balance(&mut app, &grid_token, &recipient);
     assert_eq!(recipient_bal, withdraw_amount);
 
     // User1 did not receive tokens after withdraw event
@@ -1066,7 +1066,7 @@ fn withdraw_from_active_schedule() {
         &mut app,
         &user1,
         &vesting_instance,
-        &astro_token,
+        &grid_token,
         65_543_017_979452,
     );
 
@@ -1077,7 +1077,7 @@ fn withdraw_from_active_schedule() {
         &mut app,
         &user1,
         &vesting_instance,
-        &astro_token,
+        &grid_token,
         66_890_633_481478,
     );
 
@@ -1088,7 +1088,7 @@ fn withdraw_from_active_schedule() {
         &mut app,
         &user1,
         &vesting_instance,
-        &astro_token,
+        &grid_token,
         (vested_amount - withdraw_amount).u128(),
     );
 }
@@ -1098,8 +1098,8 @@ fn withdraw_overlapping_schedules() {
     let owner = Addr::unchecked(OWNER1);
     let mut app = mock_app(&owner);
     let token_code_id = store_token_code(&mut app);
-    let astro_token = instantiate_token(&mut app, token_code_id, "Astro", None);
-    let vesting_instance = instantiate_vesting(&mut app, &astro_token);
+    let grid_token = instantiate_token(&mut app, token_code_id, "Grid", None);
+    let vesting_instance = instantiate_vesting(&mut app, &grid_token);
 
     let user1 = Addr::unchecked("user1");
     let vested_amount = Uint128::new(100_000_000_000000);
@@ -1138,7 +1138,7 @@ fn withdraw_overlapping_schedules() {
         .unwrap(),
         amount: vested_amount,
     };
-    app.execute_contract(owner.clone(), astro_token.clone(), &msg, &[])
+    app.execute_contract(owner.clone(), grid_token.clone(), &msg, &[])
         .unwrap();
 
     app.update_block(|b| b.time = Timestamp::from_seconds(now_ts));
@@ -1147,7 +1147,7 @@ fn withdraw_overlapping_schedules() {
         &mut app,
         &user1,
         &vesting_instance,
-        &astro_token,
+        &grid_token,
         82_945_534_151445,
     );
 
@@ -1165,7 +1165,7 @@ fn withdraw_overlapping_schedules() {
         .unwrap();
 
     // Recipient received tokens
-    let recipient_bal = query_token_balance(&mut app, &astro_token, &recipient);
+    let recipient_bal = query_token_balance(&mut app, &grid_token, &recipient);
     assert_eq!(recipient_bal, withdraw_amount);
 
     // User1 did not receive tokens after withdraw event
@@ -1173,7 +1173,7 @@ fn withdraw_overlapping_schedules() {
         &mut app,
         &user1,
         &vesting_instance,
-        &astro_token,
+        &grid_token,
         82_945_534_151445,
     );
 
@@ -1185,7 +1185,7 @@ fn withdraw_overlapping_schedules() {
         &mut app,
         &user1,
         &vesting_instance,
-        &astro_token,
+        &grid_token,
         (vested_amount - withdraw_amount).u128(),
     );
 }
@@ -1195,8 +1195,8 @@ fn withdraw_overlapping_schedules2() {
     let owner = Addr::unchecked(OWNER1);
     let mut app = mock_app(&owner);
     let token_code_id = store_token_code(&mut app);
-    let astro_token = instantiate_token(&mut app, token_code_id, "Astro", None);
-    let vesting_instance = instantiate_vesting(&mut app, &astro_token);
+    let grid_token = instantiate_token(&mut app, token_code_id, "Grid", None);
+    let vesting_instance = instantiate_vesting(&mut app, &grid_token);
 
     let user1 = Addr::unchecked("user1");
     let vested_amount = Uint128::new(100_000_000_000000);
@@ -1238,7 +1238,7 @@ fn withdraw_overlapping_schedules2() {
         .unwrap(),
         amount: vested_amount,
     };
-    app.execute_contract(owner.clone(), astro_token.clone(), &msg, &[])
+    app.execute_contract(owner.clone(), grid_token.clone(), &msg, &[])
         .unwrap();
 
     app.update_block(|b| b.time = Timestamp::from_seconds(now_ts));
@@ -1247,7 +1247,7 @@ fn withdraw_overlapping_schedules2() {
         &mut app,
         &user1,
         &vesting_instance,
-        &astro_token,
+        &grid_token,
         36_377_496_494237,
     );
 
@@ -1272,7 +1272,7 @@ fn withdraw_overlapping_schedules2() {
     let err = app
         .execute_contract(owner.clone(), vesting_instance.clone(), &withdraw_msg, &[])
         .unwrap_err();
-    // There is no 10M ASTRO available for withdrawal
+    // There is no 10M GRID available for withdrawal
     assert_eq!(
         ContractError::NotEnoughTokens(Uint128::new(2_431_962_342793)),
         err.downcast().unwrap(),
@@ -1282,11 +1282,11 @@ fn withdraw_overlapping_schedules2() {
         &mut app,
         &user1,
         &vesting_instance,
-        &astro_token,
+        &grid_token,
         97_568_037_657_207,
     );
 
-    // Withdrawing 1M ASTRO
+    // Withdrawing 1M GRID
     let withdraw_amount = Uint128::new(1_000_000_000000);
     let withdraw_msg = ExecuteMsg::WithdrawFromActiveSchedule {
         account: user1.to_string(),
@@ -1297,7 +1297,7 @@ fn withdraw_overlapping_schedules2() {
         .unwrap();
 
     // Recipient received tokens
-    let recipient_bal = query_token_balance(&mut app, &astro_token, &recipient);
+    let recipient_bal = query_token_balance(&mut app, &grid_token, &recipient);
     assert_eq!(recipient_bal, withdraw_amount);
 
     // user1's amount was not changed
@@ -1305,19 +1305,19 @@ fn withdraw_overlapping_schedules2() {
         &mut app,
         &user1,
         &vesting_instance,
-        &astro_token,
+        &grid_token,
         97_568_037_657_207,
     );
 
     // Go to the end of the 2nd schedule
     app.update_block(|b| b.time = Timestamp::from_seconds(end_time + 86400 * 7));
 
-    // user1 received all tokens except 1M ASTRO
+    // user1 received all tokens except 1M GRID
     claim_and_check(
         &mut app,
         &user1,
         &vesting_instance,
-        &astro_token,
+        &grid_token,
         (vested_amount - withdraw_amount).u128(),
     );
 }
@@ -1329,7 +1329,7 @@ fn mock_app(owner: &Addr) -> App {
                 storage,
                 owner,
                 vec![
-                    coin(TOKEN_INITIAL_AMOUNT, IBC_ASTRO),
+                    coin(TOKEN_INITIAL_AMOUNT, IBC_GRID),
                     coin(1_000_0000000u128, "random-coin"),
                 ],
             )
@@ -1338,13 +1338,13 @@ fn mock_app(owner: &Addr) -> App {
 }
 
 fn store_token_code(app: &mut App) -> u64 {
-    let astro_token_contract = Box::new(ContractWrapper::new_with_empty(
-        astroport_token::contract::execute,
-        astroport_token::contract::instantiate,
-        astroport_token::contract::query,
+    let grid_token_contract = Box::new(ContractWrapper::new_with_empty(
+        gridiron_token::contract::execute,
+        gridiron_token::contract::instantiate,
+        gridiron_token::contract::query,
     ));
 
-    app.store_code(astro_token_contract)
+    app.store_code(grid_token_contract)
 }
 
 fn instantiate_token(app: &mut App, token_code_id: u64, name: &str, cap: Option<u128>) -> Addr {
@@ -1373,18 +1373,18 @@ fn instantiate_token(app: &mut App, token_code_id: u64, name: &str, cap: Option<
     .unwrap()
 }
 
-fn instantiate_vesting(mut app: &mut App, astro_token_instance: &Addr) -> Addr {
+fn instantiate_vesting(mut app: &mut App, grid_token_instance: &Addr) -> Addr {
     let vesting_contract = Box::new(ContractWrapper::new_with_empty(
-        astroport_vesting::contract::execute,
-        astroport_vesting::contract::instantiate,
-        astroport_vesting::contract::query,
+        gridiron_vesting::contract::execute,
+        gridiron_vesting::contract::instantiate,
+        gridiron_vesting::contract::query,
     ));
     let owner = Addr::unchecked(OWNER1);
     let vesting_code_id = app.store_code(vesting_contract);
 
     let init_msg = InstantiateMsg {
         owner: OWNER1.to_string(),
-        vesting_token: token_asset_info(astro_token_instance.clone()),
+        vesting_token: token_asset_info(grid_token_instance.clone()),
     };
 
     let vesting_instance = app
@@ -1403,20 +1403,20 @@ fn instantiate_vesting(mut app: &mut App, astro_token_instance: &Addr) -> Addr {
         .query_wasm_smart(vesting_instance.clone(), &QueryMsg::Config {})
         .unwrap();
     assert_eq!(
-        astro_token_instance.to_string(),
+        grid_token_instance.to_string(),
         res.vesting_token.to_string()
     );
 
     mint_tokens(
         &mut app,
-        &astro_token_instance,
+        &grid_token_instance,
         &owner,
         TOKEN_INITIAL_AMOUNT,
     );
 
     check_token_balance(
         &mut app,
-        &astro_token_instance,
+        &grid_token_instance,
         &owner,
         TOKEN_INITIAL_AMOUNT,
     );
@@ -1426,16 +1426,16 @@ fn instantiate_vesting(mut app: &mut App, astro_token_instance: &Addr) -> Addr {
 
 fn instantiate_vesting_remote_chain(app: &mut App) -> Addr {
     let vesting_contract = Box::new(ContractWrapper::new_with_empty(
-        astroport_vesting::contract::execute,
-        astroport_vesting::contract::instantiate,
-        astroport_vesting::contract::query,
+        gridiron_vesting::contract::execute,
+        gridiron_vesting::contract::instantiate,
+        gridiron_vesting::contract::query,
     ));
     let owner = Addr::unchecked(OWNER1);
     let vesting_code_id = app.store_code(vesting_contract);
 
     let init_msg = InstantiateMsg {
         owner: OWNER1.to_string(),
-        vesting_token: native_asset_info(IBC_ASTRO.to_string()),
+        vesting_token: native_asset_info(IBC_GRID.to_string()),
     };
 
     app.instantiate_contract(
@@ -1480,7 +1480,7 @@ fn claim_and_check(
     app: &mut App,
     who: &Addr,
     vesting: &Addr,
-    astro_token: &Addr,
+    grid_token: &Addr,
     expected_amount: u128,
 ) {
     app.execute_contract(
@@ -1493,6 +1493,6 @@ fn claim_and_check(
         &[],
     )
     .unwrap();
-    let astro_amount = query_token_balance(app, &astro_token, &who);
-    assert_eq!(astro_amount.u128(), expected_amount);
+    let grid_amount = query_token_balance(app, &grid_token, &who);
+    assert_eq!(grid_amount.u128(), expected_amount);
 }

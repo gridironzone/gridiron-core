@@ -1,9 +1,9 @@
 [package]
-name = "astroport-factory"
+name = "gridiron-factory"
 version = "1.6.0"
-authors = ["Astroport"]
+authors = ["Gridiron"]
 edition = "2021"
-description = "Astroport factory contract - pair contract generator and directory"
+description = "Gridiron factory contract - pair contract generator and directory"
 license = "MIT"
 
 exclude = [
@@ -25,7 +25,7 @@ library = []
 
 [dependencies]
 cosmwasm-std = "1.1"
-astroport = { path = "../../packages/astroport", version = "3" }
+gridiron = { path = "../../packages/gridiron", version = "3" }
 cw-storage-plus = "0.15"
 cw2 = "0.15"
 thiserror = "1.0"
@@ -36,8 +36,8 @@ cw-utils = "1.0.1"
 
 [dev-dependencies]
 cw-multi-test = "0.15"
-astroport-token = { path = "../token" }
-astroport-pair = { path = "../pair" }
+gridiron-token = { path = "../token" }
+gridiron-pair = { path = "../pair" }
 cw20 = "0.15"
 anyhow = "1.0"
 prost = "0.11.5"

@@ -1,12 +1,12 @@
-# Astroport Generator Vesting
+# Gridiron Generator Vesting
 
-The Generator Vesting contract progressively unlocks ASTRO that can then be distributed to LP stakers via the Generator contract.
+The Generator Vesting contract progressively unlocks GRID that can then be distributed to LP stakers via the Generator contract.
 
 ---
 
 ## InstantiateMsg
 
-Initializes the contract with the address of the ASTRO token.
+Initializes the contract with the address of the GRID token.
 
 ```json
 {
@@ -30,9 +30,9 @@ CW20 receive msg.
 
 #### `RegisterVestingAccounts`
 
-Creates vesting schedules for the ASTRO token. Each vesting token should have the Generator contract address as the `VestingContractAddress`. Also, each schedule will unlock tokens at a different rate according to its time duration.
+Creates vesting schedules for the GRID token. Each vesting token should have the Generator contract address as the `VestingContractAddress`. Also, each schedule will unlock tokens at a different rate according to its time duration.
 
-Execute this message by calling the ASTRO token contract address.
+Execute this message by calling the GRID token contract address.
 
 ```json
 {
@@ -103,7 +103,7 @@ All query messages are described below. A custom struct is defined for each quer
 
 ### `config`
 
-Returns the vesting token contract address (the ASTRO token address).
+Returns the vesting token contract address (the GRID token address).
 
 ```json
 {
@@ -141,7 +141,7 @@ Returns a paginated list of vesting schedules in chronological order. Given fiel
 
 ### `available amount`
 
-Returns the claimable amount (vested but not yet claimed) of ASTRO tokens that a vesting target can claim.
+Returns the claimable amount (vested but not yet claimed) of GRID tokens that a vesting target can claim.
 
 ```json
 {

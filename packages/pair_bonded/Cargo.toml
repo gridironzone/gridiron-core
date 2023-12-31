@@ -1,9 +1,9 @@
 [package]
-name = "astroport-pair-bonded"
+name = "gridiron-pair-bonded"
 version = "1.0.1"
-authors = ["Astroport"]
+authors = ["Gridiron"]
 edition = "2021"
-description = "The Astroport pair-bonded package"
+description = "The Gridiron pair-bonded package"
 license = "MIT"
 
 exclude = [
@@ -24,7 +24,7 @@ backtraces = ["cosmwasm-std/backtraces"]
 library = []
 
 [dependencies]
-astroport = { path = "../astroport" }
+gridiron = { path = "../gridiron" }
 cw2 = { version = "0.15" }
 cw20 = { version = "0.15" }
 cosmwasm-std = { version = "1.1" }

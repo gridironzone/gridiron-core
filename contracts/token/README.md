@@ -1,6 +1,6 @@
-# Astroport Token
+# Gridiron Token
 
-This is the contract implementation for the ASTRO token.
+This is the contract implementation for the GRID token.
 
 ---
 

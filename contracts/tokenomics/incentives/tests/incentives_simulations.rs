@@ -7,9 +7,9 @@ use cosmwasm_std::{Addr, StdError, Timestamp};
 use itertools::Itertools;
 use proptest::prelude::*;
 
-use astroport::asset::{AssetInfo, AssetInfoExt};
-use astroport::incentives::{MAX_PERIODS, MAX_REWARD_TOKENS};
-use astroport_incentives::error::ContractError;
+use gridiron::asset::{AssetInfo, AssetInfoExt};
+use gridiron::incentives::{MAX_PERIODS, MAX_REWARD_TOKENS};
+use gridiron_incentives::error::ContractError;
 use Event::*;
 
 use crate::helper::{Helper, TestAddr};
@@ -105,8 +105,8 @@ fn update_total_rewards(
 }
 
 fn simulate_case(events: Vec<(Event, u64)>) {
-    let astro = AssetInfo::native("astro");
-    let mut helper = Helper::new("owner", &astro).unwrap();
+    let grid = AssetInfo::native("grid");
+    let mut helper = Helper::new("owner", &grid).unwrap();
     let owner = helper.owner.clone();
     let incentivization_fee = helper.incentivization_fee.clone();
 

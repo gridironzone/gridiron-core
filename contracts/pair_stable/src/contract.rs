@@ -14,29 +14,29 @@ use cw20::{Cw20ExecuteMsg, Cw20ReceiveMsg, MinterResponse};
 use cw_utils::parse_instantiate_response_data;
 use itertools::Itertools;
 
-use astroport::asset::{
+use gridiron::asset::{
     addr_opt_validate, check_swap_parameters, format_lp_token_name, Asset, AssetInfo, CoinsExt,
     Decimal256Ext, DecimalAsset, PairInfo, MINIMUM_LIQUIDITY_AMOUNT,
 };
 
-use astroport::common::{claim_ownership, drop_ownership_proposal, propose_new_owner};
-use astroport::cosmwasm_ext::IntegerToDecimal;
-use astroport::factory::PairType;
-use astroport::pair::{
+use gridiron::common::{claim_ownership, drop_ownership_proposal, propose_new_owner};
+use gridiron::cosmwasm_ext::IntegerToDecimal;
+use gridiron::factory::PairType;
+use gridiron::pair::{
     ConfigResponse, FeeShareConfig, InstantiateMsg, StablePoolParams, StablePoolUpdateParams,
     DEFAULT_SLIPPAGE, MAX_ALLOWED_SLIPPAGE, MAX_FEE_SHARE_BPS, MIN_TRADE_SIZE,
 };
 
 use crate::migration::{migrate_config_from_v21, migrate_config_to_v210};
-use astroport::observation::{query_observation, PrecommitObservation, OBSERVATIONS_SIZE};
-use astroport::pair::{
+use gridiron::observation::{query_observation, PrecommitObservation, OBSERVATIONS_SIZE};
+use gridiron::pair::{
     Cw20HookMsg, ExecuteMsg, MigrateMsg, PoolResponse, QueryMsg, ReverseSimulationResponse,
     SimulationResponse, StablePoolConfig,
 };
-use astroport::querier::{query_factory_config, query_fee_info, query_supply};
-use astroport::token::InstantiateMsg as TokenInstantiateMsg;
-use astroport::DecimalCheckedOps;
-use astroport_circular_buffer::BufferManager;
+use gridiron::querier::{query_factory_config, query_fee_info, query_supply};
+use gridiron::token::InstantiateMsg as TokenInstantiateMsg;
+use gridiron::DecimalCheckedOps;
+use gridiron_circular_buffer::BufferManager;
 
 use crate::error::ContractError;
 use crate::math::{
@@ -52,7 +52,7 @@ use crate::utils::{
 };
 
 /// Contract name that is used for migration.
-const CONTRACT_NAME: &str = "astroport-pair-stable";
+const CONTRACT_NAME: &str = "gridiron-pair-stable";
 /// Contract version that is used for migration.
 const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
 /// A `reply` call code ID of sub-message.
@@ -128,7 +128,7 @@ pub fn instantiate(
                 marketing: None,
             },
             vec![],
-            String::from("Astroport LP token"),
+            String::from("Gridiron LP token"),
         )?,
         INSTANTIATE_TOKEN_REPLY_ID,
     );
@@ -1059,7 +1059,7 @@ pub fn migrate(mut deps: DepsMut, _env: Env, _msg: MigrateMsg) -> Result<Respons
     let contract_version = get_contract_version(deps.storage)?;
 
     match contract_version.contract.as_ref() {
-        "astroport-pair-stable" => match contract_version.version.as_ref() {
+        "gridiron-pair-stable" => match contract_version.version.as_ref() {
             "1.0.0-fix1" | "1.1.0" | "1.1.1" => {
                 migrate_config_to_v210(deps.branch())?;
             }

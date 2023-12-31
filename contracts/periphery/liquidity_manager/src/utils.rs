@@ -4,18 +4,18 @@ use cosmwasm_std::{
     from_slice, Addr, Decimal, Decimal256, Env, QuerierWrapper, StdError, StdResult, Uint128,
 };
 
-use astroport::asset::{Asset, Decimal256Ext, DecimalAsset, PairInfo, MINIMUM_LIQUIDITY_AMOUNT};
-use astroport::generator::QueryMsg as GeneratorQueryMsg;
-use astroport::liquidity_manager::CompatPairStableConfig;
-use astroport::querier::{query_supply, query_token_balance};
-use astroport::U256;
-use astroport_pair::{
+use gridiron::asset::{Asset, Decimal256Ext, DecimalAsset, PairInfo, MINIMUM_LIQUIDITY_AMOUNT};
+use gridiron::generator::QueryMsg as GeneratorQueryMsg;
+use gridiron::liquidity_manager::CompatPairStableConfig;
+use gridiron::querier::{query_supply, query_token_balance};
+use gridiron::U256;
+use gridiron_pair::{
     contract::assert_slippage_tolerance, error::ContractError as PairContractError,
 };
-use astroport_pair_stable::error::ContractError as StableContractError;
-use astroport_pair_stable::math::compute_d;
-use astroport_pair_stable::state::Config as PairStableConfig;
-use astroport_pair_stable::utils::compute_current_amp;
+use gridiron_pair_stable::error::ContractError as StableContractError;
+use gridiron_pair_stable::math::compute_d;
+use gridiron_pair_stable::state::Config as PairStableConfig;
+use gridiron_pair_stable::utils::compute_current_amp;
 
 pub fn query_lp_amount(
     querier: QuerierWrapper,
@@ -25,7 +25,7 @@ pub fn query_lp_amount(
     user: &String,
 ) -> StdResult<Uint128> {
     if staked_in_generator {
-        let maybe_generator = astroport_factory::state::CONFIG
+        let maybe_generator = gridiron_factory::state::CONFIG
             .query(&querier, factory_addr)?
             .generator_address;
         if let Some(generator_addr) = maybe_generator {
@@ -182,7 +182,7 @@ pub fn stableswap_provide_simulation(
         .iter()
         .cloned()
         .map(|(asset, pool)| {
-            let coin_precision = astroport_pair_stable::state::PRECISIONS
+            let coin_precision = gridiron_pair_stable::state::PRECISIONS
                 .query(
                     &querier,
                     config.pair_info.contract_addr.clone(),

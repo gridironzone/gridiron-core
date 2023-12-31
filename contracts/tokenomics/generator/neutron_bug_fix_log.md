@@ -2,9 +2,9 @@
 
   * chain_id: neutron-1
 
-  * the proposal's id that set up pools: 61 (https://app.astroport.fi/governance/proposal/61)
+  * the proposal's id that set up pools: 61 (https://app.gridiron.fi/governance/proposal/61)
 
-  * the pools receiving ASTRO and their alloc points:
+  * the pools receiving GRID and their alloc points:
 
         neutron1vw93hy8tm3xekpz9286428gesmmc8dqxmw8cujsh3fcu3rt0hvdqvlyrrl, 17739
         neutron1sx99fxy4lqx0nv3ys86tkdrch82qygxyec5c8dxsk9raz4at5zpq48m66c, 38986
@@ -13,7 +13,7 @@
 
   * the total alloc point: 100000
 
-  * the ASTRO amount distributed per block, set by the proposal: 1984587
+  * the GRID amount distributed per block, set by the proposal: 1984587
 
   * the satellite address: neutron1ffus553eet978k024lmssw0czsxwr97mggyv85lpcsdkft8v9ufsz3sa07
 
@@ -149,7 +149,7 @@
   So, roughly calculating, the time that we have to fix the bug is the least of the following:
 
     ```
-    insufficient_ASTRO / (vested amount per second * (total_alloc_point - alloc_point) / total_alloc_point) / minutes / hours / days
+    insufficient_GRID / (vested amount per second * (total_alloc_point - alloc_point) / total_alloc_point) / minutes / hours / days
 
     556426331173 / (661529 * (100000 - 38986) / 100000) / 60 / 60 / 24 = 15 days
 
@@ -192,7 +192,7 @@
 
     375311882818
 
-    last_global_index + (current_block - last_reward_block) * astro_per_block * alloc_point / total_alloc_point / virtual_supply
+    last_global_index + (current_block - last_reward_block) * grid_per_block * alloc_point / total_alloc_point / virtual_supply
 
     2.225500979661236903 + (1568424 - 1565741) * 1984587 * 38986 / 100000 / 375311882818 = 2.23103202448996594742
     ```
@@ -208,7 +208,7 @@
 
     601532655696
 
-    last_global_index + (current_block - last_reward_block) * astro_per_block * alloc_point / total_alloc_point / virtual_supply
+    last_global_index + (current_block - last_reward_block) * grid_per_block * alloc_point / total_alloc_point / virtual_supply
 
     1.481537641504742878 + (1568424 - 1568250) * 1984587 * 41521 / 100000 / 601532655696 = 1.48177599854607936786
     ```
@@ -236,7 +236,7 @@
 
   * calculate reward by blocks:
 
-    (current_block - proposal_block) * astro_per_block * alloc_point / total_alloc_point
+    (current_block - proposal_block) * grid_per_block * alloc_point / total_alloc_point
 
     ```
       (1568424 - 1437191) * 1984587 * 38986 / 100000 = 101536427187

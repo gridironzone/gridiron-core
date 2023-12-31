@@ -1,5 +1,5 @@
-use astroport::asset::PairInfo;
-use astroport::pair::QueryMsg;
+use gridiron::asset::PairInfo;
+use gridiron::pair::QueryMsg;
 use cosmwasm_std::{QuerierWrapper, StdResult};
 
 /// Returns information about a pair (using the [`PairInfo`] struct).

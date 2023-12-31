@@ -1,13 +1,13 @@
 use cosmwasm_std::{to_binary, Decimal};
 
-use astroport::asset::AssetInfo;
-use astroport::incentives::{RewardInfo, RewardType};
-use astroport_incentives::state::{PoolInfo, UserInfo};
+use gridiron::asset::AssetInfo;
+use gridiron::incentives::{RewardInfo, RewardType};
+use gridiron_incentives::state::{PoolInfo, UserInfo};
 
 fn main() {
     // This example shows us a rough estimations of gas costs for storage operations charged by Cosmos SDK.
     // It doesn't include costs charged within Wasm VM to serialize/deserialize data into Rust structures.
-    // Given that we allow 5 external rewards and 1 ASTRO reward per pool, we can estimate the following gas costs:
+    // Given that we allow 5 external rewards and 1 GRID reward per pool, we can estimate the following gas costs:
 
     let reward_info = RewardInfo {
         reward: RewardType::Ext {

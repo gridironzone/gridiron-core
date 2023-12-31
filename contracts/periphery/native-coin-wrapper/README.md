@@ -1,4 +1,4 @@
-# Astroport native coins wrapper contract
+# Gridiron native coins wrapper contract
 
 This contract allows you to wrap native coins into Cw20 tokens.
 

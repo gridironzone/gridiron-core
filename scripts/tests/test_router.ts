@@ -1,12 +1,12 @@
 import {strictEqual} from "assert"
-import {Astroport, Router} from "./lib.js";
+import {Gridiron, Router} from "./lib.js";
 import {
     NativeAsset,
     newClient,
     readArtifact,
     TokenAsset,
     NativeSwap,
-    AstroSwap
+    GridSwap
 } from "../helpers.js"
 import util from "util";
 import {Coin } from "@terra-money/terra.js";
@@ -15,40 +15,40 @@ async function main() {
     const cl = newClient()
     const network = readArtifact(cl.terra.config.chainID)
 
-    const astroport = new Astroport(cl.terra, cl.wallet);
+    const gridiron = new Gridiron(cl.terra, cl.wallet);
     console.log(`chainID: ${cl.terra.config.chainID} wallet: ${cl.wallet.key.accAddress}`)
 
-    const router = astroport.router(network.routerAddress);
+    const router = gridiron.router(network.routerAddress);
     console.log("router config: ", await router.queryConfig());
 
-    // 1. Provide ASTRO-UST liquidity
+    // 1. Provide GRID-UST liquidity
     const liquidity_amount = 10000000;
-    await provideLiquidity(network, astroport, cl.wallet.key.accAddress, network.poolAstroUst, [
+    await provideLiquidity(network, gridiron, cl.wallet.key.accAddress, network.poolGridUst, [
         new NativeAsset('uusd', liquidity_amount.toString()),
         new TokenAsset(network.tokenAddress, liquidity_amount.toString())
     ])
 
     // 2. Provide LUNA-UST liquidity
-    await provideLiquidity(network, astroport, cl.wallet.key.accAddress, network.poolLunaUst, [
+    await provideLiquidity(network, gridiron, cl.wallet.key.accAddress, network.poolLunaUst, [
         new NativeAsset('uluna', liquidity_amount.toString()),
         new NativeAsset('uusd', liquidity_amount.toString())
     ])
 
     // 3. Fetch the pool balances
-    let lpTokenAstroUst = await astroport.getTokenBalance(network.lpTokenAstroUst, cl.wallet.key.accAddress);
-    let lpTokenLunaUst = await astroport.getTokenBalance(network.lpTokenLunaUst, cl.wallet.key.accAddress);
+    let lpTokenGridUst = await gridiron.getTokenBalance(network.lpTokenGridUst, cl.wallet.key.accAddress);
+    let lpTokenLunaUst = await gridiron.getTokenBalance(network.lpTokenLunaUst, cl.wallet.key.accAddress);
 
-    console.log(`AstroUst balance: ${lpTokenAstroUst}`)
+    console.log(`GridUst balance: ${lpTokenGridUst}`)
     console.log(`LunaUst balance: ${lpTokenLunaUst}`)
 
     // 4. Assert minimum receive
     await assertMinimumReceive(router, cl.wallet.key.accAddress);
 
     // 5. Swap tokens
-    await swapFromCW20(router, network, astroport, cl.wallet.key.accAddress);
+    await swapFromCW20(router, network, gridiron, cl.wallet.key.accAddress);
 
     // 6. Swap native tokens
-    await swapFromNative(router, network, astroport, cl.wallet.key.accAddress);
+    await swapFromNative(router, network, gridiron, cl.wallet.key.accAddress);
 }
 
 async function assertMinimumReceive(router: Router, accAddress: string) {
@@ -63,13 +63,13 @@ async function assertMinimumReceive(router: Router, accAddress: string) {
     }
 }
 
-async function swapFromCW20(router: Router, network: any, astroport: Astroport, accAddress: string) {
+async function swapFromCW20(router: Router, network: any, gridiron: Gridiron, accAddress: string) {
     // to get an error, set the minimum amount to be greater than the exchange amount
     const swap_amount = 1000;
     let min_receive = swap_amount + 1;
     try {
         let resp = await router.swapOperationsCW20(network.tokenAddress, swap_amount.toString(), min_receive.toString(),
-            [new AstroSwap(new TokenAsset(network.tokenAddress), new NativeAsset("uusd"))]
+            [new GridSwap(new TokenAsset(network.tokenAddress), new NativeAsset("uusd"))]
         );
         console.log("swap: ", util.inspect(resp, false, null, true));
     } catch (e: any) {
@@ -77,17 +77,17 @@ async function swapFromCW20(router: Router, network: any, astroport: Astroport, 
         console.log("swapOperationsCW20 data: ", e.response.data);
     }
 
-    let astro_balance_before_swap = await astroport.getTokenBalance(network.tokenAddress, accAddress);
-    console.log(`astro balance before swap: ${astro_balance_before_swap}`)
+    let grid_balance_before_swap = await gridiron.getTokenBalance(network.tokenAddress, accAddress);
+    console.log(`grid balance before swap: ${grid_balance_before_swap}`)
 
-    let uluna_balance_before_swap = await astroport.getNativeBalance(accAddress, "uluna");
+    let uluna_balance_before_swap = await gridiron.getNativeBalance(accAddress, "uluna");
     console.log(`uluna balance before swap: ${uluna_balance_before_swap}`)
 
     // swap with the correct parameters
     try {
         let resp = await router.swapOperationsCW20(network.tokenAddress, swap_amount.toString(), "1",
             [
-                new AstroSwap(new TokenAsset(network.tokenAddress), new NativeAsset("uusd")),
+                new GridSwap(new TokenAsset(network.tokenAddress), new NativeAsset("uusd")),
                 new NativeSwap("uusd", "uluna"),
             ]
         );
@@ -97,32 +97,32 @@ async function swapFromCW20(router: Router, network: any, astroport: Astroport, 
         console.log("swapOperationsCW20 data: ", e.response.data);
     }
 
-    let astro_balance_after_swap = await astroport.getTokenBalance(network.tokenAddress, accAddress);
-    console.log(`astro balance after swap: ${astro_balance_after_swap}`);
-    strictEqual(astro_balance_before_swap, astro_balance_after_swap + swap_amount);
+    let grid_balance_after_swap = await gridiron.getTokenBalance(network.tokenAddress, accAddress);
+    console.log(`grid balance after swap: ${grid_balance_after_swap}`);
+    strictEqual(grid_balance_before_swap, grid_balance_after_swap + swap_amount);
 
-    let swapRate = await astroport.terra.market.swapRate(new Coin("uusd", swap_amount), "uluna");
+    let swapRate = await gridiron.terra.market.swapRate(new Coin("uusd", swap_amount), "uluna");
     console.log("swapRate: ", swapRate);
 
-    let uluna_balance_after_swap = await astroport.getNativeBalance(accAddress, "uluna");
+    let uluna_balance_after_swap = await gridiron.getNativeBalance(accAddress, "uluna");
     console.log(`uluna balance after swap: ${uluna_balance_after_swap}`);
 
     strictEqual(uluna_balance_before_swap?.amount.toNumber(),
         uluna_balance_after_swap?.add(swapRate).amount.toNumber());
 }
 
-async function swapFromNative(router: Router, network: any, astroport: Astroport, accAddress: string) {
+async function swapFromNative(router: Router, network: any, gridiron: Gridiron, accAddress: string) {
     const swap_amount = 1000;
-    let uluna_balance_before_swap = await astroport.getNativeBalance(accAddress, "uluna");
+    let uluna_balance_before_swap = await gridiron.getNativeBalance(accAddress, "uluna");
     console.log(`uluna balance before swap: ${uluna_balance_before_swap}`);
 
-    let astro_balance_before_swap = await astroport.getTokenBalance(network.tokenAddress, accAddress);
-    console.log(`astroBalance before swap: ${astro_balance_before_swap}`);
+    let grid_balance_before_swap = await gridiron.getTokenBalance(network.tokenAddress, accAddress);
+    console.log(`gridBalance before swap: ${grid_balance_before_swap}`);
 
     try {
         let resp = await router.swapOperations([
             new NativeSwap("uluna", "uusd"),
-            new AstroSwap(new NativeAsset("uusd"), new TokenAsset(network.tokenAddress)),],
+            new GridSwap(new NativeAsset("uusd"), new TokenAsset(network.tokenAddress)),],
             new Coin("uluna", swap_amount)
         );
         console.log(util.inspect(resp, false, null, true))
@@ -131,32 +131,32 @@ async function swapFromNative(router: Router, network: any, astroport: Astroport
         console.log("swapOperations data: ", e.response.data);
     }
 
-    let uluna_balance_after_swap = await astroport.getNativeBalance(accAddress, "uluna");
+    let uluna_balance_after_swap = await gridiron.getNativeBalance(accAddress, "uluna");
     console.log(`uluna balance after swap: ${uluna_balance_after_swap}`);
     strictEqual(uluna_balance_before_swap?.amount.toNumber(), uluna_balance_after_swap?.sub(swap_amount).amount.toNumber());
 
-    let swapRate = await astroport.terra.market.swapRate(new Coin("uluna", swap_amount), "uusd");
+    let swapRate = await gridiron.terra.market.swapRate(new Coin("uluna", swap_amount), "uusd");
     console.log("swapRate: ", swapRate);
 
-    let astro_balance_after_swap = await astroport.getTokenBalance(network.tokenAddress, accAddress);
-    console.log(`astro balance after swap: ${astro_balance_after_swap}`);
+    let grid_balance_after_swap = await gridiron.getTokenBalance(network.tokenAddress, accAddress);
+    console.log(`grid balance after swap: ${grid_balance_after_swap}`);
 
-    strictEqual(astro_balance_before_swap, astro_balance_after_swap + swapRate.amount.toNumber());
+    strictEqual(grid_balance_before_swap, grid_balance_after_swap + swapRate.amount.toNumber());
 }
 
-async function provideLiquidity(network: any, astroport: Astroport, accAddress: string, poolAddress: string, assets: (NativeAsset|TokenAsset)[]) {
-    const pool = astroport.pair(poolAddress);
+async function provideLiquidity(network: any, gridiron: Gridiron, accAddress: string, poolAddress: string, assets: (NativeAsset|TokenAsset)[]) {
+    const pool = gridiron.pair(poolAddress);
     let pair_info = await pool.queryPair();
     console.log(util.inspect(pair_info, false, null, true));
 
     // Provide liquidity to swap
     await pool.provideLiquidity(assets[0], assets[1])
 
-    let astro_balance = await astroport.getTokenBalance(network.tokenAddress, accAddress);
-    let xastro_balance = await astroport.getTokenBalance(network.xastroAddress, accAddress);
+    let grid_balance = await gridiron.getTokenBalance(network.tokenAddress, accAddress);
+    let xgrid_balance = await gridiron.getTokenBalance(network.xgridAddress, accAddress);
 
-    console.log(`ASTRO balance: ${astro_balance}`)
-    console.log(`xASTRO balance: ${xastro_balance}`)
+    console.log(`GRID balance: ${grid_balance}`)
+    console.log(`xGRID balance: ${xgrid_balance}`)
 }
 
 main().catch(console.log)

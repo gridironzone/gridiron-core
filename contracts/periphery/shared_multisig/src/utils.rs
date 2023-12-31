@@ -1,12 +1,12 @@
 use crate::ContractError;
-use astroport::asset::{Asset, AssetInfo, PairInfo};
-use astroport::pair::ExecuteMsg as PairExecuteMsg;
-use astroport::pair::{Cw20HookMsg as PairCw20HookMsg, QueryMsg as PairQueryMsg};
+use gridiron::asset::{Asset, AssetInfo, PairInfo};
+use gridiron::pair::ExecuteMsg as PairExecuteMsg;
+use gridiron::pair::{Cw20HookMsg as PairCw20HookMsg, QueryMsg as PairQueryMsg};
 
-use astroport::factory::PairType;
-use astroport::generator::QueryMsg as GeneratorQueryMsg;
-use astroport::querier::{query_balance, query_pair_info, query_token_balance};
-use astroport::shared_multisig::{Config, PoolType, ProvideParams};
+use gridiron::factory::PairType;
+use gridiron::generator::QueryMsg as GeneratorQueryMsg;
+use gridiron::querier::{query_balance, query_pair_info, query_token_balance};
+use gridiron::shared_multisig::{Config, PoolType, ProvideParams};
 use cosmwasm_std::{
     attr, to_binary, Addr, Attribute, CosmosMsg, Decimal, QuerierWrapper, StdError, StdResult,
     Uint128, WasmMsg,

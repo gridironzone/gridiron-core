@@ -1,7 +1,7 @@
 [package]
-name = "astroport-maker"
+name = "gridiron-maker"
 version = "1.3.1"
-authors = ["Astroport"]
+authors = ["Gridiron"]
 edition = "2021"
 
 exclude = [
@@ -25,17 +25,17 @@ cosmwasm-std = "1.1"
 cw2 = "0.15"
 cw20 = "0.15"
 cw-storage-plus = "0.15"
-astroport = { path = "../../../packages/astroport", version = "3" }
+gridiron = { path = "../../../packages/gridiron", version = "3" }
 thiserror = { version = "1.0" }
 cosmwasm-schema = "1.1"
-astro-satellite-package = { git = "https://github.com/astroport-fi/astroport_ibc", version = "0.1" }
+grid-satellite-package = { git = "https://github.com/gridironzone/gridiron_ibc", version = "0.1" }
 
 [dev-dependencies]
-astroport-token = { path = "../../token" }
-astroport-factory = { path = "../../factory" }
-astroport-pair = { path = "../../pair" }
+gridiron-token = { path = "../../token" }
+gridiron-factory = { path = "../../factory" }
+gridiron-pair = { path = "../../pair" }
 cw-multi-test = "0.15"
-astroport-pair-stable = { path = "../../pair_stable" }
-astroport-governance = { git = "https://github.com/astroport-fi/astroport-governance" }
-astroport-escrow-fee-distributor = { git = "https://github.com/astroport-fi/astroport-governance" }
-astroport-native-coin-registry = { path = "../../periphery/native_coin_registry" }
+gridiron-pair-stable = { path = "../../pair_stable" }
+gridiron-governance = { git = "https://github.com/gridironzone/gridiron-governance" }
+gridiron-escrow-fee-distributor = { git = "https://github.com/gridironzone/gridiron-governance" }
+gridiron-native-coin-registry = { path = "../../periphery/native_coin_registry" }

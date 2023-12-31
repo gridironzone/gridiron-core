@@ -1,7 +1,7 @@
-# Astroport Pair Bonded Package
+# Gridiron Pair Bonded Package
 
-Pair bonded package gives a trait that allows implementation pairs with bonded assets(e.g. ASTRO-xASTRO, MARS-xMARS, and other tokens that are correlated but have an increasing exchange rate compared to the other token).
-Use [Pair ASTRO-xASTRO](/contracts/pair_astro_xastro/) as example of template implementation.
+Pair bonded package gives a trait that allows implementation pairs with bonded assets(e.g. GRID-xGRID, MARS-xMARS, and other tokens that are correlated but have an increasing exchange rate compared to the other token).
+Use [Pair GRID-xGRID](/contracts/pair_grid_xgrid/) as example of template implementation.
 
 ## InstantiateMsg
 

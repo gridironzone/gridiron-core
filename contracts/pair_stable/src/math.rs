@@ -1,6 +1,6 @@
 use cosmwasm_std::{Decimal256, StdError, StdResult, Uint128, Uint64};
 
-use astroport::asset::Decimal256Ext;
+use gridiron::asset::Decimal256Ext;
 
 /// The maximum number of calculation steps for Newton's method.
 const ITERATIONS: u8 = 64;

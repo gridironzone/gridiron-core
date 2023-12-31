@@ -1,6 +1,6 @@
-# Astroport Generator
+# Gridiron Generator
 
-The Generator contract allocates token rewards (ASTRO) for various LP tokens and distributes them pro-rata to LP stakers. The Generator supports proxy staking via 3rd party contracts that offer a second reward besides ASTRO token emissions.
+The Generator contract allocates token rewards (GRID) for various LP tokens and distributes them pro-rata to LP stakers. The Generator supports proxy staking via 3rd party contracts that offer a second reward besides GRID token emissions.
 
 ---
 
@@ -11,7 +11,7 @@ Initializes the contract with required addresses and contracts used for reward d
 ```json
 {
   "owner": "terra...",
-  "astro_token": "terra...",
+  "grid_token": "terra...",
   "tokens_per_block": "123",
   "start_block": "123",
   "vesting_contract": "terra..."
@@ -183,7 +183,7 @@ Sends orphaned rewards (left behind by emergency withdraws) to another address. 
 
 ### `set_tokens_per_block`
 
-Sets the total amount of ASTRO distributed per block among all active generators. Only the owner can execute this.
+Sets the total amount of GRID distributed per block among all active generators. Only the owner can execute this.
 
 ```json
 {
@@ -319,7 +319,7 @@ Returns the amount of a specific LP token that a user currently has staked in th
 
 ### `pending_token`
 
-Returns the amount of pending ASTRO and 3rd party token rewards that can be claimed by a user that staked a specific LP token.
+Returns the amount of pending GRID and 3rd party token rewards that can be claimed by a user that staked a specific LP token.
 
 ```json
 {
@@ -378,7 +378,7 @@ Returns pool information for the specified LP token.
 
 ### `simulate_future_reward`
 
-Returns the amount of ASTRO that will be distributed up to a future block and for a specific LP token.
+Returns the amount of GRID that will be distributed up to a future block and for a specific LP token.
 
 ```json
 {

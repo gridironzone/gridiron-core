@@ -2,8 +2,8 @@
 use cosmwasm_std::entry_point;
 use cosmwasm_std::{DepsMut, Env, MessageInfo, Response, Uint128};
 
-use astroport::asset::{addr_opt_validate, validate_native_denom};
-use astroport::incentives::{Config, InstantiateMsg};
+use gridiron::asset::{addr_opt_validate, validate_native_denom};
+use gridiron::incentives::{Config, InstantiateMsg};
 
 use crate::error::ContractError;
 use crate::state::{ACTIVE_POOLS, CONFIG};
@@ -20,7 +20,7 @@ pub fn instantiate(
     _info: MessageInfo,
     msg: InstantiateMsg,
 ) -> Result<Response, ContractError> {
-    msg.astro_token.check(deps.api)?;
+    msg.grid_token.check(deps.api)?;
 
     cw2::set_contract_version(deps.storage, CONTRACT_NAME, CONTRACT_VERSION)?;
 
@@ -35,8 +35,8 @@ pub fn instantiate(
             owner: deps.api.addr_validate(&msg.owner)?,
             factory: deps.api.addr_validate(&msg.factory)?,
             generator_controller: None,
-            astro_token: msg.astro_token,
-            astro_per_second: Uint128::zero(),
+            grid_token: msg.grid_token,
+            grid_per_second: Uint128::zero(),
             total_alloc_points: Uint128::zero(),
             vesting_contract: deps.api.addr_validate(&msg.vesting_contract)?,
             guardian: addr_opt_validate(deps.api, &msg.guardian)?,

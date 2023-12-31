@@ -1,9 +1,9 @@
 use cosmwasm_std::{ConversionOverflowError, Decimal256RangeExceeded, OverflowError, StdError};
 use thiserror::Error;
 
-use astroport::injective_ext::InjMathError;
-use astroport_circular_buffer::error::BufferError;
-use astroport_pcl_common::error::PclError;
+use gridiron::injective_ext::InjMathError;
+use gridiron_circular_buffer::error::BufferError;
+use gridiron_pcl_common::error::PclError;
 
 use crate::error::ContractError;
 

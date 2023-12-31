@@ -1,8 +1,8 @@
-use astroport::asset::{AssetInfo, PairInfo};
-use astroport::common::OwnershipProposal;
-use astroport::observation::Observation;
-use astroport::pair::FeeShareConfig;
-use astroport_circular_buffer::CircularBuffer;
+use gridiron::asset::{AssetInfo, PairInfo};
+use gridiron::common::OwnershipProposal;
+use gridiron::observation::Observation;
+use gridiron::pair::FeeShareConfig;
+use gridiron_circular_buffer::CircularBuffer;
 use cosmwasm_schema::cw_serde;
 use cosmwasm_std::{Addr, DepsMut, StdResult, Storage};
 use cw_storage_plus::{Item, Map};

@@ -1,12 +1,12 @@
 use cosmwasm_std::{Addr, Decimal, Env, QuerierWrapper, StdResult, Storage, Uint128};
 
-use astroport::asset::{Asset, DecimalAsset};
-use astroport::observation::{safe_sma_buffer_not_full, safe_sma_calculation};
-use astroport::observation::{Observation, PrecommitObservation};
-use astroport::querier::query_supply;
-use astroport_circular_buffer::error::BufferResult;
-use astroport_circular_buffer::BufferManager;
-use astroport_pcl_common::state::{Config, Precisions};
+use gridiron::asset::{Asset, DecimalAsset};
+use gridiron::observation::{safe_sma_buffer_not_full, safe_sma_calculation};
+use gridiron::observation::{Observation, PrecommitObservation};
+use gridiron::querier::query_supply;
+use gridiron_circular_buffer::error::BufferResult;
+use gridiron_circular_buffer::BufferManager;
+use gridiron_pcl_common::state::{Config, Precisions};
 
 use crate::error::ContractError;
 use crate::state::OBSERVATIONS;

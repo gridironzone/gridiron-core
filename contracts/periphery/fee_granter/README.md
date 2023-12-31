@@ -1,1 +1,1 @@
-# Astroport Fee Granter contract
+# Gridiron Fee Granter contract

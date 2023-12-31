@@ -1,5 +1,5 @@
 use crate::state::{CONFIG, PAIR_CONFIGS};
-use astroport::factory::{Config, PairConfig, PairType};
+use gridiron::factory::{Config, PairConfig, PairType};
 use cosmwasm_schema::cw_serde;
 use cosmwasm_std::{Addr, DepsMut, StdError, StdResult, Storage};
 use cw_storage_plus::{Item, Map};

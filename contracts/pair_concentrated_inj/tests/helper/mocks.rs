@@ -7,7 +7,7 @@ use std::fmt::Debug;
 use std::str::FromStr;
 
 use anyhow::{anyhow, Result as AnyResult};
-use astroport_mocks::cw_multi_test::{
+use gridiron_mocks::cw_multi_test::{
     App, AppResponse, BankKeeper, CosmosRouter, DistributionKeeper, FailingModule, Module, Router,
     StakeKeeper, WasmKeeper,
 };
@@ -32,11 +32,11 @@ use injective_math::FPDecimal;
 use injective_testing::{generate_inj_address, InjectiveAddressGenerator};
 use itertools::Itertools;
 
-use astroport::cosmwasm_ext::ConvertInto;
-use astroport_factory::error::ContractError;
-use astroport_factory::state::{PAIRS, TMP_PAIR_INFO};
-use astroport_pair_concentrated_injective::orderbook::msg::SudoMsg;
-use astroport_pair_concentrated_injective::orderbook::utils::{calc_hash, get_subaccount};
+use gridiron::cosmwasm_ext::ConvertInto;
+use gridiron_factory::error::ContractError;
+use gridiron_factory::state::{PAIRS, TMP_PAIR_INFO};
+use gridiron_pair_concentrated_injective::orderbook::msg::SudoMsg;
+use gridiron_pair_concentrated_injective::orderbook::utils::{calc_hash, get_subaccount};
 
 use crate::helper::f64_to_dec;
 
@@ -76,7 +76,7 @@ pub fn cl_pair_reply<T, C>(
     deps: DepsMut<C>,
     _env: Env,
     msg: Reply,
-) -> Result<Response<T>, astroport_pair_concentrated::error::ContractError>
+) -> Result<Response<T>, gridiron_pair_concentrated::error::ContractError>
 where
     C: CustomQuery,
     T: CustomMsg,
@@ -89,21 +89,21 @@ where
                     data: Some(data), ..
                 }),
         } => {
-            let mut config = astroport_pair_concentrated::state::CONFIG.load(deps.storage)?;
+            let mut config = gridiron_pair_concentrated::state::CONFIG.load(deps.storage)?;
 
             if config.pair_info.liquidity_token != Addr::unchecked("") {
-                return Err(astroport_pair_concentrated::error::ContractError::Unauthorized {});
+                return Err(gridiron_pair_concentrated::error::ContractError::Unauthorized {});
             }
 
             let init_response = parse_instantiate_response_data(data.as_slice())
                 .map_err(|e| StdError::generic_err(format!("{e}")))?;
             config.pair_info.liquidity_token =
                 deps.api.addr_validate(&init_response.contract_address)?;
-            astroport_pair_concentrated::state::CONFIG.save(deps.storage, &config)?;
+            gridiron_pair_concentrated::state::CONFIG.save(deps.storage, &config)?;
             Ok(Response::new()
                 .add_attribute("liquidity_token_addr", config.pair_info.liquidity_token))
         }
-        _ => Err(astroport_pair_concentrated::error::ContractError::FailedToParseReply {}),
+        _ => Err(gridiron_pair_concentrated::error::ContractError::FailedToParseReply {}),
     }
 }
 
@@ -150,7 +150,7 @@ where
         &mut dyn Storage,
     ),
 {
-    astroport_mocks::cw_multi_test::AppBuilder::new()
+    gridiron_mocks::cw_multi_test::AppBuilder::new()
         .with_custom(InjMockModule::new())
         .with_wasm::<InjMockModule, WasmKeeper<InjectiveMsgWrapper, InjectiveQueryWrapper>>(
             WasmKeeper::new_with_custom_address_generator(InjectiveAddressGenerator()),

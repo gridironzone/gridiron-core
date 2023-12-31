@@ -1,9 +1,9 @@
 [package]
-name = "astroport-token"
+name = "gridiron-token"
 version = "1.1.1"
-authors = ["Astroport"]
+authors = ["Gridiron"]
 edition = "2021"
-description = "Expanded implementation of a CosmWasm-20 compliant token for the Astroport ASTRO token"
+description = "Expanded implementation of a CosmWasm-20 compliant token for the Gridiron GRID token"
 license = "MIT"
 repository = "https://github.com/CosmWasm/cosmwasm-plus"
 homepage = "https://cosmwasm.com"
@@ -18,7 +18,7 @@ backtraces = ["cosmwasm-std/backtraces"]
 library = []
 
 [dependencies]
-astroport = { path = "../../packages/astroport", version = "3" }
+gridiron = { path = "../../packages/gridiron", version = "3" }
 cw2 = "0.15"
 cw20 = "0.15"
 cw20-base = { version = "0.15", features = ["library"] }

@@ -3,8 +3,8 @@ use cosmwasm_std::{from_binary, Addr, Decimal, Uint128, Uint64};
 
 use crate::contract::{execute, instantiate, query};
 use crate::state::CONFIG;
-use astroport::asset::{native_asset_info, token_asset_info};
-use astroport::maker::{Config, ConfigResponse, ExecuteMsg, InstantiateMsg, QueryMsg};
+use gridiron::asset::{native_asset_info, token_asset_info};
+use gridiron::maker::{Config, ConfigResponse, ExecuteMsg, InstantiateMsg, QueryMsg};
 use std::str::FromStr;
 
 #[test]
@@ -18,7 +18,7 @@ fn proper_initialization() {
     let staking = Addr::unchecked("staking");
     let governance_contract = Addr::unchecked("governance");
     let governance_percent = Uint64::new(50);
-    let astro_token_contract = Addr::unchecked("astro-token");
+    let grid_token_contract = Addr::unchecked("grid-token");
 
     let instantiate_msg = InstantiateMsg {
         owner: owner.to_string(),
@@ -26,7 +26,7 @@ fn proper_initialization() {
         staking_contract: Some(staking.to_string()),
         governance_contract: Option::from(governance_contract.to_string()),
         governance_percent: Option::from(governance_percent),
-        astro_token: token_asset_info(astro_token_contract.clone()),
+        grid_token: token_asset_info(grid_token_contract.clone()),
         default_bridge: Some(native_asset_info("uluna".to_string())),
         max_spread: None,
         second_receiver_params: None,
@@ -44,13 +44,13 @@ fn proper_initialization() {
             default_bridge: Some(native_asset_info("uluna".to_string())),
             governance_contract: Option::from(governance_contract),
             governance_percent,
-            astro_token: token_asset_info(astro_token_contract),
+            grid_token: token_asset_info(grid_token_contract),
             max_spread: Decimal::from_str("0.05").unwrap(),
             rewards_enabled: false,
             pre_upgrade_blocks: 0,
             last_distribution_block: 0,
             remainder_reward: Uint128::zero(),
-            pre_upgrade_astro_amount: Uint128::zero(),
+            pre_upgrade_grid_amount: Uint128::zero(),
             second_receiver_cfg: None
         }
     )
@@ -66,7 +66,7 @@ fn update_owner() {
     let staking = Addr::unchecked("staking");
     let governance_contract = Addr::unchecked("governance");
     let governance_percent = Uint64::new(50);
-    let astro_token_contract = Addr::unchecked("astro-token");
+    let grid_token_contract = Addr::unchecked("grid-token");
 
     let msg = InstantiateMsg {
         owner: owner.to_string(),
@@ -74,7 +74,7 @@ fn update_owner() {
         staking_contract: Some(staking.to_string()),
         governance_contract: Option::from(governance_contract.to_string()),
         governance_percent: Option::from(governance_percent),
-        astro_token: token_asset_info(astro_token_contract),
+        grid_token: token_asset_info(grid_token_contract),
         default_bridge: Some(native_asset_info("uluna".to_string())),
         max_spread: None,
         second_receiver_params: None,

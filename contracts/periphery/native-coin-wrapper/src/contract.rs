@@ -11,11 +11,11 @@ use cw_utils::{must_pay, parse_instantiate_response_data};
 
 use crate::error::ContractError;
 use crate::state::CONFIG;
-use astroport::native_coin_wrapper::{Config, Cw20HookMsg, ExecuteMsg, InstantiateMsg, QueryMsg};
-use astroport::token::InstantiateMsg as TokenInstantiateMsg;
+use gridiron::native_coin_wrapper::{Config, Cw20HookMsg, ExecuteMsg, InstantiateMsg, QueryMsg};
+use gridiron::token::InstantiateMsg as TokenInstantiateMsg;
 
 // version info for migration info
-const CONTRACT_NAME: &str = "astroport-native-coin-wrapper";
+const CONTRACT_NAME: &str = "gridiron-native-coin-wrapper";
 const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
 
 /// A `reply` call code ID used for sub-messages.
@@ -60,7 +60,7 @@ pub fn instantiate(
                 marketing: None,
             })?,
             funds: vec![],
-            label: format!("Astroport {}", token_name),
+            label: format!("Gridiron {}", token_name),
         }
         .into(),
         id: INSTANTIATE_TOKEN_REPLY_ID,

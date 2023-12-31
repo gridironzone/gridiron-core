@@ -25,7 +25,7 @@ async function uploadAndInitOracle(terra: LCDClient, wallet: any, pair: Pair, ne
             terra,
             wallet,
             chainConfigs.oracle.admin,
-            join(ARTIFACTS_PATH, 'astroport_oracle.wasm'),
+            join(ARTIFACTS_PATH, 'gridiron_oracle.wasm'),
             chainConfigs.oracle.initMsg,
             chainConfigs.oracle.label)
 
@@ -113,7 +113,7 @@ async function main() {
     console.log('network:', network)
 
     if (!network.tokenAddress) {
-        throw new Error("Token address is not set, create ASTRO token first")
+        throw new Error("Token address is not set, create GRID token first")
     }
 
     if (!network.factoryAddress) {

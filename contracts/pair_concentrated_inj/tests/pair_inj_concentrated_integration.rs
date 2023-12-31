@@ -8,18 +8,18 @@ use injective_cosmwasm::InjectiveQuerier;
 use injective_testing::generate_inj_address;
 use itertools::{max, Itertools};
 
-use astroport::asset::{native_asset_info, AssetInfoExt, MINIMUM_LIQUIDITY_AMOUNT};
-use astroport::cosmwasm_ext::{AbsDiff, IntegerToDecimal};
-use astroport::factory::PairType;
-use astroport::pair_concentrated::{
+use gridiron::asset::{native_asset_info, AssetInfoExt, MINIMUM_LIQUIDITY_AMOUNT};
+use gridiron::cosmwasm_ext::{AbsDiff, IntegerToDecimal};
+use gridiron::factory::PairType;
+use gridiron::pair_concentrated::{
     ConcentratedPoolParams, ConcentratedPoolUpdateParams, PromoteParams, UpdatePoolParams,
 };
-use astroport::pair_concentrated_inj::{ExecuteMsg, MigrateMsg, OrderbookConfig};
-use astroport_mocks::cw_multi_test::Executor;
-use astroport_pair_concentrated_injective::error::ContractError;
-use astroport_pair_concentrated_injective::orderbook::consts::MIN_TRADES_TO_AVG_LIMITS;
-use astroport_pcl_common::consts::{AMP_MAX, AMP_MIN, MA_HALF_TIME_LIMITS};
-use astroport_pcl_common::error::PclError;
+use gridiron::pair_concentrated_inj::{ExecuteMsg, MigrateMsg, OrderbookConfig};
+use gridiron_mocks::cw_multi_test::Executor;
+use gridiron_pair_concentrated_injective::error::ContractError;
+use gridiron_pair_concentrated_injective::orderbook::consts::MIN_TRADES_TO_AVG_LIMITS;
+use gridiron_pcl_common::consts::{AMP_MAX, AMP_MIN, MA_HALF_TIME_LIMITS};
+use gridiron_pcl_common::error::PclError;
 
 use crate::helper::mocks::{mock_inj_app, InjAppExt, MockFundingMode};
 use crate::helper::{
@@ -40,7 +40,7 @@ fn check_wrong_initialization() {
 
     let err = Helper::new(
         &owner,
-        vec![TestCoin::native("uluna"), TestCoin::native("ASTRO")],
+        vec![TestCoin::native("uluna"), TestCoin::native("GRID")],
         wrong_params,
         true,
     )
@@ -60,7 +60,7 @@ fn check_wrong_initialization() {
 
     let err = Helper::new(
         &owner,
-        vec![TestCoin::native("uluna"), TestCoin::native("ASTRO")],
+        vec![TestCoin::native("uluna"), TestCoin::native("GRID")],
         wrong_params,
         true,
     )
@@ -80,7 +80,7 @@ fn check_wrong_initialization() {
 
     let err = Helper::new(
         &owner,
-        vec![TestCoin::native("uluna"), TestCoin::native("ASTRO")],
+        vec![TestCoin::native("uluna"), TestCoin::native("GRID")],
         wrong_params,
         true,
     )
@@ -94,7 +94,7 @@ fn check_wrong_initialization() {
     // check instantiation with valid params
     Helper::new(
         &owner,
-        vec![TestCoin::native("uluna"), TestCoin::native("ASTRO")],
+        vec![TestCoin::native("uluna"), TestCoin::native("GRID")],
         params,
         true,
     )
@@ -812,7 +812,7 @@ fn update_owner() {
 #[test]
 fn check_orderbook_integration() {
     let owner = generate_inj_address();
-    let test_coins = vec![TestCoin::native("inj"), TestCoin::native("astro")];
+    let test_coins = vec![TestCoin::native("inj"), TestCoin::native("grid")];
 
     let params = ConcentratedPoolParams {
         price_scale: f64_to_dec(0.5),
@@ -828,7 +828,7 @@ fn check_orderbook_integration() {
     );
 
     let mut app = mock_inj_app(|_, _, _| {});
-    app.create_market("inj", "astro").unwrap();
+    app.create_market("inj", "grid").unwrap();
     let mut helper =
         Helper::new_with_app(app, &owner, test_coins.clone(), params, true, None).unwrap();
 
@@ -902,26 +902,26 @@ fn check_orderbook_integration() {
         .deposits
         .total_balance
         .into();
-    let astro_deposit: u128 = inj_querier
-        .query_subaccount_deposit(&ob_config.subaccount, &"astro".to_string())
+    let grid_deposit: u128 = inj_querier
+        .query_subaccount_deposit(&ob_config.subaccount, &"grid".to_string())
         .unwrap()
         .deposits
         .total_balance
         .into();
     assert_eq!(inj_deposit, 2489_981000000000000000);
-    assert_eq!(astro_deposit, 4979_051501);
+    assert_eq!(grid_deposit, 4979_051501);
 
     let inj_pool = helper.coin_balance(&test_coins[0], &helper.pair_addr);
-    let astro_pool = helper.coin_balance(&test_coins[1], &helper.pair_addr);
+    let grid_pool = helper.coin_balance(&test_coins[1], &helper.pair_addr);
 
     assert_eq!(inj_pool, 497542_933893233248565365);
-    assert_eq!(astro_pool, 995085_325039);
+    assert_eq!(grid_pool, 995085_325039);
 
     // total liquidity is close to initial provided liquidity
     let total_inj = inj_deposit + inj_pool;
-    let total_astro = astro_deposit + astro_pool;
+    let total_grid = grid_deposit + grid_pool;
     assert_eq!(total_inj, 500032_914893233248565365);
-    assert_eq!(total_astro, 100006_4376540);
+    assert_eq!(total_grid, 100006_4376540);
 
     let random_user = generate_inj_address();
 
@@ -954,27 +954,27 @@ fn check_orderbook_integration() {
         .deposits
         .total_balance
         .into();
-    let astro_deposit: u128 = inj_querier
-        .query_subaccount_deposit(&ob_config.subaccount, &"astro".to_string())
+    let grid_deposit: u128 = inj_querier
+        .query_subaccount_deposit(&ob_config.subaccount, &"grid".to_string())
         .unwrap()
         .deposits
         .total_balance
         .into();
     assert_eq!(inj_deposit, 0);
-    assert_eq!(astro_deposit, 0);
+    assert_eq!(grid_deposit, 0);
 
     let inj_pool = helper.coin_balance(&test_coins[0], &helper.pair_addr);
-    let astro_pool = helper.coin_balance(&test_coins[1], &helper.pair_addr);
+    let grid_pool = helper.coin_balance(&test_coins[1], &helper.pair_addr);
 
     assert_eq!(inj_pool, total_inj);
-    assert_eq!(astro_pool, total_astro);
+    assert_eq!(grid_pool, total_grid);
 }
 
 #[test]
 fn check_last_withdraw() {
     let owner = generate_inj_address();
 
-    let test_coins = vec![TestCoin::native("inj"), TestCoin::native("astro")];
+    let test_coins = vec![TestCoin::native("inj"), TestCoin::native("grid")];
 
     let params = ConcentratedPoolParams {
         price_scale: f64_to_dec(0.5),
@@ -1031,7 +1031,7 @@ fn check_last_withdraw() {
 fn check_deactivate_orderbook() {
     let owner = generate_inj_address();
 
-    let test_coins = vec![TestCoin::native("inj"), TestCoin::native("astro")];
+    let test_coins = vec![TestCoin::native("inj"), TestCoin::native("grid")];
 
     let params = ConcentratedPoolParams {
         price_scale: f64_to_dec(0.5),
@@ -1082,20 +1082,20 @@ fn check_deactivate_orderbook() {
         .deposits
         .total_balance
         .into();
-    let astro_deposit: u128 = inj_querier
-        .query_subaccount_deposit(&ob_config.subaccount, &"astro".to_string())
+    let grid_deposit: u128 = inj_querier
+        .query_subaccount_deposit(&ob_config.subaccount, &"grid".to_string())
         .unwrap()
         .deposits
         .total_balance
         .into();
     let inj_pool = helper.coin_balance(&test_coins[0], &helper.pair_addr);
-    let astro_pool = helper.coin_balance(&test_coins[1], &helper.pair_addr);
+    let grid_pool = helper.coin_balance(&test_coins[1], &helper.pair_addr);
 
     // total liquidity is close to initial provided liquidity
     let mut total_inj = inj_deposit + inj_pool;
-    let mut total_astro = astro_deposit + astro_pool;
+    let mut total_grid = grid_deposit + grid_pool;
     assert_eq!(total_inj, 500032_914893233248565365);
-    assert_eq!(total_astro, 100006_4376540);
+    assert_eq!(total_grid, 100006_4376540);
 
     let random_user = generate_inj_address();
 
@@ -1129,7 +1129,7 @@ fn check_deactivate_orderbook() {
     assert_ne!(inj_pool, 0);
 
     // Simulate trade after contract was kicked out
-    let astro_amnt = 9.9e6 as u128;
+    let grid_amnt = 9.9e6 as u128;
     let maker_fee = 12870_u128;
     let module_addr = helper.app.init_modules(|router, _, _| {
         let mut deposits = router.custom.deposit.borrow_mut();
@@ -1137,7 +1137,7 @@ fn check_deactivate_orderbook() {
             .get_mut(&ob_config.subaccount.clone().into())
             .unwrap();
         subacc[0].amount += Uint128::from(5e18 as u128);
-        subacc[1].amount -= Uint128::from(astro_amnt);
+        subacc[1].amount -= Uint128::from(grid_amnt);
 
         router.custom.module_addr.clone()
     });
@@ -1154,11 +1154,11 @@ fn check_deactivate_orderbook() {
         .send_tokens(
             module_addr,
             helper.owner.clone(),
-            &coins(astro_amnt, "astro"),
+            &coins(grid_amnt, "grid"),
         )
         .unwrap();
     total_inj += 5e18 as u128;
-    total_astro -= astro_amnt + maker_fee; // + maker fee
+    total_grid -= grid_amnt + maker_fee; // + maker fee
 
     helper.next_block(true).unwrap();
 
@@ -1200,20 +1200,20 @@ fn check_deactivate_orderbook() {
         .deposits
         .total_balance
         .into();
-    let astro_deposit: u128 = inj_querier
-        .query_subaccount_deposit(&ob_config.subaccount, &"astro".to_string())
+    let grid_deposit: u128 = inj_querier
+        .query_subaccount_deposit(&ob_config.subaccount, &"grid".to_string())
         .unwrap()
         .deposits
         .total_balance
         .into();
     assert_eq!(inj_deposit, 0);
-    assert_eq!(astro_deposit, 0);
+    assert_eq!(grid_deposit, 0);
 
     let inj_pool = helper.coin_balance(&test_coins[0], &helper.pair_addr);
-    let astro_pool = helper.coin_balance(&test_coins[1], &helper.pair_addr);
+    let grid_pool = helper.coin_balance(&test_coins[1], &helper.pair_addr);
 
     assert_eq!(inj_pool, total_inj);
-    assert_eq!(astro_pool, total_astro);
+    assert_eq!(grid_pool, total_grid);
 
     // Withdraw endpoint is not blocked but it does nothing
     helper
@@ -1227,10 +1227,10 @@ fn check_deactivate_orderbook() {
         .unwrap();
 
     let inj_pool = helper.coin_balance(&test_coins[0], &helper.pair_addr);
-    let astro_pool = helper.coin_balance(&test_coins[1], &helper.pair_addr);
+    let grid_pool = helper.coin_balance(&test_coins[1], &helper.pair_addr);
 
     assert_eq!(inj_pool, total_inj);
-    assert_eq!(astro_pool, total_astro);
+    assert_eq!(grid_pool, total_grid);
 
     // Next swap works as usual
     helper
@@ -1292,7 +1292,7 @@ fn check_deactivate_orderbook() {
         .send_tokens(
             module_addr,
             helper.owner.clone(),
-            &coins(9.9e6 as u128, "astro"),
+            &coins(9.9e6 as u128, "grid"),
         )
         .unwrap();
 
@@ -1384,7 +1384,7 @@ fn check_deactivate_orderbook() {
         .send_tokens(
             module_addr,
             helper.owner.clone(),
-            &coins(9.9e6 as u128, "astro"),
+            &coins(9.9e6 as u128, "grid"),
         )
         .unwrap();
 
@@ -1422,7 +1422,7 @@ fn check_deactivate_orderbook() {
 fn test_migrate_cl_to_orderbook_cl() {
     let owner = generate_inj_address();
 
-    let test_coins = vec![TestCoin::native("inj"), TestCoin::native("astro")];
+    let test_coins = vec![TestCoin::native("inj"), TestCoin::native("grid")];
 
     let params = ConcentratedPoolParams {
         price_scale: f64_to_dec(0.5),
@@ -1553,30 +1553,30 @@ fn test_migrate_cl_to_orderbook_cl() {
         .deposits
         .total_balance
         .into();
-    let astro_deposit: u128 = inj_querier
-        .query_subaccount_deposit(&ob_config.subaccount, &"astro".to_string())
+    let grid_deposit: u128 = inj_querier
+        .query_subaccount_deposit(&ob_config.subaccount, &"grid".to_string())
         .unwrap()
         .deposits
         .total_balance
         .into();
     assert_eq!(inj_deposit, 2489_976000000000000000);
-    assert_eq!(astro_deposit, 4979_061419);
+    assert_eq!(grid_deposit, 4979_061419);
 
     let inj_pool = helper.coin_balance(&test_coins[0], &helper.pair_addr);
-    let astro_pool = helper.coin_balance(&test_coins[1], &helper.pair_addr);
+    let grid_pool = helper.coin_balance(&test_coins[1], &helper.pair_addr);
 
     // Total liquidity is close to initial provided liquidity
     let total_inj = inj_deposit + inj_pool;
-    let total_astro = astro_deposit + astro_pool;
+    let total_grid = grid_deposit + grid_pool;
     assert_eq!(total_inj, 500039_497794763370151009);
-    assert_eq!(total_astro, 100007_7251964);
+    assert_eq!(total_grid, 100007_7251964);
 }
 
 #[test]
 fn test_wrong_assets_order() {
     let owner = generate_inj_address();
 
-    let test_coins = vec![TestCoin::native("inj"), TestCoin::native("astro")];
+    let test_coins = vec![TestCoin::native("inj"), TestCoin::native("grid")];
 
     let params = ConcentratedPoolParams {
         price_scale: f64_to_dec(0.5),
@@ -1610,7 +1610,7 @@ fn test_wrong_assets_order() {
             new_code_id,
         )
         .unwrap_err();
-    assert_eq!(err.root_cause().to_string(), "Generic error: Pair asset infos have different order than market: inj-astro while market has astro-inj");
+    assert_eq!(err.root_cause().to_string(), "Generic error: Pair asset infos have different order than market: inj-grid while market has grid-inj");
 
     let mut app = mock_inj_app(|_, _, _| {});
     let market_id = app
@@ -1629,14 +1629,14 @@ fn test_wrong_assets_order() {
         Some(market_id),
     )
     .unwrap_err();
-    assert_eq!(err.root_cause().to_string(), "Generic error: Pair asset infos have different order than market: inj-astro while market has astro-inj");
+    assert_eq!(err.root_cause().to_string(), "Generic error: Pair asset infos have different order than market: inj-grid while market has grid-inj");
 }
 
 #[test]
 fn test_feegrant_mode() {
     let owner = generate_inj_address();
 
-    let test_coins = vec![TestCoin::native("inj"), TestCoin::native("astro")];
+    let test_coins = vec![TestCoin::native("inj"), TestCoin::native("grid")];
 
     let params = ConcentratedPoolParams {
         price_scale: f64_to_dec(0.5),
@@ -1694,14 +1694,14 @@ fn test_feegrant_mode() {
         .deposits
         .total_balance
         .into();
-    let astro_deposit: u128 = inj_querier
-        .query_subaccount_deposit(&ob_config.subaccount, &"astro".to_string())
+    let grid_deposit: u128 = inj_querier
+        .query_subaccount_deposit(&ob_config.subaccount, &"grid".to_string())
         .unwrap()
         .deposits
         .total_balance
         .into();
     assert_eq!(inj_deposit, 0);
-    assert_eq!(astro_deposit, 0);
+    assert_eq!(grid_deposit, 0);
 
     // Register contract with proper funding mode
     helper
@@ -1740,29 +1740,29 @@ fn test_feegrant_mode() {
         .deposits
         .total_balance
         .into();
-    let astro_deposit: u128 = inj_querier
-        .query_subaccount_deposit(&ob_config.subaccount, &"astro".to_string())
+    let grid_deposit: u128 = inj_querier
+        .query_subaccount_deposit(&ob_config.subaccount, &"grid".to_string())
         .unwrap()
         .deposits
         .total_balance
         .into();
     assert!(inj_deposit > 0, "subaccount inj deposit is zero");
-    assert!(astro_deposit > 0, "subaccount astro deposit is zero");
+    assert!(grid_deposit > 0, "subaccount grid deposit is zero");
 }
 
 #[test]
 fn provide_liquidity_with_autostaking_to_generator() {
-    use astroport_mocks::{
-        astroport_address, MockConcentratedPairInjBuilder, MockGeneratorBuilder,
+    use gridiron_mocks::{
+        gridiron_address, MockConcentratedPairInjBuilder, MockGeneratorBuilder,
     };
-    let astroport = astroport_address();
+    let gridiron = gridiron_address();
 
     let app = Rc::new(RefCell::new(mock_inj_app(|router, _, storage| {
         router
             .bank
             .init_balance(
                 storage,
-                &astroport,
+                &gridiron,
                 vec![
                     Coin {
                         denom: "ucosmos".to_owned(),
@@ -1792,7 +1792,7 @@ fn provide_liquidity_with_autostaking_to_generator() {
         .instantiate(None);
 
     pair.mint_allow_provide_and_stake(
-        &astroport,
+        &gridiron,
         &[
             ucosmos.with_balance(1_000_000000u128),
             ustake.with_balance(1_000_000000u128),
@@ -1801,7 +1801,7 @@ fn provide_liquidity_with_autostaking_to_generator() {
 
     assert_eq!(pair.lp_token().balance(&pair.address), Uint128::new(1000));
     assert_eq!(
-        generator.query_deposit(&pair.lp_token(), &astroport),
+        generator.query_deposit(&pair.lp_token(), &gridiron),
         Uint128::new(999_999000),
     );
 }
